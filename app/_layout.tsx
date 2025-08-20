@@ -1,11 +1,10 @@
 import themeDark from "@/constants/themeDark";
 import themeLight from "@/constants/themeLight";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "react-native";
 import { PaperProvider } from "react-native-paper";
-import "react-native-reanimated";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -26,12 +25,9 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           animation: "none",
-          // contentStyle: {
-          //   backgroundColor: colorScheme === "dark" ? "black" : "white",
-          // }, // aqui!
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

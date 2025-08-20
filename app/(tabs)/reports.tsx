@@ -8,7 +8,8 @@ import { ThemedView } from "@/components/ThemedView";
 import { useTheme } from "react-native-paper";
 
 export default function ReportsScreen() {
-  const theme = useTheme();
+  const theme = useTheme() as any;
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -42,7 +43,7 @@ export default function ReportsScreen() {
           style={{
             width: 50,
             height: 50,
-            backgroundColor: theme.colors.primary,
+            backgroundColor: theme.colors.lime600,
           }}
         ></View>
       </ThemedView>
@@ -71,7 +72,7 @@ export default function ReportsScreen() {
 
 const styles = StyleSheet.create({
   titleContainer: {
-    backgroundColor: "red",
+    // backgroundColor: "red",
     flexDirection: "row",
     alignItems: "center",
     gap: 8,

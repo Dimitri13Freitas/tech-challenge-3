@@ -1,7 +1,7 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { CommonActions } from "@react-navigation/native";
-import { BottomNavigation } from "react-native-paper";
+import { BottomNavigation, useTheme } from "react-native-paper";
 import HomeScreen from ".";
 import AddScreen from "./add";
 import ReportsScreen from "./reports";
@@ -11,17 +11,21 @@ import UserScreen from "./user";
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
-        animation: "fade",
+        animation: "none",
         headerShown: false,
       }}
       tabBar={({ navigation, state, descriptors, insets }) => (
         <BottomNavigation.Bar
           navigationState={state}
           safeAreaInsets={insets}
-          style={{ height: 70 }}
+          style={{
+            height: 70,
+          }}
           onTabPress={({ route, preventDefault }) => {
             const event = navigation.emit({
               type: "tabPress",
