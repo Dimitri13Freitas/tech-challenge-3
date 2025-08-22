@@ -5,12 +5,12 @@ import { BytebankCard } from "../ui/card";
 
 export function BalanceCard() {
   const [isVisible, setIsVisible] = useState(false);
-
   const { colors } = useTheme();
   return (
-    <View style={{ marginBottom: 20 }}>
+    <View>
       <BytebankCard
         style={{
+          marginBottom: 0,
           borderBottomLeftRadius: 0,
           borderBottomRightRadius: 0,
           backgroundColor: colors.primaryContainer,
