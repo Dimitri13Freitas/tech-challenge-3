@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleProp, useColorScheme, ViewStyle } from "react-native";
+import { StyleProp, ViewStyle } from "react-native";
 import { Card, useTheme } from "react-native-paper";
 
 interface BytebankCardProps {
@@ -8,7 +8,6 @@ interface BytebankCardProps {
 }
 
 export function BytebankCard({ children, style }: BytebankCardProps) {
-  const colorScheme = useColorScheme();
   const { colors } = useTheme();
 
   return (

@@ -24,7 +24,7 @@ export default function App() {
           navigationState={state}
           safeAreaInsets={insets}
           style={{
-            height: 70,
+            height: 80,
           }}
           onTabPress={({ route, preventDefault }) => {
             const event = navigation.emit({
