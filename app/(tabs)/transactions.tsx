@@ -8,7 +8,7 @@ export default function TransactionScreen() {
     <View>
       <MonthSelector />
       <Container>
-        <Text>Seila</Text>
+        <Text>Seila da silva Jr</Text>
       </Container>
     </View>
   );

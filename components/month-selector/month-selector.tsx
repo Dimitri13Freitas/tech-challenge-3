@@ -86,9 +86,11 @@ export default function MonthNavigator() {
         </TouchableOpacity>
 
         <View style={styles.monthContainer}>
-          <Text style={[styles.monthText, { color: colors.outline }]}>
-            {formatMonth(previousMonth)}
-          </Text>
+          <TouchableOpacity onPress={goToPreviousMonth}>
+            <Text style={[styles.monthText, { color: colors.outline }]}>
+              {formatMonth(previousMonth)}
+            </Text>
+          </TouchableOpacity>
           <Text
             style={[
               styles.monthText,
@@ -98,9 +100,11 @@ export default function MonthNavigator() {
           >
             {formatMonth(currentMonth)}
           </Text>
-          <Text style={[styles.monthText, { color: colors.outline }]}>
-            {formatMonth(nextMonth)}
-          </Text>
+          <TouchableOpacity onPress={goToNextMonth}>
+            <Text style={[styles.monthText, { color: colors.outline }]}>
+              {formatMonth(nextMonth)}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity onPress={goToNextMonth}>
