@@ -5,34 +5,39 @@ import { Text, useTheme } from "react-native-paper";
 import { BytebankButton } from "../ui/button";
 import { BytebankCard } from "../ui/card";
 
-const data = [
-  {
-    _id: "686367017dad6840720d6282",
-    userId: "6861d7cf2e40177f08d6b236",
-    cardNumber: 2429280541397358,
-    name: "cartão teste 2",
-    functions: ["credit"],
-    variant: "platinum",
-    expirationDate: "2028-07-01T04:41:37.174Z",
-    cvv: 527,
-    flag: "Visa",
-    blocked: false,
-    __v: 0,
-  },
-  {
-    _id: "6872be540b2c1abc68362566",
-    userId: "6861d7cf2e40177f08d6b236",
-    cardNumber: 3125570829441307,
-    name: "cartão teste 2",
-    functions: ["credit"],
-    variant: "platinum",
-    expirationDate: "2028-07-12T19:58:12.134Z",
-    cvv: 177,
-    flag: "MasterCard",
-    blocked: false,
-    __v: 0,
-  },
-];
+const data = {
+  _id: "6891417fb6790dbc1523cfe0",
+  userId: "686c59e137e7159f930996f8",
+  cardNumber: 7048365272662226,
+  name: "Dimitri",
+  functions: ["credit", "debit"],
+  variant: "gold",
+  expirationDate: "2028-08-04T23:25:51.453Z",
+  cvv: 934,
+  flag: "MasterCard",
+  limit: 1000,
+  blocked: false,
+  __v: 0,
+};
+
+function formatCurrencyBRL(value: number | string): string {
+  const number = typeof value === "string" ? parseFloat(value) : value;
+  return number.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+  });
+}
+
+const typeCard = (data: any) => {
+  if (data.length > 1) {
+    return "Crédito e Débito";
+  } else if (data[0] === "credit") {
+    return "Crédito";
+  } else {
+    return "Débito";
+  }
+};
 
 const NoCards = () => {
   const { colors } = useTheme();
@@ -77,66 +82,82 @@ export const MyCards = () => {
         <Text variant="titleMedium" style={{ fontWeight: "bold" }}>
           Meus cartões
         </Text>
-        <View
-          style={{
-            marginTop: 20,
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <View style={{ marginVertical: 12 }}>
           <View
             style={{
               display: "flex",
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              gap: 16,
             }}
           >
-            <AntDesign
-              name="creditcard"
-              size={28}
-              color={colors.outline}
+            <View
               style={{
-                padding: 8,
-                // backgroundColor: colors.elevation.level1,
-                backgroundColor: colors.elevation.level5,
-                borderRadius: 8,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 16,
               }}
-            />
-            <View>
-              <Text>Nome do cartão</Text>
-              <Text style={{ color: colors.outline }}>Tipo do cartão</Text>
+            >
+              <AntDesign
+                name="creditcard"
+                size={28}
+                color={colors.outline}
+                style={{
+                  padding: 8,
+                  backgroundColor: colors.elevation.level5,
+                  borderRadius: 8,
+                }}
+              />
+              <View>
+                <Text variant="titleMedium" style={{ fontWeight: "bold" }}>
+                  {data.name}
+                </Text>
+                <Text style={{ color: colors.outline }}>
+                  {typeCard(data.functions)}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View
+            style={{
+              marginTop: 6,
+              backgroundColor: colors.secondaryContainer,
+              borderRadius: 8,
+              padding: 12,
+            }}
+          >
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 16,
+              }}
+            >
+              <Text style={{ color: colors.outline }}>
+                Saldo:{" "}
+                {
+                  <Text style={{ fontWeight: "bold" }}>
+                    {formatCurrencyBRL(data.limit)}
+                  </Text>
+                }
+              </Text>
+              <Text style={{ color: colors.outline }}>
+                Status:{" "}
+                {
+                  <Text style={{ fontWeight: "bold" }}>
+                    {data.blocked ? "Bloqueado" : "Ativo"}
+                  </Text>
+                }
+              </Text>
             </View>
           </View>
         </View>
-        <View
-          style={{
-            marginTop: 6,
-            backgroundColor: colors.elevation.level1,
-            borderRadius: 8,
-            padding: 12,
-          }}
-        >
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: 16,
-            }}
-          >
-            <Text style={{ color: colors.outline }}>
-              Saldo: {<Text>R$ 2000,00</Text>}
-            </Text>
-            <Text style={{ color: colors.outline }}>
-              Status: {<Text>Ativo</Text>}
-            </Text>
-          </View>
-        </View>
+        {/* <Divider /> */}
+        <BytebankButton>Gerenciar Cartões</BytebankButton>
       </BytebankCard>
     </View>
   );

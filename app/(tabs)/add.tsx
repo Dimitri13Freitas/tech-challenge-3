@@ -1,130 +1,189 @@
-import { Image } from "expo-image";
-import { Platform, StyleSheet } from "react-native";
+import { BytebankCard } from "@/components/ui/card";
+import SelectExample from "@/components/ui/select";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import * as React from "react";
+import { Controller, useForm } from "react-hook-form";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
+import { Button, Chip, Text, TextInput, useTheme } from "react-native-paper";
 
-import { Collapsible } from "@/components/Collapsible";
-import { ExternalLink } from "@/components/ExternalLink";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+const incoming = "rgba(229, 57, 53, 1)";
+const expense = "rgba(67, 160, 71, 1)";
 
-export default function AddScreen() {
+function formatarMoedaBR(valor: string) {
+  // Remove tudo que não for número
+  const numero = valor.replace(/\D/g, "");
+  if (!numero) return "0,00";
+
+  // Converte para número e divide por 100 para ter centavos
+  const numeroComCentavos = (parseInt(numero, 10) / 100).toFixed(2);
+
+  // Separa parte inteira e decimal
+  const [inteiro, decimal] = numeroComCentavos.split(".");
+
+  // Adiciona separador de milhar
+  const inteiroFormatado = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  // Retorna no formato BR
+  return `${inteiroFormatado},${decimal}`;
+}
+
+const Tab = createMaterialTopTabNavigator();
+
+function TransactionForm({ type }: any) {
+  const { colors } = useTheme();
+  const { control, handleSubmit } = useForm({
+    defaultValues: { valor: "", descricao: "" },
+  });
+  const inputRef = React.useRef<any>(null);
+  const onSubmit = (data: any) => {
+    console.log(type, data);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }
+    <View style={{ flex: 1, padding: 16, backgroundColor: colors.background }}>
+      <Controller
+        control={control}
+        name="valor"
+        render={({ field: { onChange, value } }) => (
+          <BytebankCard
+            style={{
+              backgroundColor: type === "expense" ? incoming : expense,
+              paddingVertical: 12,
+            }}
+          >
+            <TouchableOpacity onPress={() => inputRef.current?.focus()}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.amountText}>R$</Text>
+                <Text style={styles.amountText}>{value || "0,00"}</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* TextInput invisível */}
+            <TextInput
+              ref={inputRef}
+              value={value}
+              keyboardType="numeric"
+              onChangeText={(e) => onChange(formatarMoedaBR(e))}
+              style={{ height: 0, width: 0, position: "absolute", opacity: 0 }}
+            />
+          </BytebankCard>
+        )}
+      />
+
+      {/* descrição */}
+      <Controller
+        control={control}
+        name="descricao"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            mode="outlined"
+            label="Descrição"
+            placeholder="Adicione a descrição"
+            value={value}
+            onChangeText={onChange}
+            style={styles.input}
+          />
+        )}
+      />
+
+      {/* categoria */}
+      <Button mode="outlined" icon="shape" style={styles.fieldBtn}>
+        {type === "Despesa" ? "Outros" : "Outras receitas"}
+      </Button>
+
+      {/* conta/pago com */}
+      <Button mode="outlined" icon="wallet" style={styles.fieldBtn}>
+        {type === "Despesa" ? "Pago com vuvu" : "Recebi em vuvu"}
+      </Button>
+
+      {/* data */}
+      <Button mode="outlined" icon="calendar" style={styles.fieldBtn}>
+        Hoje
+      </Button>
+
+      {/* repetir lançamento */}
+      <View style={styles.row}>
+        <Chip style={styles.chip}>Fixo</Chip>
+        <Chip style={styles.chip}>Parcelado</Chip>
+      </View>
+
+      {/* botão salvar */}
+      <Button
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        style={styles.saveBtn}
+        buttonColor={colors.primary}
+      >
+        Salvar
+      </Button>
+      <SelectExample />
+    </View>
+  );
+}
+
+export default function App() {
+  const { colors } = useTheme();
+  const colorScheme = useColorScheme();
+
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: colorScheme === "dark" ? "white" : "black",
+        tabBarLabelStyle: { fontSize: 14, fontWeight: "bold", marginTop: 28 },
+        tabBarIndicatorStyle: {
+          backgroundColor: colorScheme === "dark" ? "white" : "black",
+        },
+        tabBarStyle: { backgroundColor: colors.primaryContainer },
+      }}
     >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Adicionar nova transação</ThemedText>
-      </ThemedView>
-      <ThemedText>
-        This app includes example code to help you get started.
-      </ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          and{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{" "}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the
-          web version, press <ThemedText type="defaultSemiBold">w</ThemedText>{" "}
-          in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the{" "}
-          <ThemedText type="defaultSemiBold">@2x</ThemedText> and{" "}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to
-          provide files for different screen densities
-        </ThemedText>
-        <Image
-          source={require("@/assets/images/react-logo.png")}
-          style={{ alignSelf: "center" }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText>{" "}
-          to see how to load{" "}
-          <ThemedText style={{ fontFamily: "SpaceMono" }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{" "}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook
-          lets you inspect what the user&apos;s current color scheme is, and so
-          you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{" "}
-          <ThemedText type="defaultSemiBold">
-            components/HelloWave.tsx
-          </ThemedText>{" "}
-          component uses the powerful{" "}
-          <ThemedText type="defaultSemiBold">
-            react-native-reanimated
-          </ThemedText>{" "}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The{" "}
-              <ThemedText type="defaultSemiBold">
-                components/ParallaxScrollView.tsx
-              </ThemedText>{" "}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      <Tab.Screen name="Despesa">
+        {() => <TransactionForm type="expense" />}
+      </Tab.Screen>
+
+      <Tab.Screen name="Receita">
+        {() => <TransactionForm type="incoming" />}
+      </Tab.Screen>
+    </Tab.Navigator>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
-    position: "absolute",
+  amountText: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "white",
   },
-  titleContainer: {
+  amountInput: {
+    fontSize: 32,
+    fontWeight: "bold",
+    backgroundColor: "transparent",
+  },
+  input: {
+    marginBottom: 16,
+  },
+  fieldBtn: {
+    justifyContent: "flex-start",
+    marginBottom: 12,
+  },
+  row: {
     flexDirection: "row",
-    gap: 8,
+    marginBottom: 20,
+  },
+  chip: {
+    marginRight: 8,
+  },
+  saveBtn: {
+    marginTop: "auto",
+    borderRadius: 50,
   },
 });

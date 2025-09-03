@@ -40,6 +40,8 @@ const themeDark = {
     surfaceDisabled: "rgba(229, 226, 218, 0.12)",
     onSurfaceDisabled: "rgba(229, 226, 218, 0.38)",
     backdrop: "rgba(48, 49, 38, 0.4)",
+    incoming: "rgba(4, 126, 25, 1)",
+    expense: "rgb(229, 57, 53)",
   },
 };
 

@@ -1,7 +1,7 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { CommonActions } from "@react-navigation/native";
-import { BottomNavigation, useTheme } from "react-native-paper";
+import { BottomNavigation } from "react-native-paper";
 import HomeScreen from ".";
 import AddScreen from "./add";
 import ReportsScreen from "./reports";
@@ -11,8 +11,6 @@ import UserScreen from "./user";
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-  const { colors } = useTheme();
-
   return (
     <Tab.Navigator
       screenOptions={{

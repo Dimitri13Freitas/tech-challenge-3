@@ -36,11 +36,7 @@ export default function CustomizeCategories() {
           </Text>
         </View>
         <View>
-          <AntDesign
-            name="caretright"
-            size={24}
-            color={colors.inversePrimary}
-          />
+          <AntDesign name="caretright" size={24} color={colors.secondary} />
         </View>
       </View>
     </BytebankCard>

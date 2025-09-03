@@ -5,13 +5,17 @@ import { Button, useTheme } from "react-native-paper";
 interface BytebankButtonProps {
   style?: StyleProp<ViewStyle>;
   children: React.ReactNode;
+  mode?: "text" | "outlined" | "contained" | "elevated" | "contained-tonal";
 }
 
-export function BytebankButton({ children, style }: BytebankButtonProps) {
+export function BytebankButton({ children, style, mode }: BytebankButtonProps) {
   const { colors } = useTheme();
 
   return (
-    <Button style={[{ borderRadius: 8 }, style]} mode="contained">
+    <Button
+      style={[{ borderRadius: 8 }, style]}
+      mode={mode ? mode : "contained"}
+    >
       {children}
     </Button>
   );

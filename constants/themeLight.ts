@@ -40,6 +40,8 @@ const themeLight = {
     surfaceDisabled: "rgba(28, 28, 23, 0.12)",
     onSurfaceDisabled: "rgba(28, 28, 23, 0.38)",
     backdrop: "rgba(48, 49, 38, 0.4)",
+    incoming: "rgb(67, 160, 71)",
+    expense: "rgb(229, 57, 53)",
   },
 };
 
