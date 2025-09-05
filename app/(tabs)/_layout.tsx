@@ -12,6 +12,7 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
+    // <GestureHandlerRootView style={{ flex: 1 }}>
     <Tab.Navigator
       screenOptions={{
         animation: "none",
@@ -107,5 +108,6 @@ export default function App() {
         }}
       />
     </Tab.Navigator>
+    // </GestureHandlerRootView>
   );
 }

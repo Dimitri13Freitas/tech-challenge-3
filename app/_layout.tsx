@@ -1,11 +1,12 @@
 import themeDark from "@/constants/themeDark";
 import themeLight from "@/constants/themeLight";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
-
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
@@ -20,17 +21,21 @@ export default function RootLayout() {
   const theme = colorScheme === "dark" ? themeDark : themeLight;
 
   return (
-    <PaperProvider theme={theme}>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: "none",
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </PaperProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <PaperProvider theme={theme}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: "none",
+            }}
+          >
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </PaperProvider>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 }

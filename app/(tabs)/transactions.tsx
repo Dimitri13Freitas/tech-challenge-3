@@ -2,6 +2,7 @@ import MonthSelector from "@/components/month-selector/month-selector";
 import Container from "@/components/ui/container";
 import { View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
+
 const NoTransactions = () => {};
 
 export default function TransactionScreen() {

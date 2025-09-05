@@ -1,5 +1,5 @@
 import { BytebankCard } from "@/components/ui/card";
-import SelectExample from "@/components/ui/select";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -15,20 +15,11 @@ const incoming = "rgba(229, 57, 53, 1)";
 const expense = "rgba(67, 160, 71, 1)";
 
 function formatarMoedaBR(valor: string) {
-  // Remove tudo que não for número
   const numero = valor.replace(/\D/g, "");
   if (!numero) return "0,00";
-
-  // Converte para número e divide por 100 para ter centavos
   const numeroComCentavos = (parseInt(numero, 10) / 100).toFixed(2);
-
-  // Separa parte inteira e decimal
   const [inteiro, decimal] = numeroComCentavos.split(".");
-
-  // Adiciona separador de milhar
   const inteiroFormatado = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-  // Retorna no formato BR
   return `${inteiroFormatado},${decimal}`;
 }
 
@@ -37,96 +28,120 @@ const Tab = createMaterialTopTabNavigator();
 function TransactionForm({ type }: any) {
   const { colors } = useTheme();
   const { control, handleSubmit } = useForm({
-    defaultValues: { valor: "", descricao: "" },
+    defaultValues: { valor: "", descricao: "", categoria: "" },
   });
+
   const inputRef = React.useRef<any>(null);
+  const bottomSheetRef = React.useRef<BottomSheet>(null);
+
+  const snapPoints = React.useMemo(() => ["25%", "50%"], []);
+
   const onSubmit = (data: any) => {
-    console.log(type, data);
+    console.log("SUBMIT =>", type, data);
   };
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: colors.background }}>
-      <Controller
-        control={control}
-        name="valor"
-        render={({ field: { onChange, value } }) => (
-          <BytebankCard
-            style={{
-              backgroundColor: type === "expense" ? incoming : expense,
-              paddingVertical: 12,
-            }}
-          >
-            <TouchableOpacity onPress={() => inputRef.current?.focus()}>
-              <View
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Conteúdo principal */}
+      <View style={{ padding: 16, flex: 1 }}>
+        {/* valor */}
+        <Controller
+          control={control}
+          name="valor"
+          render={({ field: { onChange, value } }) => (
+            <BytebankCard
+              style={{
+                backgroundColor: type === "expense" ? incoming : expense,
+                paddingVertical: 12,
+              }}
+            >
+              <TouchableOpacity onPress={() => inputRef.current?.focus()}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text style={styles.amountText}>R$</Text>
+                  <Text style={styles.amountText}>{value || "0,00"}</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TextInput
+                ref={inputRef}
+                value={value}
+                keyboardType="numeric"
+                onChangeText={(e) => onChange(formatarMoedaBR(e))}
                 style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
+                  height: 0,
+                  width: 0,
+                  position: "absolute",
+                  opacity: 0,
                 }}
-              >
-                <Text style={styles.amountText}>R$</Text>
-                <Text style={styles.amountText}>{value || "0,00"}</Text>
-              </View>
-            </TouchableOpacity>
+              />
+            </BytebankCard>
+          )}
+        />
 
-            {/* TextInput invisível */}
+        {/* descrição */}
+        <Controller
+          control={control}
+          name="descricao"
+          render={({ field: { onChange, value } }) => (
             <TextInput
-              ref={inputRef}
+              mode="outlined"
+              label="Descrição"
+              placeholder="Adicione a descrição"
               value={value}
-              keyboardType="numeric"
-              onChangeText={(e) => onChange(formatarMoedaBR(e))}
-              style={{ height: 0, width: 0, position: "absolute", opacity: 0 }}
+              onChangeText={onChange}
+              style={styles.input}
             />
-          </BytebankCard>
-        )}
-      />
+          )}
+        />
 
-      {/* descrição */}
-      <Controller
-        control={control}
-        name="descricao"
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            mode="outlined"
-            label="Descrição"
-            placeholder="Adicione a descrição"
-            value={value}
-            onChangeText={onChange}
-            style={styles.input}
-          />
-        )}
-      />
+        {/* botão abre bottom sheet */}
+        <Button
+          mode="outlined"
+          icon="shape"
+          style={styles.fieldBtn}
+          onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+        >
+          Selecionar Categoria
+        </Button>
 
-      {/* categoria */}
-      <Button mode="outlined" icon="shape" style={styles.fieldBtn}>
-        {type === "Despesa" ? "Outros" : "Outras receitas"}
-      </Button>
-
-      {/* conta/pago com */}
-      <Button mode="outlined" icon="wallet" style={styles.fieldBtn}>
-        {type === "Despesa" ? "Pago com vuvu" : "Recebi em vuvu"}
-      </Button>
-
-      {/* data */}
-      <Button mode="outlined" icon="calendar" style={styles.fieldBtn}>
-        Hoje
-      </Button>
-
-      {/* repetir lançamento */}
-      <View style={styles.row}>
-        <Chip style={styles.chip}>Fixo</Chip>
-        <Chip style={styles.chip}>Parcelado</Chip>
+        {/* salvar */}
+        <Button
+          mode="contained"
+          onPress={handleSubmit(onSubmit)}
+          style={styles.saveBtn}
+          buttonColor={colors.primary}
+        >
+          Salvar
+        </Button>
       </View>
 
-      {/* botão salvar */}
-      <Button
-        mode="contained"
-        onPress={handleSubmit(onSubmit)}
-        style={styles.saveBtn}
-        buttonColor={colors.primary}
-      >
-        Salvar
-      </Button>
-      <SelectExample />
+      <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={snapPoints}>
+        <BottomSheetView>
+          <View style={{ padding: 20 }}>
+            <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+              Escolha uma categoria
+            </Text>
+
+            {["Alimentação", "Transporte", "Lazer", "Outros"].map((cat) => (
+              <Chip
+                key={cat}
+                style={styles.chip}
+                onPress={() => {
+                  console.log("Categoria:", cat);
+                  bottomSheetRef.current?.close();
+                }}
+              >
+                {cat}
+              </Chip>
+            ))}
+          </View>
+        </BottomSheetView>
+      </BottomSheet>
     </View>
   );
 }
