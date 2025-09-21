@@ -1,9 +1,11 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { router } from "expo-router";
 import React from "react";
 import { View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
-import { BytebankButton } from "../ui/button";
-import { BytebankCard } from "../ui/card";
+import { useTheme } from "react-native-paper";
+import { BytebankButton } from "../ui/button/button";
+import { BytebankCard } from "../ui/card/card";
+import { BytebankText } from "../ui/text/text";
 
 const data = {
   _id: "6891417fb6790dbc1523cfe0",
@@ -52,13 +54,13 @@ const NoCards = () => {
         }}
       >
         <AntDesign
-          name="creditcard"
+          name="credit-card"
           size={42}
           color={colors.outline}
           style={{ paddingHorizontal: 20, paddingVertical: 8 }}
         />
       </View>
-      <Text
+      <BytebankText
         style={{
           maxWidth: "60%",
           textAlign: "center",
@@ -68,7 +70,7 @@ const NoCards = () => {
         }}
       >
         Adicione um novo cartão de crédito a sua conta
-      </Text>
+      </BytebankText>
       <BytebankButton>Adicionar cartão</BytebankButton>
     </>
   );
@@ -79,9 +81,9 @@ export const MyCards = () => {
   return (
     <View>
       <BytebankCard>
-        <Text variant="titleMedium" style={{ fontWeight: "bold" }}>
+        <BytebankText variant="titleMedium" style={{ fontWeight: "bold" }}>
           Meus cartões
-        </Text>
+        </BytebankText>
         <View style={{ marginVertical: 12 }}>
           <View
             style={{
@@ -101,7 +103,7 @@ export const MyCards = () => {
               }}
             >
               <AntDesign
-                name="creditcard"
+                name="credit-card"
                 size={28}
                 color={colors.outline}
                 style={{
@@ -111,12 +113,15 @@ export const MyCards = () => {
                 }}
               />
               <View>
-                <Text variant="titleMedium" style={{ fontWeight: "bold" }}>
+                <BytebankText
+                  variant="titleMedium"
+                  style={{ fontWeight: "bold" }}
+                >
                   {data.name}
-                </Text>
-                <Text style={{ color: colors.outline }}>
+                </BytebankText>
+                <BytebankText style={{ color: colors.outline }}>
                   {typeCard(data.functions)}
-                </Text>
+                </BytebankText>
               </View>
             </View>
           </View>
@@ -137,27 +142,29 @@ export const MyCards = () => {
                 gap: 16,
               }}
             >
-              <Text style={{ color: colors.outline }}>
+              <BytebankText style={{ color: colors.outline }}>
                 Saldo:{" "}
                 {
-                  <Text style={{ fontWeight: "bold" }}>
+                  <BytebankText style={{ fontWeight: "bold" }}>
                     {formatCurrencyBRL(data.limit)}
-                  </Text>
+                  </BytebankText>
                 }
-              </Text>
-              <Text style={{ color: colors.outline }}>
+              </BytebankText>
+              <BytebankText style={{ color: colors.outline }}>
                 Status:{" "}
                 {
-                  <Text style={{ fontWeight: "bold" }}>
+                  <BytebankText style={{ fontWeight: "bold" }}>
                     {data.blocked ? "Bloqueado" : "Ativo"}
-                  </Text>
+                  </BytebankText>
                 }
-              </Text>
+              </BytebankText>
             </View>
           </View>
         </View>
         {/* <Divider /> */}
-        <BytebankButton>Gerenciar Cartões</BytebankButton>
+        <BytebankButton onPress={() => router.push("/register")}>
+          Gerenciar Cartões
+        </BytebankButton>
       </BytebankCard>
     </View>
   );

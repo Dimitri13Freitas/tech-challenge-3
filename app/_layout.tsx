@@ -22,6 +22,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar style="auto" />
       <BottomSheetModalProvider>
         <PaperProvider theme={theme}>
           <Stack
@@ -30,10 +31,11 @@ export default function RootLayout() {
               animation: "none",
             }}
           >
-            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="login" />
+            <Stack.Screen name="register" />
+            {/* <Stack.Screen name="(tabs)" /> */}
             <Stack.Screen name="+not-found" />
           </Stack>
-          <StatusBar style="auto" />
         </PaperProvider>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>

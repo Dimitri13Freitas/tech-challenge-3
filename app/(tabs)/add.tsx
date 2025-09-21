@@ -1,4 +1,8 @@
-import { BytebankCard } from "@/components/ui/card";
+import { BytebankCard } from "@/components/ui/card/card";
+import { BytebankText } from "@/components/ui/text/text";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Entypo from "@expo/vector-icons/Entypo";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import * as React from "react";
@@ -9,7 +13,13 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { Button, Chip, Text, TextInput, useTheme } from "react-native-paper";
+import {
+  Button,
+  Chip,
+  TextInput,
+  TouchableRipple,
+  useTheme,
+} from "react-native-paper";
 
 const incoming = "rgba(229, 57, 53, 1)";
 const expense = "rgba(67, 160, 71, 1)";
@@ -34,7 +44,7 @@ function TransactionForm({ type }: any) {
   const inputRef = React.useRef<any>(null);
   const bottomSheetRef = React.useRef<BottomSheet>(null);
 
-  const snapPoints = React.useMemo(() => ["25%", "50%"], []);
+  const snapPoints = React.useMemo(() => ["98%"], []);
 
   const onSubmit = (data: any) => {
     console.log("SUBMIT =>", type, data);
@@ -42,9 +52,7 @@ function TransactionForm({ type }: any) {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      {/* Conteúdo principal */}
       <View style={{ padding: 16, flex: 1 }}>
-        {/* valor */}
         <Controller
           control={control}
           name="valor"
@@ -62,8 +70,10 @@ function TransactionForm({ type }: any) {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Text style={styles.amountText}>R$</Text>
-                  <Text style={styles.amountText}>{value || "0,00"}</Text>
+                  <BytebankText style={styles.amountText}>R$</BytebankText>
+                  <BytebankText style={styles.amountText}>
+                    {value || "0,00"}
+                  </BytebankText>
                 </View>
               </TouchableOpacity>
 
@@ -83,31 +93,128 @@ function TransactionForm({ type }: any) {
           )}
         />
 
-        {/* descrição */}
-        <Controller
-          control={control}
-          name="descricao"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              mode="outlined"
-              label="Descrição"
-              placeholder="Adicione a descrição"
-              value={value}
-              onChangeText={onChange}
-              style={styles.input}
-            />
-          )}
-        />
-
-        {/* botão abre bottom sheet */}
-        <Button
-          mode="outlined"
-          icon="shape"
-          style={styles.fieldBtn}
-          onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+        <TouchableRipple
+          id="seila"
+          onPress={(e) => console.log(e)}
+          style={{
+            borderColor: colors.surfaceVariant,
+            borderTopWidth: 1,
+            borderBottomWidth: 1,
+            paddingVertical: 15,
+            paddingHorizontal: 5,
+          }}
         >
-          Selecionar Categoria
-        </Button>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 16,
+            }}
+          >
+            <View
+              style={{
+                borderRadius: 100,
+                backgroundColor: colors.elevation.level5,
+                padding: 8,
+                borderWidth: 1,
+                borderColor: colors.surfaceVariant,
+              }}
+            >
+              <MaterialIcons
+                name="attach-money"
+                size={26}
+                color={colors.onBackground}
+              />
+            </View>
+            <BytebankText
+              variant="titleMedium"
+              style={{ color: colors.outline }}
+            >
+              Selecione método de pagamento
+            </BytebankText>
+          </View>
+        </TouchableRipple>
+
+        <TouchableRipple
+          onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+          style={{
+            borderColor: colors.surfaceVariant,
+            borderTopWidth: 0,
+            borderBottomWidth: 1,
+            paddingVertical: 15,
+            paddingHorizontal: 5,
+          }}
+        >
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 16,
+            }}
+          >
+            <View
+              style={{
+                borderRadius: 100,
+                backgroundColor: colors.elevation.level5,
+                padding: 8,
+                borderWidth: 1,
+                borderColor: colors.surfaceVariant,
+              }}
+            >
+              <Entypo name="list" size={26} color={colors.onBackground} />
+            </View>
+            <BytebankText
+              variant="titleMedium"
+              style={{ color: colors.outline }}
+            >
+              Escolha uma categoria
+            </BytebankText>
+          </View>
+        </TouchableRipple>
+
+        <TouchableRipple
+          onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+          style={{
+            borderColor: colors.surfaceVariant,
+            borderTopWidth: 0,
+            borderBottomWidth: 1,
+            paddingVertical: 15,
+            paddingHorizontal: 5,
+          }}
+        >
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 16,
+            }}
+          >
+            <View
+              style={{
+                borderRadius: 100,
+                backgroundColor: colors.elevation.level5,
+                padding: 8,
+                borderWidth: 1,
+                borderColor: colors.surfaceVariant,
+              }}
+            >
+              <AntDesign
+                name="calendar"
+                size={26}
+                color={colors.onBackground}
+              />
+            </View>
+            <BytebankText
+              variant="titleMedium"
+              style={{ color: colors.outline }}
+            >
+              Escolha a data
+            </BytebankText>
+          </View>
+        </TouchableRipple>
 
         {/* salvar */}
         <Button
@@ -120,12 +227,19 @@ function TransactionForm({ type }: any) {
         </Button>
       </View>
 
-      <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={snapPoints}>
+      <BottomSheet
+        backgroundStyle={{
+          backgroundColor: colors.inverseOnSurface,
+        }}
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+      >
         <BottomSheetView>
           <View style={{ padding: 20 }}>
-            <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+            <BytebankText style={{ fontWeight: "bold", marginBottom: 10 }}>
               Escolha uma categoria
-            </Text>
+            </BytebankText>
 
             {["Alimentação", "Transporte", "Lazer", "Outros"].map((cat) => (
               <Chip
@@ -133,7 +247,7 @@ function TransactionForm({ type }: any) {
                 style={styles.chip}
                 onPress={() => {
                   console.log("Categoria:", cat);
-                  bottomSheetRef.current?.close();
+                  bottomSheetRef.current?.close(); // fecha (desaparece)
                 }}
               >
                 {cat}
@@ -164,7 +278,6 @@ export default function App() {
       <Tab.Screen name="Despesa">
         {() => <TransactionForm type="expense" />}
       </Tab.Screen>
-
       <Tab.Screen name="Receita">
         {() => <TransactionForm type="incoming" />}
       </Tab.Screen>
@@ -178,21 +291,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
   },
-  amountInput: {
-    fontSize: 32,
-    fontWeight: "bold",
-    backgroundColor: "transparent",
-  },
   input: {
     marginBottom: 16,
-  },
-  fieldBtn: {
-    justifyContent: "flex-start",
-    marginBottom: 12,
-  },
-  row: {
-    flexDirection: "row",
-    marginBottom: 20,
   },
   chip: {
     marginRight: 8,

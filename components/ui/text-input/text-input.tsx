@@ -1,0 +1,53 @@
+import React from "react";
+import { View } from "react-native";
+import { TextInput, useTheme } from "react-native-paper";
+import { BytebankText } from "../text/text";
+
+interface BytebankTextInputProps {
+  label?: string;
+  placeholder?: string;
+  type?: "text" | "password";
+  error?: string;
+  [key: string]: any;
+}
+
+export const BytebankTextInput = ({
+  type = "text",
+  error,
+  label,
+  placeholder,
+  ...props
+}: BytebankTextInputProps) => {
+  console.log(error);
+  const { colors } = useTheme();
+  const [isVisible, setIsVisible] = React.useState<boolean>(true);
+  return (
+    <View style={{ marginVertical: 4 }}>
+      {label && (
+        <BytebankText style={{ marginBottom: 4, color: "white" }}>
+          {label}
+        </BytebankText>
+      )}
+      <TextInput
+        error={error ? true : false}
+        {...(type === "password"
+          ? {
+              secureTextEntry: isVisible,
+              right: (
+                <TextInput.Icon
+                  onPress={(e) => setIsVisible(!isVisible)}
+                  icon={!isVisible ? "eye-off" : "eye"}
+                />
+              ),
+            }
+          : null)}
+        mode="outlined"
+        placeholder={placeholder} // agora usa placeholder corretamente
+        {...props}
+      />
+      <BytebankText style={{ color: colors.error }}>
+        {error ? error : " "}
+      </BytebankText>
+    </View>
+  );
+};

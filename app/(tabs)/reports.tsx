@@ -1,91 +1,81 @@
-import { Image } from "expo-image";
-import { Platform, StyleSheet, View } from "react-native";
-
-import { HelloWave } from "@/components/HelloWave";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import Container from "@/components/ui/container/container";
+import { BytebankText } from "@/components/ui/text/text";
+import { Dimensions, View } from "react-native";
+import { LineChart } from "react-native-chart-kit";
 import { useTheme } from "react-native-paper";
 
 export default function ReportsScreen() {
-  const theme = useTheme() as any;
+  const { colors } = useTheme();
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Relatórios</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
-        <View
-          style={{
-            width: 50,
-            height: 50,
-            backgroundColor: theme.colors.lime600,
-          }}
-        ></View>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">
-            npm run reset-project
-          </ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Cabeçalho */}
+      <View
+        style={{
+          backgroundColor: colors.primaryContainer,
+          paddingHorizontal: 16,
+          paddingTop: 40,
+          paddingBottom: 15,
+        }}
+      >
+        <BytebankText
+          variant="titleMedium"
+          style={{ textAlign: "center", fontWeight: "bold" }}
+        >
+          Resumo Financeiro
+        </BytebankText>
+      </View>
+
+      {/* Gráfico */}
+
+      <Container>
+        <View>
+          <BytebankText>Bezier Line Chart</BytebankText>
+          <LineChart
+            data={{
+              labels: ["January", "February", "March", "April", "May", "June"],
+              datasets: [
+                {
+                  data: [
+                    Math.random() * 100,
+                    Math.random() * 100,
+                    Math.random() * 100,
+                    Math.random() * 100,
+                    Math.random() * 100,
+                    Math.random() * 100,
+                  ],
+                },
+              ],
+            }}
+            width={Dimensions.get("window").width - 40} // from react-native
+            height={220}
+            yAxisLabel="$"
+            yAxisSuffix="k"
+            yAxisInterval={1} // optional, defaults to 1
+            chartConfig={{
+              backgroundColor: "#e26a00",
+              backgroundGradientFrom: "#fb8c00",
+              backgroundGradientTo: "#ffa726",
+              decimalPlaces: 2, // optional, defaults to 2dp
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: {
+                borderRadius: 16,
+              },
+              propsForDots: {
+                r: "6",
+                strokeWidth: "2",
+                stroke: "#ffa726",
+              },
+            }}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+        </View>
+      </Container>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    // backgroundColor: "red",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});

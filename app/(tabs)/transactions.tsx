@@ -1,7 +1,8 @@
 import MonthSelector from "@/components/month-selector/month-selector";
-import Container from "@/components/ui/container";
+import Container from "@/components/ui/container/container";
+import { BytebankText } from "@/components/ui/text/text";
 import { View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 
 const NoTransactions = () => {};
 
@@ -12,7 +13,7 @@ export default function TransactionScreen() {
       <MonthSelector />
       <Container>
         <View>
-          <Text
+          <BytebankText
             style={{
               textAlign: "center",
               fontWeight: "bold",
@@ -22,8 +23,8 @@ export default function TransactionScreen() {
             variant="headlineSmall"
           >
             Nenhum lançamento neste mês
-          </Text>
-          <Text
+          </BytebankText>
+          <BytebankText
             style={{
               marginTop: 16,
               textAlign: "center",
@@ -33,7 +34,7 @@ export default function TransactionScreen() {
             }}
           >
             Toque em + para adicionar um lançamento
-          </Text>
+          </BytebankText>
         </View>
       </Container>
     </View>

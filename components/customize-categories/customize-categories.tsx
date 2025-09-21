@@ -1,8 +1,9 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import React from "react";
 import { View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
-import { BytebankCard } from "../ui/card";
+import { useTheme } from "react-native-paper";
+import { BytebankCard } from "../ui/card/card";
+import { BytebankText } from "../ui/text/text";
 
 export default function CustomizeCategories() {
   const { colors } = useTheme();
@@ -19,7 +20,7 @@ export default function CustomizeCategories() {
       >
         <View>
           <AntDesign
-            name="addfolder"
+            name="folder-add"
             size={24}
             color={colors.outline}
             style={{
@@ -30,13 +31,15 @@ export default function CustomizeCategories() {
           />
         </View>
         <View>
-          <Text variant="titleMedium">Personalizar categorias</Text>
-          <Text style={{ maxWidth: 180, color: colors.outline }}>
+          <BytebankText variant="titleMedium">
+            Personalizar categorias
+          </BytebankText>
+          <BytebankText style={{ maxWidth: 180, color: colors.outline }}>
             Toque aqui para criar e editar suas categorias
-          </Text>
+          </BytebankText>
         </View>
         <View>
-          <AntDesign name="caretright" size={24} color={colors.secondary} />
+          <AntDesign name="caret-right" size={24} color={colors.secondary} />
         </View>
       </View>
     </BytebankCard>

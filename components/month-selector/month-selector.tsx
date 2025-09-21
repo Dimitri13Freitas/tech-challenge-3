@@ -6,8 +6,9 @@ import {
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import { BytebankText } from "../ui/text/text";
 
 dayjs.locale("pt-br");
 
@@ -87,11 +88,11 @@ export default function MonthNavigator() {
 
         <View style={styles.monthContainer}>
           <TouchableOpacity onPress={goToPreviousMonth}>
-            <Text style={[styles.monthText, { color: colors.outline }]}>
+            <BytebankText style={[styles.monthText, { color: colors.outline }]}>
               {formatMonth(previousMonth)}
-            </Text>
+            </BytebankText>
           </TouchableOpacity>
-          <Text
+          <BytebankText
             style={[
               styles.monthText,
               styles.activeMonth,
@@ -99,11 +100,11 @@ export default function MonthNavigator() {
             ]}
           >
             {formatMonth(currentMonth)}
-          </Text>
+          </BytebankText>
           <TouchableOpacity onPress={goToNextMonth}>
-            <Text style={[styles.monthText, { color: colors.outline }]}>
+            <BytebankText style={[styles.monthText, { color: colors.outline }]}>
               {formatMonth(nextMonth)}
-            </Text>
+            </BytebankText>
           </TouchableOpacity>
         </View>
 

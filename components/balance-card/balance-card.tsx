@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { View } from "react-native";
-import { IconButton, Text, useTheme } from "react-native-paper";
-import { BytebankCard } from "../ui/card";
+import { IconButton, useTheme } from "react-native-paper";
+import { BytebankCard } from "../ui/card/card";
+import { BytebankText } from "../ui/text/text";
 
 export function BalanceCard() {
   const [isVisible, setIsVisible] = useState(false);
@@ -16,12 +17,12 @@ export function BalanceCard() {
           backgroundColor: colors.primaryContainer,
         }}
       >
-        <Text
+        <BytebankText
           variant="titleMedium"
           style={{ maxWidth: "70%", paddingVertical: 8, fontWeight: "bold" }}
         >
           Seja bem-vindo à sua central de finanças!
-        </Text>
+        </BytebankText>
       </BytebankCard>
       <BytebankCard style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
         <View
@@ -33,12 +34,15 @@ export function BalanceCard() {
           }}
         >
           <View>
-            <Text variant="titleSmall" style={{ color: colors.outline }}>
+            <BytebankText
+              variant="titleSmall"
+              style={{ color: colors.outline }}
+            >
               Saldo geral
-            </Text>
-            <Text variant="titleLarge" style={{ fontWeight: "bold" }}>
+            </BytebankText>
+            <BytebankText variant="titleLarge" style={{ fontWeight: "bold" }}>
               R$ {isVisible ? "1234,56" : "-----"}
-            </Text>
+            </BytebankText>
           </View>
           <IconButton
             icon={!isVisible ? "eye" : "eye-off"}
