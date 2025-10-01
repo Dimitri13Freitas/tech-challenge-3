@@ -18,15 +18,12 @@ export const BytebankTextInput = ({
   placeholder,
   ...props
 }: BytebankTextInputProps) => {
-  console.log(error);
   const { colors } = useTheme();
   const [isVisible, setIsVisible] = React.useState<boolean>(true);
   return (
     <View style={{ marginVertical: 4 }}>
       {label && (
-        <BytebankText style={{ marginBottom: 4, color: "white" }}>
-          {label}
-        </BytebankText>
+        <BytebankText style={{ marginBottom: 4 }}>{label}</BytebankText>
       )}
       <TextInput
         error={error ? true : false}

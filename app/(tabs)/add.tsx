@@ -1,9 +1,9 @@
 import { BytebankCard } from "@/components/ui/card/card";
 import { BytebankText } from "@/components/ui/text/text";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import { BytebankTouchableRipple } from "@/components/ui/touchable-ripple/touchable-ripple";
+import { staticColors } from "@/constants/theme";
+import { BottomSheetProvider } from "@/contexts/BottomSheetContext";
+import { Feather } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -13,16 +13,44 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import {
-  Button,
-  Chip,
-  TextInput,
-  TouchableRipple,
-  useTheme,
-} from "react-native-paper";
+import { Button, TextInput, useTheme } from "react-native-paper";
 
-const incoming = "rgba(229, 57, 53, 1)";
-const expense = "rgba(67, 160, 71, 1)";
+const categories = [
+  {
+    id: "6866a6086de9d8548aced349",
+    name: "Alimentação",
+  },
+  {
+    id: "6866a6086de9d8d349",
+    name: "Transporte",
+  },
+  {
+    id: "68086de9d8548aced349",
+    name: "Lazer",
+  },
+  {
+    id: "6866a9d8548aced349",
+    name: "Contas",
+  },
+];
+const paymentMethods = [
+  {
+    id: "pm-1",
+    name: "Cartão de Crédito",
+  },
+  {
+    id: "pm-2",
+    name: "Pix",
+  },
+  {
+    id: "pm-3",
+    name: "Transferência Bancária",
+  },
+  {
+    id: "pm-4",
+    name: "Boleto",
+  },
+];
 
 function formatarMoedaBR(valor: string) {
   const numero = valor.replace(/\D/g, "");
@@ -42,221 +70,82 @@ function TransactionForm({ type }: any) {
   });
 
   const inputRef = React.useRef<any>(null);
-  const bottomSheetRef = React.useRef<BottomSheet>(null);
-
-  const snapPoints = React.useMemo(() => ["98%"], []);
 
   const onSubmit = (data: any) => {
     console.log("SUBMIT =>", type, data);
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <View style={{ padding: 16, flex: 1 }}>
-        <Controller
-          control={control}
-          name="valor"
-          render={({ field: { onChange, value } }) => (
-            <BytebankCard
-              style={{
-                backgroundColor: type === "expense" ? incoming : expense,
-                paddingVertical: 12,
-              }}
-            >
-              <TouchableOpacity onPress={() => inputRef.current?.focus()}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <BytebankText style={styles.amountText}>R$</BytebankText>
-                  <BytebankText style={styles.amountText}>
-                    {value || "0,00"}
-                  </BytebankText>
-                </View>
-              </TouchableOpacity>
-
-              <TextInput
-                ref={inputRef}
-                value={value}
-                keyboardType="numeric"
-                onChangeText={(e) => onChange(formatarMoedaBR(e))}
+    <BottomSheetProvider>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
+        <View style={{ padding: 16, flex: 1 }}>
+          <Controller
+            control={control}
+            name="valor"
+            render={({ field: { onChange, value } }) => (
+              <BytebankCard
                 style={{
-                  height: 0,
-                  width: 0,
-                  position: "absolute",
-                  opacity: 0,
-                }}
-              />
-            </BytebankCard>
-          )}
-        />
-
-        <TouchableRipple
-          id="seila"
-          onPress={(e) => console.log(e)}
-          style={{
-            borderColor: colors.surfaceVariant,
-            borderTopWidth: 1,
-            borderBottomWidth: 1,
-            paddingVertical: 15,
-            paddingHorizontal: 5,
-          }}
-        >
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 16,
-            }}
-          >
-            <View
-              style={{
-                borderRadius: 100,
-                backgroundColor: colors.elevation.level5,
-                padding: 8,
-                borderWidth: 1,
-                borderColor: colors.surfaceVariant,
-              }}
-            >
-              <MaterialIcons
-                name="attach-money"
-                size={26}
-                color={colors.onBackground}
-              />
-            </View>
-            <BytebankText
-              variant="titleMedium"
-              style={{ color: colors.outline }}
-            >
-              Selecione método de pagamento
-            </BytebankText>
-          </View>
-        </TouchableRipple>
-
-        <TouchableRipple
-          onPress={() => bottomSheetRef.current?.snapToIndex(0)}
-          style={{
-            borderColor: colors.surfaceVariant,
-            borderTopWidth: 0,
-            borderBottomWidth: 1,
-            paddingVertical: 15,
-            paddingHorizontal: 5,
-          }}
-        >
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 16,
-            }}
-          >
-            <View
-              style={{
-                borderRadius: 100,
-                backgroundColor: colors.elevation.level5,
-                padding: 8,
-                borderWidth: 1,
-                borderColor: colors.surfaceVariant,
-              }}
-            >
-              <Entypo name="list" size={26} color={colors.onBackground} />
-            </View>
-            <BytebankText
-              variant="titleMedium"
-              style={{ color: colors.outline }}
-            >
-              Escolha uma categoria
-            </BytebankText>
-          </View>
-        </TouchableRipple>
-
-        <TouchableRipple
-          onPress={() => bottomSheetRef.current?.snapToIndex(0)}
-          style={{
-            borderColor: colors.surfaceVariant,
-            borderTopWidth: 0,
-            borderBottomWidth: 1,
-            paddingVertical: 15,
-            paddingHorizontal: 5,
-          }}
-        >
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 16,
-            }}
-          >
-            <View
-              style={{
-                borderRadius: 100,
-                backgroundColor: colors.elevation.level5,
-                padding: 8,
-                borderWidth: 1,
-                borderColor: colors.surfaceVariant,
-              }}
-            >
-              <AntDesign
-                name="calendar"
-                size={26}
-                color={colors.onBackground}
-              />
-            </View>
-            <BytebankText
-              variant="titleMedium"
-              style={{ color: colors.outline }}
-            >
-              Escolha a data
-            </BytebankText>
-          </View>
-        </TouchableRipple>
-
-        {/* salvar */}
-        <Button
-          mode="contained"
-          onPress={handleSubmit(onSubmit)}
-          style={styles.saveBtn}
-          buttonColor={colors.primary}
-        >
-          Salvar
-        </Button>
-      </View>
-
-      <BottomSheet
-        backgroundStyle={{
-          backgroundColor: colors.inverseOnSurface,
-        }}
-        ref={bottomSheetRef}
-        index={-1}
-        snapPoints={snapPoints}
-      >
-        <BottomSheetView>
-          <View style={{ padding: 20 }}>
-            <BytebankText style={{ fontWeight: "bold", marginBottom: 10 }}>
-              Escolha uma categoria
-            </BytebankText>
-
-            {["Alimentação", "Transporte", "Lazer", "Outros"].map((cat) => (
-              <Chip
-                key={cat}
-                style={styles.chip}
-                onPress={() => {
-                  console.log("Categoria:", cat);
-                  bottomSheetRef.current?.close(); // fecha (desaparece)
+                  backgroundColor:
+                    type === "expense"
+                      ? staticColors.expense
+                      : staticColors.incoming,
+                  paddingVertical: 12,
                 }}
               >
-                {cat}
-              </Chip>
-            ))}
-          </View>
-        </BottomSheetView>
-      </BottomSheet>
-    </View>
+                <TouchableOpacity onPress={() => inputRef.current?.focus()}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <BytebankText style={styles.amountText}>R$</BytebankText>
+                    <BytebankText style={styles.amountText}>
+                      {value || "0,00"}
+                    </BytebankText>
+                  </View>
+                </TouchableOpacity>
+
+                <TextInput
+                  ref={inputRef}
+                  value={value}
+                  keyboardType="numeric"
+                  onChangeText={(e) => onChange(formatarMoedaBR(e))}
+                  style={{
+                    height: 0,
+                    width: 0,
+                    position: "absolute",
+                    opacity: 0,
+                  }}
+                />
+              </BytebankCard>
+            )}
+          />
+
+          <BytebankTouchableRipple
+            style={{ borderTopWidth: 1 }}
+            placeholder="Selecione método de pagamento"
+            icon={
+              <Feather
+                name="dollar-sign"
+                size={26}
+                color={colors.onBackground}
+              />
+            }
+          >
+            <BytebankText>asdasd</BytebankText>
+          </BytebankTouchableRipple>
+          <Button
+            mode="contained"
+            onPress={handleSubmit(onSubmit)}
+            style={styles.saveBtn}
+            buttonColor={colors.primary}
+          >
+            Salvar
+          </Button>
+        </View>
+      </View>
+    </BottomSheetProvider>
   );
 }
 

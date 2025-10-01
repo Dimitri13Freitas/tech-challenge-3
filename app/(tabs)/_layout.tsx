@@ -1,9 +1,11 @@
+import { useAuth } from "@/contexts/AuthContext";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { CommonActions } from "@react-navigation/native";
+import { Redirect } from "expo-router";
 import { BottomNavigation, useTheme } from "react-native-paper";
-import HomeScreen from ".";
 import AddScreen from "./add";
+import HomeScreen from "./home";
 import ReportsScreen from "./reports";
 import TransactionScreen from "./transactions";
 import UserScreen from "./user";
@@ -11,7 +13,13 @@ import UserScreen from "./user";
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const { user } = useAuth();
   const { colors } = useTheme();
+
+  if (!user) {
+    return <Redirect href="/login" />;
+  }
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -96,7 +104,7 @@ export default function App() {
         component={ReportsScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <AntDesign name="barschart" color={color} size={26} />
+            <AntDesign name="bar-chart" color={color} size={26} />
           ),
         }}
       />

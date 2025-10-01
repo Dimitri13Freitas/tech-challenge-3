@@ -3,6 +3,8 @@ import Container from "@/components/ui/container/container";
 import { BytebankTextInputController } from "@/components/ui/text-input/text-input-controller";
 import { BytebankText } from "@/components/ui/text/text";
 import { auth } from "@/constants/firebase";
+import { useSnackbar } from "@/contexts/SnackBarContext";
+import { createUserProfile } from "@/services/firestore";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
@@ -18,6 +20,7 @@ type RegisterFormData = {
 };
 
 export default function Register() {
+  const { showMessage } = useSnackbar();
   const colorScheme = useColorScheme();
   const {
     control,
@@ -26,7 +29,6 @@ export default function Register() {
     formState: { isSubmitting },
   } = useForm<RegisterFormData>();
   const { colors } = useTheme();
-
   async function onSubmit(data: RegisterFormData) {
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -34,9 +36,17 @@ export default function Register() {
         data.email,
         data.password,
       );
+      const user = userCredential.user;
       await updateProfile(userCredential.user, { displayName: data.name });
+
+      if (user.email) await createUserProfile(user.uid, user.email);
+
+      showMessage("Conta criada com sucesso!", "success");
+
+      // ✅ usuário já está logado, redireciona para as tabs
+      router.replace("/(tabs)/home");
     } catch (err) {
-      console.log(err);
+      showMessage("Este usuário já possui cadastro!!");
     }
   }
 

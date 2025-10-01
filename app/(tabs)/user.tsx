@@ -1,9 +1,16 @@
 import { StyleSheet } from "react-native";
 
-import { BytebankText } from "@/components/ui/text/text";
+import { BytebankButton } from "@/components/ui/button/button";
+import Container from "@/components/ui/container/container";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function UserScreen() {
-  return <BytebankText>seila</BytebankText>;
+  const { logout } = useAuth();
+  return (
+    <Container>
+      <BytebankButton onPress={() => logout()}>Sair</BytebankButton>
+    </Container>
+  );
 }
 
 const styles = StyleSheet.create({

@@ -9,9 +9,9 @@ const NoTransactions = () => {};
 export default function TransactionScreen() {
   const { colors } = useTheme();
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <MonthSelector />
-      <Container>
+      <Container scrollable={false}>
         <View>
           <BytebankText
             style={{
