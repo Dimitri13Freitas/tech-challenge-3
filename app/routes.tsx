@@ -24,6 +24,7 @@ export default function Routes() {
       )}
       <Stack.Screen name="+not-found" />
       <Stack.Screen name="forgot-password" />
+      <Stack.Screen name="manage-cards" />
       <Stack.Screen name="create-category" />
     </Stack>
   );

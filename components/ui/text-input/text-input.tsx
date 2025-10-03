@@ -6,7 +6,7 @@ import { BytebankText } from "../text/text";
 interface BytebankTextInputProps {
   label?: string;
   placeholder?: string;
-  type?: "text" | "password";
+  type?: "text" | "password" | "currency" | "number";
   error?: string;
   [key: string]: any;
 }
@@ -23,7 +23,9 @@ export const BytebankTextInput = ({
   return (
     <View style={{ marginVertical: 4 }}>
       {label && (
-        <BytebankText style={{ marginBottom: 4 }}>{label}</BytebankText>
+        <BytebankText style={{ marginBottom: 4, fontWeight: "bold" }}>
+          {label}
+        </BytebankText>
       )}
       <TextInput
         error={error ? true : false}
@@ -39,7 +41,7 @@ export const BytebankTextInput = ({
             }
           : null)}
         mode="outlined"
-        placeholder={placeholder} // agora usa placeholder corretamente
+        placeholder={placeholder}
         {...props}
       />
       <BytebankText style={{ color: colors.error }}>

@@ -28,7 +28,7 @@ export default function RootLayout() {
     >
       <StatusBar style="auto" />
       <PaperProvider theme={theme}>
-        <BottomSheetProvider snapPoints={["50%"]}>
+        <BottomSheetProvider snapPoints={["65%"]}>
           <SnackbarProvider>
             <AuthProvider>
               <Routes />

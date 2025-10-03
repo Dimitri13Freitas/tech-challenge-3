@@ -1,4 +1,8 @@
-import { Category, CombinedCategoriesResult } from "@/types/services/firestore";
+import { Card } from "@/types/services/cards/cardTypes";
+import {
+  Category,
+  CombinedCategoriesResult,
+} from "@/types/services/categories/categoryTypes";
 import {
   addDoc,
   collection,
@@ -188,5 +192,69 @@ export const removeCustomCategory = async (categoryId: string) => {
     console.error("Erro ao remover categoria customizada: ", error);
     // Lança um erro que será pego no componente
     throw new Error("Não foi possível remover a categoria do banco de dados.");
+  }
+};
+
+export const getCardsByUserId = async (userId: string): Promise<Card[]> => {
+  try {
+    const cardsRef = collection(db, "cards");
+    // 1. Cria a query: filtra pelo userId e ordena pelo nome para uma exibição consistente
+    const q = query(
+      cardsRef,
+      where("userId", "==", userId),
+      orderBy("name", "asc"),
+    );
+
+    // 2. Executa a query
+    const snapshot = await getDocs(q);
+    console.log(snapshot);
+
+    // 3. Mapeia os documentos para o formato Card[]
+    const cards: Card[] = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      // O Firestore garante que os dados no doc.data() estão lá
+      // O cast 'as Card' força o tipo, mas é mais seguro validar em apps de produção
+      ...(doc.data() as Omit<Card, "id">),
+    }));
+
+    return cards;
+  } catch (error) {
+    console.error("Erro ao listar cartões do usuário: ", error);
+    // Lança um erro customizado para ser tratado na UI
+    throw new Error("Não foi possível carregar seus cartões.");
+  }
+};
+
+export const addCard = async (
+  userId: string,
+  name: string,
+  limit: number,
+  dueDate: number,
+  closingDate: number,
+) => {
+  // 1. Validar a entrada (ex: se o dia de fechamento faz sentido)
+  if (closingDate < 1 || closingDate > 31) {
+    throw new Error("O dia de fechamento deve ser entre 1 e 31.");
+  }
+  if (dueDate < 1 || dueDate > 31) {
+    throw new Error("O dia de vencimento deve ser entre 1 e 31.");
+  }
+
+  try {
+    // Coleção de cartões para dados públicos/compartilháveis
+    const cardsRef = collection(db, "cards");
+
+    await addDoc(cardsRef, {
+      userId: userId,
+      name: name,
+      limit: limit,
+      dueDate: dueDate,
+      closingDate: closingDate,
+      blocked: false, // Começa sempre desbloqueado
+      createdAt: new Date(),
+    });
+  } catch (error) {
+    console.error("Erro ao adicionar cartão: ", error);
+    throw new Error("Não foi possível salvar o cartão no banco de dados.");
   }
 };

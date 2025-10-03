@@ -12,16 +12,16 @@ import {
   getCombinedCategories,
   removeCustomCategory,
 } from "@/services/firestore";
-import { Category } from "@/types/services/firestore";
+import { Category } from "@/types/services/categories/categoryTypes";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { Dialog, IconButton, Portal, useTheme } from "react-native-paper";
 
-type NewCategoryFormData = {
+interface NewCategoryFormData {
   category: string;
-};
+}
 
 export default function CreateCategory() {
   const { openBottomSheet, closeBottomSheet } = useBottomSheet();

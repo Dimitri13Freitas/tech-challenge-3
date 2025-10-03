@@ -1,5 +1,12 @@
 import React from "react";
-import { ScrollView, StyleProp, View, ViewStyle } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleProp,
+  View,
+  ViewStyle,
+} from "react-native";
 import { useTheme } from "react-native-paper";
 
 interface ContainerProps {
@@ -28,7 +35,11 @@ export default function Container({
         contentContainerStyle={{ flexGrow: 1 }}
         style={[baseStyle, style]}
       >
-        {children}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          {children}
+        </KeyboardAvoidingView>
         <View style={{ height: 70, width: "100%" }} />
       </ScrollView>
     );
