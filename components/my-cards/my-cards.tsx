@@ -1,9 +1,7 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { getCardsByUserId } from "@/services/firestore";
-import { Card } from "@/types/services/cards/cardTypes";
+import { useCards } from "@/contexts/CardsContext";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { ManageCardItem } from "../manage-cards/manage-card-item";
@@ -43,28 +41,8 @@ const NoCards = () => {
 };
 
 export const MyCards = () => {
-  const [cards, setCards] = useState<Card[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { cards, loading } = useCards();
   const { colors } = useTheme();
-
-  useEffect(() => {
-    async function loadData() {
-      if (!user?.uid) {
-        setLoading(false);
-        return;
-      }
-      try {
-        const data = await getCardsByUserId(user.uid);
-        setCards(data);
-      } catch (error) {
-        console.error("Erro ao carregar cartões:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, [user?.uid]);
 
   const renderContent = () => {
     if (loading) {

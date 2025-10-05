@@ -17,9 +17,17 @@ import {
   serverTimestamp,
   setDoc,
   startAfter,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { db } from "../constants/firebase";
+
+interface AddCardData {
+  name: string;
+  limit: number;
+  dueDate: number;
+  closingDate: number;
+}
 
 export const createUserProfile = async (uid: string, email: string) => {
   try {
@@ -207,7 +215,7 @@ export const getCardsByUserId = async (userId: string): Promise<Card[]> => {
 
     // 2. Executa a query
     const snapshot = await getDocs(q);
-    console.log(snapshot);
+    // console.log(snapshot);
 
     // 3. Mapeia os documentos para o formato Card[]
     const cards: Card[] = snapshot.docs.map((doc) => ({
@@ -256,5 +264,43 @@ export const addCard = async (
   } catch (error) {
     console.error("Erro ao adicionar cartão: ", error);
     throw new Error("Não foi possível salvar o cartão no banco de dados.");
+  }
+};
+
+export const updateCard = async (
+  cardId: string,
+  data: Omit<AddCardData, "userId">, // Usa a interface de dados, excluindo userId
+): Promise<void> => {
+  try {
+    const cardsRef = collection(db, "cards");
+    const cardRef = doc(cardsRef, cardId);
+
+    await updateDoc(cardRef, {
+      name: data.name,
+      limit: data.limit,
+      dueDate: data.dueDate,
+      closingDate: data.closingDate,
+    });
+    console.log("testeeeeee");
+  } catch (error) {
+    console.error(`Erro ao atualizar cartão ${cardId}: `, error);
+    throw new Error("Não foi possível atualizar o cartão.");
+  }
+};
+
+export const toggleCardBlockedStatus = async (
+  cardId: string,
+  newBlockedStatus: boolean,
+): Promise<void> => {
+  try {
+    const cardsRef = collection(db, "cards");
+    const cardRef = doc(cardsRef, cardId);
+
+    await updateDoc(cardRef, {
+      blocked: newBlockedStatus,
+    });
+  } catch (error) {
+    console.error(`Erro ao alternar status do cartão ${cardId}: `, error);
+    throw new Error("Não foi possível alterar o status de bloqueio.");
   }
 };

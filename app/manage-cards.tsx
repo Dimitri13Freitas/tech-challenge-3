@@ -3,82 +3,113 @@ import { BytebankButton } from "@/components/ui/button/button";
 import Container from "@/components/ui/container/container";
 import { BytebankTextInputController } from "@/components/ui/text-input/text-input-controller";
 import { BytebankText } from "@/components/ui/text/text";
+import { staticColors } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBottomSheet } from "@/contexts/BottomSheetContext";
-import { addCard } from "@/services/firestore";
+import { useCards } from "@/contexts/CardsContext";
+import { useSnackbar } from "@/contexts/SnackBarContext";
+import {
+  addCard,
+  toggleCardBlockedStatus,
+  updateCard,
+} from "@/services/firestore";
 import { Card } from "@/types/services/cards/cardTypes";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { Alert, FlatList, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  View,
+} from "react-native";
 import { Divider, IconButton, useTheme } from "react-native-paper";
 
+// Formulário de Criação/Edição
 interface CardFormData {
   name: string;
-  limit: string;
-  dueDate: string;
-  closingDate: string;
+  limit: number;
+  dueDate: number;
+  closingDate: number;
 }
 
 export default function ManageCards() {
   const { colors } = useTheme();
   const { openBottomSheet, closeBottomSheet } = useBottomSheet();
   const { user } = useAuth();
+  const { showMessage } = useSnackbar();
+  const {
+    cards,
+    loading,
+    reloadCards,
+    updateCard: updateCardInContext,
+  } = useCards();
 
   const params = useLocalSearchParams();
+  const showMessageRef = useRef(showMessage);
 
-  const [cards, setCards] = useState<Card[]>([]);
-
+  // Atualiza a ref sempre que showMessage muda
   useEffect(() => {
-    if (params.cardsJson && typeof params.cardsJson === "string") {
-      try {
-        const parsedCards: Card[] = JSON.parse(params.cardsJson);
-        setCards(parsedCards);
-      } catch (error) {
-        console.error("Erro ao fazer parse dos cartões da rota:", error);
-      }
-    }
-  }, [params.cardsJson]);
+    showMessageRef.current = showMessage;
+  }, [showMessage]);
 
   const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting },
+    control: createControl,
+    handleSubmit: handleCreateSubmit,
+    reset: resetCreateForm,
+    formState: { isSubmitting: isCreating },
   } = useForm<CardFormData>({
-    defaultValues: { name: "", limit: "", dueDate: "", closingDate: "" },
+    defaultValues: { name: "", limit: 0, dueDate: 0, closingDate: 0 },
   });
 
-  const handleCreateCard = handleSubmit(async (formData) => {
-    if (!user?.uid) {
-      Alert.alert("Erro", "Usuário não autenticado.");
-      return;
-    }
+  const {
+    control: editControl,
+    handleSubmit: handleEditSubmit,
+    reset: resetEditForm,
+    formState: { isSubmitting: isEditing },
+  } = useForm<CardFormData>();
+
+  // Recarrega os dados sempre que a tela for focada
+  useFocusEffect(
+    useCallback(() => {
+      // Só recarrega se não estiver carregando e se não vier via params
+      if (!loading && !params.cardsJson) {
+        reloadCards();
+      }
+    }, [loading, params.cardsJson, reloadCards]),
+  );
+
+  // --- Handlers de Ação ---
+  const handleCreateCard = handleCreateSubmit(async (formData) => {
+    if (!user?.uid) return;
 
     try {
       await addCard(
         user.uid,
         formData.name,
-        parseFloat(formData.limit),
-        parseInt(formData.dueDate, 10),
-        parseInt(formData.closingDate, 10),
+        formData.limit,
+        formData.dueDate,
+        formData.closingDate,
       );
 
-      Alert.alert("Sucesso", "Cartão criado com sucesso!");
-      reset();
+      // Recarrega os cartões para pegar o novo cartão com ID
+      reloadCards();
+
+      showMessage("Cartão criado com sucesso!", "success");
       closeBottomSheet();
-      // TODO: Recarregar a lista de cartões aqui (chamando getCardsByUserId)
-      // Por enquanto, apenas atualizamos a UI com uma mensagem.
     } catch (error) {
       console.error("Erro ao criar cartão:", error);
-      Alert.alert("Erro", "Não foi possível criar o cartão.");
+      showMessage("Não foi possível criar o cartão.", "warning");
     }
   });
 
-  // 3. Conteúdo do Bottom Sheet para Criar Cartão
-  const BottomSheetContent = useMemo(
+  // --- Conteúdos dos BottomSheets ---
+  const BottomSheetCreateContent = useMemo(
     () => (
-      <>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         <BytebankText
           variant="titleLarge"
           style={{ fontWeight: "bold", marginBottom: 15 }}
@@ -88,14 +119,14 @@ export default function ManageCards() {
 
         <View style={{ gap: 10 }}>
           <BytebankTextInputController
-            control={control}
+            control={createControl}
             name="name"
             placeholder="Ex: Nubank Principal"
             label="Nome do cartão"
             rules={{ required: "Nome é obrigatório" }}
           />
           <BytebankTextInputController
-            control={control}
+            control={createControl}
             name="limit"
             placeholder="R$ 0,00"
             type="currency"
@@ -103,49 +134,255 @@ export default function ManageCards() {
             rules={{ required: "Limite é obrigatório" }}
           />
 
-          <View style={{ flexDirection: "row", gap: 10 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              gap: 10,
+            }}
+          >
             <BytebankTextInputController
-              control={control}
+              control={createControl}
               name="closingDate"
               placeholder="Dia 1"
               label="Dia de Fechamento"
-              keyboardType="numeric"
-              rules={{ required: "Dia de fechamento é obrigatório" }}
-              style={{ flex: 1 }}
+              type="number"
+              rules={{
+                required: "Fechamento é obrigatório",
+                min: { value: 1, message: "Dia mínimo é 1" },
+                max: { value: 31, message: "Dia máximo é 31" },
+              }}
             />
             <BytebankTextInputController
-              control={control}
+              control={createControl}
               name="dueDate"
               placeholder="Dia 10"
               label="Dia de Vencimento"
-              keyboardType="numeric"
-              rules={{ required: "Dia de vencimento é obrigatório" }}
+              type="number"
+              rules={{
+                required: "Vencimento é obrigatório",
+                min: { value: 1, message: "Dia mínimo é 1" },
+                max: { value: 31, message: "Dia máximo é 31" },
+              }}
               style={{ flex: 1 }}
             />
           </View>
         </View>
+
         <BytebankButton
           onPress={handleCreateCard}
-          loading={isSubmitting}
-          disabled={isSubmitting}
+          loading={isCreating}
+          disabled={isCreating}
           style={{ marginTop: 20 }}
         >
           Salvar Cartão
         </BytebankButton>
-      </>
+
+        <BytebankButton
+          onPress={closeBottomSheet}
+          mode="text"
+          labelStyle={{ color: colors.outline }}
+          style={{ marginTop: 10 }}
+        >
+          Cancelar
+        </BytebankButton>
+      </KeyboardAvoidingView>
     ),
-    [control, handleCreateCard, isSubmitting],
+    [
+      createControl,
+      handleCreateCard,
+      isCreating,
+      closeBottomSheet,
+      colors.outline,
+    ],
   );
 
-  // 4. Handler para clique no item da lista (Edição/Ações)
-  const handleCardPress = (card: Card) => {
-    console.log(
-      `Abrir modal de Edição/Bloqueio para o cartão: ${card.name} (ID: ${card.id})`,
-    );
-    // TODO: Aqui você abriria um novo BottomSheet para Edição/Bloqueio
-  };
+  // --- Handlers de BottomSheet ---
+  const openCreateBottomSheet = useCallback(() => {
+    resetCreateForm();
+    openBottomSheet(BottomSheetCreateContent);
+  }, [resetCreateForm, openBottomSheet, BottomSheetCreateContent]);
 
-  // 5. Renderização
+  const openEditBottomSheet = useCallback(
+    (card: Card) => {
+      resetEditForm({
+        name: card.name,
+        limit: card.limit,
+        dueDate: card.dueDate,
+        closingDate: card.closingDate,
+      });
+
+      // Funções específicas para este cartão
+      const handleUpdateThisCard = handleEditSubmit(async (formData) => {
+        try {
+          await updateCard(card.id, {
+            name: formData.name,
+            limit: formData.limit,
+            dueDate: formData.dueDate,
+            closingDate: formData.closingDate,
+          });
+
+          // Atualiza o cartão no contexto
+          const updatedCard = {
+            ...card,
+            name: formData.name,
+            limit: formData.limit,
+            dueDate: formData.dueDate,
+            closingDate: formData.closingDate,
+          };
+          updateCardInContext(updatedCard);
+
+          showMessage("Cartão atualizado com sucesso!", "success");
+          closeBottomSheet();
+        } catch (error) {
+          console.error("Erro ao atualizar cartão:", error);
+          showMessage("Não foi possível atualizar o cartão.", "warning");
+        }
+      });
+
+      const handleToggleThisCard = async () => {
+        const newStatus = !card.blocked;
+
+        try {
+          await toggleCardBlockedStatus(card.id, newStatus);
+
+          // Atualiza o cartão no contexto
+          const updatedCard = {
+            ...card,
+            blocked: newStatus,
+          };
+          updateCardInContext(updatedCard);
+
+          const statusText = newStatus ? "bloqueado" : "desbloqueado";
+          showMessage(`Cartão ${statusText} com sucesso!`, "success");
+
+          closeBottomSheet();
+        } catch (error) {
+          console.error("Erro ao alternar status do cartão:", error);
+          showMessage(
+            "Não foi possível alterar o status do cartão.",
+            "warning",
+          );
+        }
+      };
+
+      // Cria o conteúdo do BottomSheet com o cartão atual
+      const editContent = (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <BytebankText
+            variant="titleLarge"
+            style={{ fontWeight: "bold", marginBottom: 15 }}
+          >
+            Editar Cartão: {card.name}
+          </BytebankText>
+
+          <View style={{ gap: 10 }}>
+            <BytebankTextInputController
+              control={editControl}
+              name="name"
+              placeholder="Ex: Nubank Principal"
+              label="Nome do cartão"
+              rules={{ required: "Nome é obrigatório" }}
+            />
+            <BytebankTextInputController
+              control={editControl}
+              name="limit"
+              placeholder="R$ 0,00"
+              type="currency"
+              label="Limite Total"
+              rules={{ required: "Limite é obrigatório" }}
+            />
+
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <BytebankTextInputController
+                control={editControl}
+                name="closingDate"
+                placeholder="Dia 1"
+                label="Dia de Fechamento"
+                type="number"
+                rules={{
+                  required: "Fechamento é obrigatório",
+                  min: { value: 1, message: "Dia mínimo é 1" },
+                  max: { value: 31, message: "Dia máximo é 31" },
+                }}
+                style={{ flex: 1 }}
+              />
+              <BytebankTextInputController
+                control={editControl}
+                name="dueDate"
+                placeholder="Dia 10"
+                label="Dia de Vencimento"
+                type="number"
+                rules={{
+                  required: "Vencimento é obrigatório",
+                  min: { value: 1, message: "Dia mínimo é 1" },
+                  max: { value: 31, message: "Dia máximo é 31" },
+                }}
+                style={{ flex: 1 }}
+              />
+            </View>
+          </View>
+
+          {/* Botão de Bloqueio/Desbloqueio */}
+          <BytebankButton
+            onPress={handleToggleThisCard}
+            mode="outlined"
+            style={{
+              marginTop: 20,
+              borderColor: card.blocked ? staticColors.incoming : colors.error,
+            }}
+            labelStyle={{
+              color: card.blocked ? staticColors.incoming : colors.error,
+            }}
+          >
+            {card.blocked ? "Desbloquear Cartão" : "Bloquear Cartão"}
+          </BytebankButton>
+
+          <BytebankButton
+            onPress={handleUpdateThisCard}
+            loading={isEditing}
+            disabled={isEditing}
+            style={{ marginTop: 10 }}
+          >
+            Salvar Edição
+          </BytebankButton>
+
+          <BytebankButton
+            onPress={closeBottomSheet}
+            mode="text"
+            labelStyle={{ color: colors.outline }}
+            style={{ marginTop: 10 }}
+          >
+            Cancelar
+          </BytebankButton>
+        </KeyboardAvoidingView>
+      );
+
+      openBottomSheet(editContent);
+    },
+    [
+      resetEditForm,
+      openBottomSheet,
+      editControl,
+      isEditing,
+      closeBottomSheet,
+      colors.outline,
+      colors.error,
+      showMessage,
+      updateCardInContext,
+      handleEditSubmit,
+    ],
+  );
+
+  const handleCardPress = useCallback(
+    (card: Card) => {
+      openEditBottomSheet(card);
+    },
+    [openEditBottomSheet],
+  );
+
   const cardCount = cards.length;
 
   return (
@@ -161,7 +398,14 @@ export default function ManageCards() {
           justifyContent: "space-between",
         }}
       >
-        <IconButton icon="arrow-left" size={24} onPress={() => router.back()} />
+        <IconButton
+          icon="arrow-left"
+          size={24}
+          onPress={() => {
+            router.back();
+            closeBottomSheet();
+          }}
+        />
         <BytebankText
           variant="titleMedium"
           style={{ textAlign: "center", fontWeight: "bold" }}
@@ -172,10 +416,10 @@ export default function ManageCards() {
           icon="plus"
           mode="outlined"
           size={24}
-          onPress={() => openBottomSheet(BottomSheetContent)}
+          onPress={openCreateBottomSheet}
         />
       </View>
-      {/* --- Container (Corpo da Tela) --- */}
+
       <Container scrollable={false}>
         <View style={{ position: "relative" }}>
           <Divider />
@@ -193,24 +437,36 @@ export default function ManageCards() {
           </BytebankText>
         </View>
 
-        <FlatList
-          data={cards}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => (
-            <>
-              <ManageCardItem card={item} onPress={handleCardPress} />
-              {index !== cards.length - 1 && <Divider />}
-            </>
-          )}
-          ListEmptyComponent={() => (
-            <View style={{ paddingTop: 40, alignItems: "center" }}>
-              <BytebankText style={{ color: colors.outline }}>
-                Nenhum cartão cadastrado. Clique em + para adicionar.
-              </BytebankText>
-            </View>
-          )}
-          style={{ marginTop: 16 }}
-        />
+        {loading ? (
+          <View style={{ paddingTop: 40, alignItems: "center" }}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <BytebankText style={{ color: colors.outline, marginTop: 10 }}>
+              Carregando cartões...
+            </BytebankText>
+          </View>
+        ) : (
+          <FlatList
+            data={cards}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item, index }) => (
+              <>
+                <ManageCardItem
+                  card={item}
+                  onPress={() => handleCardPress(item)}
+                />
+                {index !== cards.length - 1 && <Divider />}
+              </>
+            )}
+            ListEmptyComponent={() => (
+              <View style={{ paddingTop: 40, alignItems: "center" }}>
+                <BytebankText style={{ color: colors.outline }}>
+                  Nenhum cartão cadastrado. Clique em + para adicionar.
+                </BytebankText>
+              </View>
+            )}
+            style={{ marginTop: 16 }}
+          />
+        )}
       </Container>
     </>
   );

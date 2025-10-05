@@ -8,7 +8,7 @@ import { BytebankText } from "../ui/text/text";
 
 interface ManageCardItemProps {
   card: Card;
-  onPress?: (card: Card) => void;
+  [key: string]: any;
 }
 
 // Helper para formatar moeda
@@ -21,12 +21,12 @@ function formatCurrencyBRL(value: number | string): string {
   });
 }
 
-export const ManageCardItem = ({ card, onPress }: ManageCardItemProps) => {
+export const ManageCardItem = ({ card, ...props }: ManageCardItemProps) => {
   const { colors } = useTheme();
 
   return (
     <Pressable
-      onPress={() => console.log(card)}
+      {...props}
       style={({ pressed }) => ({
         paddingVertical: 8,
         paddingHorizontal: 10,
@@ -93,7 +93,7 @@ export const ManageCardItem = ({ card, onPress }: ManageCardItemProps) => {
         <View
           style={{
             marginTop: 12,
-            backgroundColor: colors.backdrop,
+            backgroundColor: colors.elevation.level1,
             borderRadius: 8,
             padding: 12,
           }}

@@ -76,7 +76,7 @@ export function SnackbarProvider({ children }: { children: React.ReactNode }) {
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           {getIcon()}
           <BytebankText style={{ color: colors.background }}>
-            asdasd{message}
+            {message}
           </BytebankText>
         </View>
       </Snackbar>

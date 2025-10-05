@@ -1,6 +1,7 @@
 import { themeDark, themeLight } from "@/constants/theme";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BottomSheetProvider } from "@/contexts/BottomSheetContext";
+import { CardsProvider } from "@/contexts/CardsContext";
 import { SnackbarProvider } from "@/contexts/SnackBarContext";
 import { useFonts } from "expo-font";
 import { StatusBar } from "expo-status-bar";
@@ -10,6 +11,17 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider, useTheme } from "react-native-paper";
 import "react-native-reanimated";
 import Routes from "./routes";
+
+// Componente wrapper que fornece o userId para o CardsProvider
+const AppWithCards = () => {
+  const { user } = useAuth();
+
+  return (
+    <CardsProvider userId={user?.uid}>
+      <Routes />
+    </CardsProvider>
+  );
+};
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -31,7 +43,7 @@ export default function RootLayout() {
         <BottomSheetProvider snapPoints={["65%"]}>
           <SnackbarProvider>
             <AuthProvider>
-              <Routes />
+              <AppWithCards />
             </AuthProvider>
           </SnackbarProvider>
         </BottomSheetProvider>

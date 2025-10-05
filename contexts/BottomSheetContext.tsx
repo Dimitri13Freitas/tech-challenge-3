@@ -1,11 +1,18 @@
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import React, { createContext, useContext, useRef, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 import { useColorScheme, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
 interface BottomSheetContextType {
-  openBottomSheet: (content: React.ReactNode) => void;
+  openBottomSheet: (content: React.ReactNode, onClose?: () => void) => void;
   closeBottomSheet: () => void;
+  isOpen: boolean;
 }
 
 interface BottomSheetProviderProps {
@@ -24,24 +31,57 @@ export const BottomSheetProvider = ({
   const bottomSheetRef = useRef<BottomSheet>(null);
   const memoizedSnapPoints = React.useMemo(() => snapPoints, [snapPoints]);
   const [content, setContent] = useState<React.ReactNode>(null);
+  const [onCloseCallback, setOnCloseCallback] = useState<(() => void) | null>(
+    null,
+  );
+  const [isOpen, setIsOpen] = useState(false);
 
-  const openBottomSheet = (newContent: React.ReactNode) => {
-    setContent(newContent);
-    bottomSheetRef.current?.expand();
-  };
+  const openBottomSheet = useCallback(
+    (newContent: React.ReactNode, onClose?: () => void) => {
+      setContent(newContent);
+      setOnCloseCallback(() => onClose || null);
+      setIsOpen(true);
+      bottomSheetRef.current?.expand();
+    },
+    [],
+  );
 
-  const closeBottomSheet = () => {
+  const closeBottomSheet = useCallback(() => {
+    setIsOpen(false);
     bottomSheetRef.current?.close();
-  };
+  }, []);
+
+  const handleSheetChanges = useCallback(
+    (index: number) => {
+      if (index === -1) {
+        // BottomSheet foi fechado - sempre limpa o estado
+        const callback = onCloseCallback;
+        setOnCloseCallback(null);
+        setContent(null);
+        setIsOpen(false);
+
+        // Executa o callback se existir
+        if (callback) {
+          callback();
+        }
+      } else if (index >= 0) {
+        setIsOpen(true);
+      }
+    },
+    [onCloseCallback],
+  );
 
   return (
-    <BottomSheetContext.Provider value={{ openBottomSheet, closeBottomSheet }}>
+    <BottomSheetContext.Provider
+      value={{ openBottomSheet, closeBottomSheet, isOpen }}
+    >
       {children}
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
         snapPoints={memoizedSnapPoints}
         enablePanDownToClose
+        onChange={handleSheetChanges}
         backgroundStyle={{
           backgroundColor: colors.surfaceVariant,
         }}
