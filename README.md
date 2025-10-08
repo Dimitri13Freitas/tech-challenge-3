@@ -1,18 +1,20 @@
 # Bytebank - Tech Challenge #3
 
-Bem-vindo ao projeto de estudo **Bytebank**, um aplicativo moderno desenvolvido em **React Native**. Para garantir uma estrutura flexível, escalável e organizada, o projeto foi criado utilizando o **Expo** (https://docs.expo.dev/).
+Bem-vindo ao projeto de estudo **Bytebank**, um aplicativo moderno desenvolvido em **React Native** (https://reactnative.dev/). Para garantir uma estrutura flexível, escalável e organizada, o projeto foi criado utilizando o **Expo** (https://docs.expo.dev/) e para a interface usei **React-Native-Paper** (https://reactnativepaper.com/).
 
 ---
 
 ## 🚀 Começando
 
+### Funcionalidades Implementadas ✅
+
 Estas instruções vão te ajudar a rodar o projeto localmente e explorar as funcionalidades que implementamos neste projeto, que são elas:
 
-- Possibilidade de criar um novo usuário e logar na aplicação com **autenticação**;
-- Criar uma transação registrada;
-- Visualizar o saldo total;
-- Criar categorias;
-- Criar, visualizar, editar bloquear cartões vinculados a sua conta;
+- Login e cadastro de usuário
+- Adicionar transações (despesa/receita)
+- Visualizar saldo geral
+- Criar e personalizar categorias
+- Cadastro e visualização de cartões
 
 ### Pré-requisitos
 
@@ -34,10 +36,13 @@ Instale todas as dependências:
 ```bash
 npm install
 ```
+Após isso pegue o arquivo .env no credentials.zip e coloque-o na raiz do projeto
 
 ## 🚀 Como Executar
 
 ### Rodar o projeto
+
+Certifique-se que você tem o aplicativo **Expo Go** (https://play.google.com/store/apps/details?id=host.exp.exponent&hl=pt_BR) instalado em seu celular.
 
 Execute o comando abaixo para iniciar o servidor de desenvolvimento:
 
@@ -45,35 +50,13 @@ Execute o comando abaixo para iniciar o servidor de desenvolvimento:
 npm start
 ```
 
-## Rodar a API
-
-Para iniciar a API, é necessário clonar nosso outro repositório do [Bytebank API](https://github.com/TechChallengeJourney/bytebank-api) e rodar os comandos:
-
-```bash
-docker-compose build
-docker-compose up
-```
-
-## 🛠️ Arquitetura de Infraestrutura
-
-### Backend: API
-Para o backend do Bytebank, optamos por utilizar a **AWS (Amazon Web Services)** como provedor de nuvem, especificamente os serviços **ECR (Elastic Container Registry)** e **ECS (Elastic Container Service)**.
-
-### Frontend: Aplicação Principal e Microfrontends
-Para a aplicação principal e seus microfrontends, adotamos a plataforma Vercel.
-
-- [Aplicação Principal](https://bytebank-demo.vercel.app/)
-- [Microfrontend - Widgets de Investimentos](https://bytebank-investments.vercel.app/)
-- [Microfrontend - Transações](https://bytebank-transactions.vercel.app/)
-- [Blog do Bytebank](https://bytebank-blog.vercel.app/)
-
+- Isso abrirá o Expo Dev Tools no navegador.
+- Use o QR Code para testar no celular com Expo Go, ou rode em um emulador.
 
 ## Links Úteis
 
 - [React](https://react.dev/reference/react)
-- [Material MUI](https://mui.com/material-ui/all-components/)
-- [Module Federation](https://module-federation.io/practice/frameworks/react/index.html)
-- [Rsbuild](https://rsbuild.rs)
-- [Storybook](https://storybook.js.org/docs)
-- [TurboRepo](https://turborepo.com/docs)
-- [Astro](https://docs.astro.build/en/basics/astro-components)
+- [React Native](https://reactnative.dev/)
+- [Expo](https://docs.expo.dev/)
+- [Firebase](https://firebase.google.com/)
+- [React Native Paper](https://reactnativepaper.com/)
