@@ -1,5 +1,5 @@
 export const staticColors = {
-  incoming: "rgba(67, 160, 71, 1)",
+  income: "rgba(67, 160, 71, 1)",
   expense: "rgba(229, 57, 53, 1)",
 };
 

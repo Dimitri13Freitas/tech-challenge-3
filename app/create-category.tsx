@@ -5,8 +5,8 @@ import FadeInView from "@/components/ui/fade-in-view/fade-in-view";
 import { BytebankTextInputController } from "@/components/ui/text-input/text-input-controller";
 import { BytebankText } from "@/components/ui/text/text";
 import { useAuth } from "@/contexts/AuthContext";
-import { useBottomSheet } from "@/contexts/BottomSheetContext";
-import { useSnackbar } from "@/contexts/SnackBarContext";
+import { useBottomSheet } from "@/hooks/BottomSheetHook";
+import { useSnackbar } from "@/hooks/SnackBarHook";
 import {
   addCustomCategory,
   getCombinedCategories,
@@ -106,7 +106,7 @@ export default function CreateCategory() {
       await addCustomCategory(user.uid, data.category.trim(), tab);
       reset();
       closeBottomSheet();
-      showMessage("CAtegoria adicionada com sucesso!", "success");
+      showMessage("Categoria adicionada com sucesso!", "success");
       await loadData(true);
     } catch (error) {
       alert("Erro ao adicionar categoria. Tente novamente.");

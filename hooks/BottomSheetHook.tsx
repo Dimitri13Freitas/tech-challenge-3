@@ -47,9 +47,19 @@ export const BottomSheetProvider = ({
   );
 
   const closeBottomSheet = useCallback(() => {
+    console.log(
+      "closeBottomSheet chamado, onCloseCallback existe:",
+      !!onCloseCallback,
+    );
+    // Executa o callback antes de fechar
+    if (onCloseCallback) {
+      console.log("Executando callback de fechamento");
+      onCloseCallback();
+      setOnCloseCallback(null);
+    }
     setIsOpen(false);
     bottomSheetRef.current?.close();
-  }, []);
+  }, [onCloseCallback]);
 
   const handleSheetChanges = useCallback(
     (index: number) => {

@@ -10,17 +10,25 @@ import {
   doc,
   DocumentData,
   getDocs,
+  increment,
   limit,
   orderBy,
   query,
   QueryDocumentSnapshot,
+  runTransaction,
   serverTimestamp,
   setDoc,
   startAfter,
   updateDoc,
   where,
 } from "firebase/firestore";
-import { db } from "../constants/firebase";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
+import { db, storage } from "../constants/firebase";
 
 interface AddCardData {
   name: string;
@@ -31,39 +39,31 @@ interface AddCardData {
 
 export const createUserProfile = async (uid: string, email: string) => {
   try {
-    // Referencia o documento do usuário usando o UID como ID
     const userRef = doc(db, "users", uid);
 
-    // Cria o documento com os dados iniciais
     await setDoc(userRef, {
       email: email,
-      totalBalance: 0, // Saldo inicial, conforme sua estrutura
-      createdAt: new Date(), // Data de criação (útil para análises futuras)
+      totalBalance: 0,
+      createdAt: new Date(),
     });
     console.log("Documento do usuário criado com sucesso!");
   } catch (error) {
     console.error("Erro ao criar o documento do usuário: ", error);
-    // Você pode querer tratar o erro de forma mais robusta no seu app
   }
 };
 
 export const addTransaction = async (userId: string, transactionData: any) => {
   try {
-    // Referencia a subcoleção 'transactions' dentro do documento do usuário
-    // ou a coleção de nível superior 'transactions'
     const transactionsCollectionRef = collection(db, "transactions");
 
-    // Adiciona um novo documento com os dados da transação
-    // O Firestore gera automaticamente um ID para este documento
     await addDoc(transactionsCollectionRef, {
       ...transactionData,
-      userId: userId, // Garante que a transação esteja ligada ao usuário
-      date: serverTimestamp(), // Opcional: use serverTimestamp() para garantir a data do servidor
+      userId: userId,
+      date: serverTimestamp(),
     });
     console.log("Transação adicionada com sucesso!");
   } catch (error) {
     console.error("Erro ao adicionar transação: ", error);
-    // Trate o erro no seu aplicativo
   }
 };
 
@@ -75,7 +75,6 @@ export const getCombinedCategories = async (
   lastUserDoc?: QueryDocumentSnapshot<DocumentData> | null,
 ): Promise<CombinedCategoriesResult> => {
   try {
-    // --- 1. Busca Categorias Padrão (Globais) ---
     const standardRef = collection(db, "standardCategories");
 
     let standardQuery =
@@ -108,7 +107,6 @@ export const getCombinedCategories = async (
     const newLastStandardDoc =
       standardSnapshot.docs[standardSnapshot.docs.length - 1] || null;
 
-    // --- 2. Busca Categorias Personalizadas do Usuário ---
     const userRef = collection(db, "categories");
 
     const userFilters = [where("userId", "==", userId)];
@@ -142,8 +140,6 @@ export const getCombinedCategories = async (
 
     const newLastUserDoc =
       userSnapshot.docs[userSnapshot.docs.length - 1] || null;
-
-    // --- 3. Retorna junto com cursores ---
     return {
       categories: [...standardCategories, ...userCategories],
       lastStandardDoc: newLastStandardDoc,
@@ -167,7 +163,6 @@ export const addCustomCategory = async (
   }
 
   try {
-    // Referencia a coleção correta para categorias personalizadas
     const userCategoriesRef = collection(db, "categories");
 
     await addDoc(userCategoriesRef, {
@@ -180,7 +175,6 @@ export const addCustomCategory = async (
     console.log("Categoria customizada adicionada com sucesso!");
   } catch (error) {
     console.error("Erro ao adicionar categoria customizada: ", error);
-    // Lança um erro para ser tratado pela função handleAddCategory no componente
     throw new Error(
       "Não foi possível adicionar a categoria ao banco de dados.",
     );
@@ -189,16 +183,13 @@ export const addCustomCategory = async (
 
 export const removeCustomCategory = async (categoryId: string) => {
   try {
-    // Referencia o documento específico na coleção de categorias do usuário
     const categoryRef = doc(db, "categories", categoryId);
 
-    // Deleta o documento
     await deleteDoc(categoryRef);
 
     console.log("Categoria customizada removida com sucesso!");
   } catch (error) {
     console.error("Erro ao remover categoria customizada: ", error);
-    // Lança um erro que será pego no componente
     throw new Error("Não foi possível remover a categoria do banco de dados.");
   }
 };
@@ -206,29 +197,22 @@ export const removeCustomCategory = async (categoryId: string) => {
 export const getCardsByUserId = async (userId: string): Promise<Card[]> => {
   try {
     const cardsRef = collection(db, "cards");
-    // 1. Cria a query: filtra pelo userId e ordena pelo nome para uma exibição consistente
     const q = query(
       cardsRef,
       where("userId", "==", userId),
       orderBy("name", "asc"),
     );
 
-    // 2. Executa a query
     const snapshot = await getDocs(q);
-    // console.log(snapshot);
 
-    // 3. Mapeia os documentos para o formato Card[]
     const cards: Card[] = snapshot.docs.map((doc) => ({
       id: doc.id,
-      // O Firestore garante que os dados no doc.data() estão lá
-      // O cast 'as Card' força o tipo, mas é mais seguro validar em apps de produção
       ...(doc.data() as Omit<Card, "id">),
     }));
 
     return cards;
   } catch (error) {
     console.error("Erro ao listar cartões do usuário: ", error);
-    // Lança um erro customizado para ser tratado na UI
     throw new Error("Não foi possível carregar seus cartões.");
   }
 };
@@ -240,7 +224,6 @@ export const addCard = async (
   dueDate: number,
   closingDate: number,
 ) => {
-  // 1. Validar a entrada (ex: se o dia de fechamento faz sentido)
   if (closingDate < 1 || closingDate > 31) {
     throw new Error("O dia de fechamento deve ser entre 1 e 31.");
   }
@@ -249,7 +232,6 @@ export const addCard = async (
   }
 
   try {
-    // Coleção de cartões para dados públicos/compartilháveis
     const cardsRef = collection(db, "cards");
 
     await addDoc(cardsRef, {
@@ -258,7 +240,7 @@ export const addCard = async (
       limit: limit,
       dueDate: dueDate,
       closingDate: closingDate,
-      blocked: false, // Começa sempre desbloqueado
+      blocked: false,
       createdAt: new Date(),
     });
   } catch (error) {
@@ -269,7 +251,7 @@ export const addCard = async (
 
 export const updateCard = async (
   cardId: string,
-  data: Omit<AddCardData, "userId">, // Usa a interface de dados, excluindo userId
+  data: Omit<AddCardData, "userId">,
 ): Promise<void> => {
   try {
     const cardsRef = collection(db, "cards");
@@ -281,7 +263,6 @@ export const updateCard = async (
       dueDate: data.dueDate,
       closingDate: data.closingDate,
     });
-    console.log("testeeeeee");
   } catch (error) {
     console.error(`Erro ao atualizar cartão ${cardId}: `, error);
     throw new Error("Não foi possível atualizar o cartão.");
@@ -302,5 +283,145 @@ export const toggleCardBlockedStatus = async (
   } catch (error) {
     console.error(`Erro ao alternar status do cartão ${cardId}: `, error);
     throw new Error("Não foi possível alterar o status de bloqueio.");
+  }
+};
+
+export const getPaymentMethods = async (
+  type: "expense" | "income",
+): Promise<string[]> => {
+  try {
+    const q = query(
+      collection(db, "paymentMethods"),
+      where("type", "==", type),
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    const methods = querySnapshot.docs.map((doc) => doc.data().name);
+
+    return methods;
+  } catch (error) {
+    console.error("Erro ao buscar métodos de pagamento:", error);
+    return [];
+  }
+};
+
+export const uploadFile = async (
+  userId: string,
+  fileUri: string,
+  fileName: string,
+  fileType: string,
+): Promise<string> => {
+  try {
+    const storageRef = ref(
+      storage,
+      `transactions/${userId}/${Date.now()}_${fileName}`,
+    );
+
+    const response = await fetch(fileUri);
+    const blob = await response.blob();
+
+    const uploadTask = await uploadBytes(storageRef, blob);
+
+    const downloadURL = await getDownloadURL(uploadTask.ref);
+
+    console.log("Arquivo enviado com sucesso:", downloadURL);
+    return downloadURL;
+  } catch (error) {
+    console.error("Erro ao fazer upload do arquivo:", error);
+    throw new Error("Não foi possível enviar o arquivo.");
+  }
+};
+
+export const deleteFile = async (fileUrl: string): Promise<void> => {
+  try {
+    const fileRef = ref(storage, fileUrl);
+    await deleteObject(fileRef);
+    console.log("Arquivo deletado com sucesso");
+  } catch (error) {
+    console.error("Erro ao deletar arquivo:", error);
+    throw new Error("Não foi possível deletar o arquivo.");
+  }
+};
+
+export const addTransactionAndUpdateBalance = async (
+  userId: string,
+  transactionData: any,
+) => {
+  const userRef = doc(db, "users", userId);
+  const transactionsCollectionRef = collection(
+    db,
+    "users",
+    userId,
+    "transactions",
+  );
+
+  const { valor } = transactionData;
+  const valorNumber = parseFloat(valor);
+  let valorDelta: number;
+
+  if (transactionData.type === "income") {
+    valorDelta = valorNumber;
+  } else if (transactionData.type === "expense") {
+    valorDelta = -valorNumber;
+  } else {
+    throw new Error("Tipo de transação inválido. Use 'income' ou 'expense'.");
+  }
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const newTransactionRef = doc(transactionsCollectionRef);
+
+      transaction.set(newTransactionRef, {
+        ...transactionData,
+        data: new Date(),
+      });
+
+      transaction.update(userRef, {
+        totalBalance: increment(valorDelta),
+      });
+    });
+
+    console.log("Transação e Saldo atualizados com sucesso!");
+  } catch (e) {
+    console.error("Falha na transação atômica: ", e);
+  }
+};
+
+// Função para buscar transações por mês
+export const getTransactionsByMonth = async (
+  userId: string,
+  year: number,
+  month: number,
+) => {
+  try {
+    // Criar datas de início e fim do mês
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+
+    const transactionsRef = collection(db, `users/${userId}/transactions`);
+
+    const q = query(
+      transactionsRef,
+      where("date", ">=", startOfMonth),
+      where("date", "<=", endOfMonth),
+      orderBy("date", "desc"),
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    const transactions = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    console.log(
+      `Transações encontradas para ${month}/${year}:`,
+      transactions.length,
+    );
+    return transactions;
+  } catch (error) {
+    console.error("Erro ao buscar transações por mês:", error);
+    throw new Error("Não foi possível carregar as transações.");
   }
 };

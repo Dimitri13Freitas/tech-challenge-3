@@ -5,7 +5,7 @@ import Container from "@/components/ui/container/container";
 
 export default function HomeScreen() {
   return (
-    <Container>
+    <Container scrollable={true}>
       <BalanceCard />
       <MyCards />
       <CustomizeCategories />

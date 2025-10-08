@@ -5,9 +5,9 @@ import { BytebankTextInputController } from "@/components/ui/text-input/text-inp
 import { BytebankText } from "@/components/ui/text/text";
 import { staticColors } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
-import { useBottomSheet } from "@/contexts/BottomSheetContext";
 import { useCards } from "@/contexts/CardsContext";
-import { useSnackbar } from "@/contexts/SnackBarContext";
+import { useBottomSheet } from "@/hooks/BottomSheetHook";
+import { useSnackbar } from "@/hooks/SnackBarHook";
 import {
   addCard,
   toggleCardBlockedStatus,
@@ -331,10 +331,10 @@ export default function ManageCards() {
             mode="outlined"
             style={{
               marginTop: 20,
-              borderColor: card.blocked ? staticColors.incoming : colors.error,
+              borderColor: card.blocked ? staticColors.income : colors.error,
             }}
             labelStyle={{
-              color: card.blocked ? staticColors.incoming : colors.error,
+              color: card.blocked ? staticColors.income : colors.error,
             }}
           >
             {card.blocked ? "Desbloquear Cartão" : "Bloquear Cartão"}
@@ -440,9 +440,6 @@ export default function ManageCards() {
         {loading ? (
           <View style={{ paddingTop: 40, alignItems: "center" }}>
             <ActivityIndicator size="large" color={colors.primary} />
-            <BytebankText style={{ color: colors.outline, marginTop: 10 }}>
-              Carregando cartões...
-            </BytebankText>
           </View>
         ) : (
           <FlatList

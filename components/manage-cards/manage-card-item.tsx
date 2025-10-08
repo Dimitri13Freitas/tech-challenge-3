@@ -120,7 +120,7 @@ export const ManageCardItem = ({ card, ...props }: ManageCardItemProps) => {
                   fontWeight: "bold",
                   color: card?.blocked
                     ? staticColors.expense
-                    : staticColors.incoming,
+                    : staticColors.income,
                 }}
               >
                 {card?.blocked ? "Bloqueado" : "Ativo"}

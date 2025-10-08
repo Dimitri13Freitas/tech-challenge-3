@@ -5,29 +5,48 @@ import {
 } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { BytebankText } from "../ui/text/text";
 
 dayjs.locale("pt-br");
 
-export default function MonthNavigator() {
+interface MonthNavigatorProps {
+  onMonthChange?: (month: dayjs.Dayjs) => void;
+}
+
+export default function MonthNavigator({ onMonthChange }: MonthNavigatorProps) {
   const { colors } = useTheme();
   const [currentMonth, setCurrentMonth] = useState(dayjs());
 
   const isCurrentMonth = currentMonth.isSame(dayjs(), "month");
 
+  // Chamar callback apenas na inicialização
+  useEffect(() => {
+    onMonthChange?.(currentMonth);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const getCurrentDate = () => {
-    setCurrentMonth(dayjs());
+    const newMonth = dayjs();
+    setCurrentMonth(newMonth);
+    onMonthChange?.(newMonth);
   };
 
   const goToPreviousMonth = () => {
-    setCurrentMonth((prev) => prev.subtract(1, "month"));
+    setCurrentMonth((prev) => {
+      const newMonth = prev.subtract(1, "month");
+      onMonthChange?.(newMonth);
+      return newMonth;
+    });
   };
 
   const goToNextMonth = () => {
-    setCurrentMonth((prev) => prev.add(1, "month"));
+    setCurrentMonth((prev) => {
+      const newMonth = prev.add(1, "month");
+      onMonthChange?.(newMonth);
+      return newMonth;
+    });
   };
 
   const formatMonth = (month: any) => {
@@ -69,7 +88,7 @@ export default function MonthNavigator() {
       >
         {!isCurrentMonth ? (
           <TouchableOpacity onPress={getCurrentDate}>
-            <AntDesign name="calendar" size={26} color={colors.onBackground} />
+            <AntDesign name="calendar" size={24} color={colors.onBackground} />
           </TouchableOpacity>
         ) : null}
 

@@ -1,12 +1,41 @@
+import { useAuth } from "@/contexts/AuthContext";
+import useBalance from "@/contexts/useBalance";
 import { useState } from "react";
 import { View } from "react-native";
-import { IconButton, useTheme } from "react-native-paper";
+import { ActivityIndicator, IconButton, useTheme } from "react-native-paper";
 import { BytebankCard } from "../ui/card/card";
 import { BytebankText } from "../ui/text/text";
 
+const formatCurrency = (value: number | null): string => {
+  if (value === null) return "R$ 0,00";
+  return value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+};
+
 export function BalanceCard() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const { colors } = useTheme();
+  const { user } = useAuth();
+  const { balance, loading, error } = useBalance(user?.uid ? user?.uid : null);
+
+  let balanceText = "-----";
+
+  if (loading) {
+    // Se estiver carregando, exibe o indicador ou a máscara
+    balanceText = "Carregando...";
+  } else if (error) {
+    // Se houver erro, exibe uma mensagem
+    balanceText = "Erro ao carregar";
+  } else if (balance !== null) {
+    // Se o saldo for carregado, formata o valor
+    balanceText = formatCurrency(balance);
+  }
+
+  // Valor que será realmente exibido
+  const displayValue = isVisible ? balanceText : "-----";
+
   return (
     <View>
       <BytebankCard
@@ -40,9 +69,17 @@ export function BalanceCard() {
             >
               Saldo geral
             </BytebankText>
-            <BytebankText variant="titleLarge" style={{ fontWeight: "bold" }}>
-              R$ {isVisible ? "1234,56" : "-----"}
-            </BytebankText>
+
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <BytebankText variant="titleLarge" style={{ fontWeight: "bold" }}>
+                {/* Aqui exibimos o valor processado */}
+                {displayValue}
+              </BytebankText>
+              {/* Opcional: Indicador de carregamento ao lado do texto */}
+              {loading && balance === null && (
+                <ActivityIndicator size="small" style={{ marginLeft: 10 }} />
+              )}
+            </View>
           </View>
           <IconButton
             icon={!isVisible ? "eye" : "eye-off"}

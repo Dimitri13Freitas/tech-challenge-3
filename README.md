@@ -1,50 +1,79 @@
-# Welcome to your Expo app 👋
+# Bytebank - Tech Challenge #3
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Bem-vindo ao projeto de estudo **Bytebank**, um aplicativo moderno desenvolvido em **React Native**. Para garantir uma estrutura flexível, escalável e organizada, o projeto foi criado utilizando o **Expo** (https://docs.expo.dev/).
 
-## Get started
+---
 
-1. Install dependencies
+## 🚀 Começando
 
-   ```bash
-   npm install
-   ```
+Estas instruções vão te ajudar a rodar o projeto localmente e explorar as funcionalidades que implementamos neste projeto, que são elas:
 
-2. Start the app
+- Possibilidade de criar um novo usuário e logar na aplicação com **autenticação**;
+- Criar uma transação registrada;
+- Visualizar o saldo total;
+- Criar categorias;
+- Criar, visualizar, editar bloquear cartões vinculados a sua conta;
 
-   ```bash
-   npx expo start
-   ```
+### Pré-requisitos
 
-In the output, you'll find options to open the app in a
+Certifique-se de ter o [Node.js](https://nodejs.org/).
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🛠️ Instalação
 
-## Get a fresh project
-
-When you're ready, run:
+Clone este repositório:
 
 ```bash
-npm run reset-project
+git clone https://github.com/Dimitri13Freitas/tech-challenge-3.git
+cd tech-challenge-3
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Instale todas as dependências:
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🚀 Como Executar
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Rodar o projeto
 
-## Join the community
+Execute o comando abaixo para iniciar o servidor de desenvolvimento:
 
-Join our community of developers creating universal apps.
+```bash
+npm start
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Rodar a API
+
+Para iniciar a API, é necessário clonar nosso outro repositório do [Bytebank API](https://github.com/TechChallengeJourney/bytebank-api) e rodar os comandos:
+
+```bash
+docker-compose build
+docker-compose up
+```
+
+## 🛠️ Arquitetura de Infraestrutura
+
+### Backend: API
+Para o backend do Bytebank, optamos por utilizar a **AWS (Amazon Web Services)** como provedor de nuvem, especificamente os serviços **ECR (Elastic Container Registry)** e **ECS (Elastic Container Service)**.
+
+### Frontend: Aplicação Principal e Microfrontends
+Para a aplicação principal e seus microfrontends, adotamos a plataforma Vercel.
+
+- [Aplicação Principal](https://bytebank-demo.vercel.app/)
+- [Microfrontend - Widgets de Investimentos](https://bytebank-investments.vercel.app/)
+- [Microfrontend - Transações](https://bytebank-transactions.vercel.app/)
+- [Blog do Bytebank](https://bytebank-blog.vercel.app/)
+
+
+## Links Úteis
+
+- [React](https://react.dev/reference/react)
+- [Material MUI](https://mui.com/material-ui/all-components/)
+- [Module Federation](https://module-federation.io/practice/frameworks/react/index.html)
+- [Rsbuild](https://rsbuild.rs)
+- [Storybook](https://storybook.js.org/docs)
+- [TurboRepo](https://turborepo.com/docs)
+- [Astro](https://docs.astro.build/en/basics/astro-components)

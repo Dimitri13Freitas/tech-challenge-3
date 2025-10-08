@@ -1,8 +1,8 @@
 import { themeDark, themeLight } from "@/constants/theme";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { BottomSheetProvider } from "@/contexts/BottomSheetContext";
 import { CardsProvider } from "@/contexts/CardsContext";
-import { SnackbarProvider } from "@/contexts/SnackBarContext";
+import { BottomSheetProvider } from "@/hooks/BottomSheetHook";
+import { SnackbarProvider } from "@/hooks/SnackBarHook";
 import { useFonts } from "expo-font";
 import { StatusBar } from "expo-status-bar";
 import React from "react";

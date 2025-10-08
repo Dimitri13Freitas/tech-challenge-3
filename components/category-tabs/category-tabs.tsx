@@ -15,7 +15,7 @@ export const CategoryTabs = ({
 }) => {
   const { colors } = useTheme();
   const textColor =
-    value === "expense" ? staticColors.expense : staticColors.incoming;
+    value === "expense" ? staticColors.expense : staticColors.income;
   return (
     <View
       style={{

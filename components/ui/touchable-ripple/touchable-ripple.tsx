@@ -1,4 +1,4 @@
-import { useBottomSheet } from "@/contexts/BottomSheetContext";
+import { useBottomSheet } from "@/hooks/BottomSheetHook";
 import { ReactNode } from "react";
 import { StyleProp, View, ViewStyle } from "react-native";
 import { TouchableRipple, useTheme } from "react-native-paper";
@@ -7,8 +7,10 @@ import { BytebankText } from "../text/text";
 interface BytebankTouchableRippleProps {
   placeholder?: string;
   icon?: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  onClose?: () => void;
+  [key: string]: any;
 }
 
 export const BytebankTouchableRipple = ({
@@ -16,14 +18,17 @@ export const BytebankTouchableRipple = ({
   icon,
   children,
   style,
+  onClose,
+  ...props
 }: BytebankTouchableRippleProps) => {
   const { colors } = useTheme();
   const { openBottomSheet } = useBottomSheet();
-
   return (
     <TouchableRipple
       rippleColor="red"
-      onPress={() => openBottomSheet(children)}
+      {...(children
+        ? { onPress: () => openBottomSheet(children, onClose) }
+        : null)}
       style={[
         {
           borderColor: colors.surfaceVariant,
@@ -33,6 +38,7 @@ export const BytebankTouchableRipple = ({
         },
         style,
       ]}
+      {...props}
     >
       <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
         <View

@@ -3,7 +3,7 @@ import Container from "@/components/ui/container/container";
 import { BytebankTextInputController } from "@/components/ui/text-input/text-input-controller";
 import { BytebankText } from "@/components/ui/text/text";
 import { auth } from "@/constants/firebase";
-import { useSnackbar } from "@/contexts/SnackBarContext";
+import { useSnackbar } from "@/hooks/SnackBarHook";
 import { router } from "expo-router";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { useState } from "react";
