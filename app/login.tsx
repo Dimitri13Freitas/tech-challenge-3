@@ -68,7 +68,7 @@ export default function Login() {
             height: 200,
             position: "absolute",
             left: -20,
-            top: 480,
+            top: 485,
             opacity: colorScheme === "dark" ? 0.2 : 0.8,
             transform: [{ rotate: "90deg" }],
           }}

@@ -1,4 +1,5 @@
 import { BytebankText } from "@/components/ui/text/text";
+import { staticColors } from "@/constants/theme";
 import { Feather } from "@expo/vector-icons";
 import React, { createContext, useContext, useState } from "react";
 import { View } from "react-native";
@@ -32,13 +33,11 @@ export function SnackbarProvider({ children }: { children: React.ReactNode }) {
     switch (type) {
       case "warning":
         return {
-          borderWidth: 2,
-          borderColor: colors.error,
+          backgroundColor: staticColors.expense,
         };
       case "success":
         return {
-          borderWidth: 2,
-          borderColor: colors.tertiaryContainer,
+          backgroundColor: staticColors.income,
         };
       default:
         return {
@@ -70,14 +69,13 @@ export function SnackbarProvider({ children }: { children: React.ReactNode }) {
         duration={duration}
         action={{
           label: "Fechar",
+          textColor: colors.elevation.level4,
           onPress: () => setVisible(false),
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           {getIcon()}
-          <BytebankText style={{ color: colors.background }}>
-            {message}
-          </BytebankText>
+          <BytebankText style={{ color: "white" }}>{message}</BytebankText>
         </View>
       </Snackbar>
     </SnackbarContext.Provider>
