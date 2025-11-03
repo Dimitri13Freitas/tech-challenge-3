@@ -1,8 +1,8 @@
-import { auth } from "@/constants/firebase";
 import { Container } from "@/src/core/components";
 import { BytebankButton } from "@/src/core/components/ui/button/button";
 import { BytebankTextInputController } from "@/src/core/components/ui/text-input/text-input-controller";
 import { BytebankText } from "@/src/core/components/ui/text/text";
+import { auth } from "@/src/core/firebase/config";
 import { useSnackbar } from "@/src/core/hooks";
 import { router } from "expo-router";
 import { sendPasswordResetEmail } from "firebase/auth";

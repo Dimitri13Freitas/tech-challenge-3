@@ -1,24 +1,18 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { BytebankButton, Container } from "@/src/core/components";
-import { StyleSheet } from "react-native";
+import { BytebankButton, BytebankText, Container } from "@/src/core/components";
+import { useAuthStore } from "@/src/store/useAuthStore";
 
 export default function UserScreen() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <Container>
-      <BytebankButton onPress={() => logout()}>Sair</BytebankButton>
+      <BytebankText>{user?.displayName}</BytebankText>
+      <BytebankText>{user?.email}</BytebankText>
+      <BytebankButton onPress={handleLogout}>Sair</BytebankButton>
     </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-});

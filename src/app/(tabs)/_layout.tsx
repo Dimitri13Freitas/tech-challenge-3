@@ -1,8 +1,6 @@
-import { useAuth } from "@/contexts/AuthContext";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { CommonActions } from "@react-navigation/native";
-import { Redirect } from "expo-router";
 import { BottomNavigation, useTheme } from "react-native-paper";
 import AddScreen from "./add";
 import HomeScreen from "./home";
@@ -13,12 +11,8 @@ import UserScreen from "./user";
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-  const { user } = useAuth();
+  // const { user } = useAuthStore();
   const { colors } = useTheme();
-
-  if (!user) {
-    return <Redirect href="/login" />;
-  }
 
   return (
     <Tab.Navigator

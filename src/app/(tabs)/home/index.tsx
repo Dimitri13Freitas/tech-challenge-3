@@ -1,21 +1,17 @@
-import { BytebankCard, BytebankText, Container } from "@/src/core/components";
-import { BalanceCard } from "@/src/features/balance-card/balance-card";
-import { MyCards } from "@/src/features/my-cards/my-cards";
-import { AntDesign } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { View } from "react-native";
-import { TouchableRipple, useTheme } from "react-native-paper";
+import { BytebankText, Container } from "@/src/core/components";
+import { useTheme } from "react-native-paper";
 
 export default function HomeScreen() {
   const { colors } = useTheme();
 
   async function handlePress() {
-    router.replace("/create-category");
+    // router.replace("/create-category");
   }
 
   return (
     <Container scrollable={true}>
-      <BalanceCard />
+      <BytebankText>Seilaaa</BytebankText>
+      {/* <BalanceCard />
       <MyCards />
       <TouchableRipple onPress={handlePress}>
         <BytebankCard>
@@ -56,7 +52,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </BytebankCard>
-      </TouchableRipple>
+      </TouchableRipple> */}
     </Container>
   );
 }

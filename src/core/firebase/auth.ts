@@ -25,8 +25,14 @@ export const firebaseAuthService = {
     return user;
   },
 
-  signIn: (email: string, password: string) =>
-    signInWithEmailAndPassword(auth, email, password),
+  signIn: async (email: string, password: string) => {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password,
+    );
+    return userCredential;
+  },
 
   signOut: () => signOut(auth),
 

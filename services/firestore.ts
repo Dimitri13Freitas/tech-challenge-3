@@ -1,3 +1,4 @@
+import { db, storage } from "@/src/core/firebase/config";
 import { Card } from "@/types/services/cards/cardTypes";
 import {
   Category,
@@ -28,7 +29,6 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage";
-import { db, storage } from "../constants/firebase";
 
 interface AddCardData {
   name: string;

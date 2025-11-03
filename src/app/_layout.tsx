@@ -1,36 +1,37 @@
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { CardsProvider } from "@/contexts/CardsContext";
 import { themeDark, themeLight } from "@/src/core/theme/theme";
+import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { useColorScheme } from "react-native";
+import { ActivityIndicator, useColorScheme, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider, useTheme } from "react-native-paper";
 import "react-native-reanimated";
 import { BottomSheetProvider, SnackbarProvider } from "../core/hooks";
-import Routes from "./routes";
-
-// Componente wrapper que fornece o userId para o CardsProvider
-const AppWithCards = () => {
-  const { user } = useAuth();
-
-  return (
-    <CardsProvider userId={user?.uid}>
-      <Routes />
-    </CardsProvider>
-  );
-};
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const { colors } = useTheme();
-  // const [loaded] = useFonts({
-  //   SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  // });
-
-  // if (!loaded) return null;
+  const { user, loading } = useAuthStore();
 
   const theme = colorScheme === "dark" ? themeDark : themeLight;
+
+  // Exibe uma tela de loading enquanto aguarda a verificação inicial do Firebase Auth
+  // O Firebase Auth com persistência restaura automaticamente a sessão aqui
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView
@@ -40,9 +41,14 @@ export default function RootLayout() {
       <PaperProvider theme={theme}>
         <BottomSheetProvider snapPoints={["65%"]}>
           <SnackbarProvider>
-            <AuthProvider>
-              <AppWithCards />
-            </AuthProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              {user ? (
+                <Stack.Screen name="(tabs)" />
+              ) : (
+                <Stack.Screen name="(auth)" />
+              )}
+              <Stack.Screen name="+not-found" />
+            </Stack>
           </SnackbarProvider>
         </BottomSheetProvider>
       </PaperProvider>

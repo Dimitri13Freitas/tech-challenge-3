@@ -1,4 +1,4 @@
-import { db } from "@/constants/firebase";
+import { db } from "@/src/core/firebase/config";
 import {
   doc,
   DocumentData,
