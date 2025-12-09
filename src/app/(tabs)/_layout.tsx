@@ -1,116 +1,79 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { CommonActions } from "@react-navigation/native";
-import { BottomNavigation, useTheme } from "react-native-paper";
-import AddScreen from "./add";
-import HomeScreen from "./home";
-import ReportsScreen from "./reports";
-import TransactionScreen from "./transactions";
-import UserScreen from "./user";
+import { Tabs } from "expo-router";
+import { useTheme } from "react-native-paper";
 
-const Tab = createBottomTabNavigator();
-
-export default function App() {
-  // const { user } = useAuthStore();
+export default function TabsLayout() {
   const { colors } = useTheme();
 
   return (
-    <Tab.Navigator
+    <Tabs
       screenOptions={{
-        animation: "none",
         headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.outline,
+        tabBarStyle: {
+          height: 70,
+          borderTopWidth: 1,
+          borderTopColor: colors.surfaceVariant,
+          backgroundColor: colors.elevation.level4,
+        },
+        tabBarItemStyle: {
+          paddingTop: 10,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "500",
+        },
+        tabBarIconStyle: {
+          marginBottom: 2,
+        },
       }}
-      tabBar={({ navigation, state, descriptors, insets }) => (
-        <BottomNavigation.Bar
-          navigationState={state}
-          safeAreaInsets={insets}
-          style={{
-            height: 80,
-            borderTopWidth: 1,
-            borderTopColor: colors.surfaceVariant,
-          }}
-          onTabPress={({ route, preventDefault }) => {
-            const event = navigation.emit({
-              type: "tabPress",
-              target: route.key,
-              canPreventDefault: true,
-            });
-
-            if (event.defaultPrevented) {
-              preventDefault();
-            } else {
-              navigation.dispatch({
-                ...CommonActions.navigate(route.name, route.params),
-                target: state.key,
-              });
-            }
-          }}
-          renderIcon={({ route, focused, color }) =>
-            descriptors[route.key].options.tabBarIcon?.({
-              focused,
-              color,
-              size: 24,
-            }) || null
-          }
-          getLabelText={({ route }) => {
-            const { options } = descriptors[route.key];
-            const label =
-              typeof options.tabBarLabel === "string"
-                ? options.tabBarLabel
-                : typeof options.title === "string"
-                ? options.title
-                : route.name;
-
-            return label;
-          }}
-        />
-      )}
     >
-      <Tab.Screen
-        name="Início"
-        component={HomeScreen}
+      <Tabs.Screen
+        name="home"
         options={{
-          tabBarIcon: ({ color }) => (
+          title: "Início",
+          tabBarIcon: ({ color, size }) => (
             <AntDesign name="home" color={color} size={26} />
           ),
         }}
       />
-      <Tab.Screen
-        name="Transações"
-        component={TransactionScreen}
+      <Tabs.Screen
+        name="transactions/index"
         options={{
-          tabBarIcon: ({ color }) => (
+          title: "Transações",
+          tabBarIcon: ({ color, size }) => (
             <AntDesign name="swap" color={color} size={26} />
           ),
         }}
       />
-      <Tab.Screen
-        name=" "
-        component={AddScreen}
+      <Tabs.Screen
+        name="add/index"
         options={{
-          tabBarIcon: ({ color }) => (
+          title: " ",
+          tabBarIcon: ({ color, size }) => (
             <AntDesign name="plus" color={color} size={26} />
           ),
         }}
       />
-      <Tab.Screen
-        name="Relatórios"
-        component={ReportsScreen}
+      <Tabs.Screen
+        name="reports/index"
         options={{
-          tabBarIcon: ({ color }) => (
+          title: "Relatórios",
+          tabBarIcon: ({ color, size }) => (
             <AntDesign name="bar-chart" color={color} size={26} />
           ),
         }}
       />
-      <Tab.Screen
-        name="Usuário"
-        component={UserScreen}
+      <Tabs.Screen
+        name="user/index"
         options={{
-          tabBarIcon: ({ color }) => (
+          title: "Usuário",
+          tabBarIcon: ({ color, size }) => (
             <AntDesign name="user" color={color} size={26} />
           ),
         }}
       />
-    </Tab.Navigator>
+    </Tabs>
   );
 }

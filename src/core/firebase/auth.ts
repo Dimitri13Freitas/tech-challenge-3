@@ -1,3 +1,4 @@
+import { createUserProfileService } from "@core/api";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -6,7 +7,6 @@ import {
   updateProfile,
   User,
 } from "firebase/auth";
-import { createUserProfile } from "../api/firestore/user.api";
 import { auth } from "./config";
 
 export const firebaseAuthService = {
@@ -20,7 +20,7 @@ export const firebaseAuthService = {
     const { user } = userCredential;
     await updateProfile(user, { displayName: name });
 
-    if (user.email) await createUserProfile(user.uid, user.email);
+    if (user.email) await createUserProfileService(user.uid, user.email);
 
     return user;
   },
@@ -39,3 +39,5 @@ export const firebaseAuthService = {
   onAuthChanged: (callback: (user: User | null) => void) =>
     onAuthStateChanged(auth, callback),
 };
+
+export { User };

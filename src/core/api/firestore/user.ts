@@ -1,7 +1,7 @@
+import { db } from "@core/firebase/config";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../../firebase/config";
 
-export const createUserProfile = async (uid: string, email: string) => {
+export const createUserProfileService = async (uid: string, email: string) => {
   try {
     const userRef = doc(db, "users", uid);
 

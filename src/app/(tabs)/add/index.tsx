@@ -1,4 +1,3 @@
-import { useAuth } from "@/contexts/AuthContext";
 import {
   addTransactionAndUpdateBalance,
   getCombinedCategories,
@@ -11,10 +10,12 @@ import {
 } from "@/src/core/components";
 import { useBottomSheet } from "@/src/core/hooks";
 import { staticColors } from "@/src/core/theme/theme";
-import { Category } from "@/types/services/categories/categoryTypes";
+import { Category } from "@core/types/services/categories/categoryTypes";
+import { formatCurrencyBR } from "@core/utils";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { useAppStore } from "@store/useAppStore";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -29,15 +30,6 @@ import {
 import { Button, TextInput, useTheme } from "react-native-paper";
 import { DatePickerModal } from "react-native-paper-dates";
 
-function formatarMoedaBR(valor: string) {
-  const numero = valor.replace(/\D/g, "");
-  if (!numero) return "0,00";
-  const numeroComCentavos = (parseInt(numero, 10) / 100).toFixed(2);
-  const [inteiro, decimal] = numeroComCentavos.split(".");
-  const inteiroFormatado = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `${inteiroFormatado},${decimal}`;
-}
-
 function formatarData(data: Date | undefined): string {
   if (!data) return "Selecione uma data";
   return data.toLocaleDateString("pt-BR");
@@ -47,7 +39,7 @@ const Tab = createMaterialTopTabNavigator();
 
 function TransactionForm({ type }: { type: "expense" | "income" }) {
   const { colors } = useTheme();
-  const { user } = useAuth();
+  const { user } = useAppStore();
   const { closeBottomSheet } = useBottomSheet();
   const {
     control,
@@ -310,7 +302,14 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
                 ref={inputRef}
                 value={value}
                 keyboardType="numeric"
-                onChangeText={(e) => onChange(formatarMoedaBR(e))}
+                onChangeText={(e) =>
+                  onChange(
+                    formatCurrencyBR(e, {
+                      cleanString: true,
+                      removeSymbol: true,
+                    }),
+                  )
+                }
                 style={{
                   height: 0,
                   width: 0,

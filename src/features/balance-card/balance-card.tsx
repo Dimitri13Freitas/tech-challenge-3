@@ -1,39 +1,30 @@
-import { useAuth } from "@/contexts/AuthContext";
-import useBalance from "@/contexts/useBalance";
+import { useAppStore } from "@/src/store/useAppStore";
+import { formatCurrencyBR } from "@core/utils";
 import { useState } from "react";
 import { View } from "react-native";
 import { ActivityIndicator, IconButton, useTheme } from "react-native-paper";
 import { BytebankCard } from "../../core/components/ui/card/card";
 import { BytebankText } from "../../core/components/ui/text/text";
 
-const formatCurrency = (value: number | null): string => {
-  if (value === null) return "R$ 0,00";
-  return value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-};
-
 export function BalanceCard() {
   const [isVisible, setIsVisible] = useState(true);
   const { colors } = useTheme();
-  const { user } = useAuth();
-  const { balance, loading, error } = useBalance(user?.uid ? user?.uid : null);
+  const {
+    balance,
+    balanceLoading: loading,
+    balanceError: error,
+  } = useAppStore();
 
   let balanceText = "-----";
 
   if (loading) {
-    // Se estiver carregando, exibe o indicador ou a máscara
     balanceText = "Carregando...";
   } else if (error) {
-    // Se houver erro, exibe uma mensagem
     balanceText = "Erro ao carregar";
   } else if (balance !== null) {
-    // Se o saldo for carregado, formata o valor
-    balanceText = formatCurrency(balance);
+    balanceText = formatCurrencyBR(balance, { returnZeroIfNull: true });
   }
 
-  // Valor que será realmente exibido
   const displayValue = isVisible ? balanceText : "-----";
 
   return (
@@ -72,10 +63,8 @@ export function BalanceCard() {
 
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <BytebankText variant="titleLarge" style={{ fontWeight: "bold" }}>
-                {/* Aqui exibimos o valor processado */}
                 {displayValue}
               </BytebankText>
-              {/* Opcional: Indicador de carregamento ao lado do texto */}
               {loading && balance === null && (
                 <ActivityIndicator size="small" style={{ marginLeft: 10 }} />
               )}

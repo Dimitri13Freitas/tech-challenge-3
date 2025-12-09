@@ -1,11 +1,6 @@
-import { useAuth } from "@/contexts/AuthContext";
-import {
-  addCustomCategory,
-  getCombinedCategories,
-  removeCustomCategory,
-} from "@/services/firestore";
 import {
   BytebankButton,
+  BytebankCard,
   BytebankText,
   BytebankTextInputController,
   Container,
@@ -13,7 +8,9 @@ import {
 } from "@/src/core/components";
 import { useBottomSheet, useSnackbar } from "@/src/core/hooks";
 import { CategoryTabs } from "@/src/features";
-import { Category } from "@/types/services/categories/categoryTypes";
+import { Category } from "@core/types/services";
+import { generateRandomColor } from "@core/utils/randomColor";
+import { useAppStore } from "@store/useAppStore";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -26,13 +23,28 @@ interface NewCategoryFormData {
 
 export default function CreateCategory() {
   const { openBottomSheet, closeBottomSheet } = useBottomSheet();
-  const { user } = useAuth();
+  const { user } = useAppStore();
   const { showMessage } = useSnackbar();
+  const { colors } = useTheme();
+
+  // Estados do categorySlice
+  const {
+    categories,
+    categoriesLoading,
+    isRemoving,
+    hasMoreCategories,
+    fetchCategories,
+    addCategory,
+    removeCategory,
+    setCategoryType,
+  } = useAppStore();
 
   const [tab, setTab] = React.useState<"expense" | "income">("expense");
-  const [categories, setCategories] = React.useState<Category[]>([]);
-  const { colors } = useTheme();
-  const fetchIdRef = React.useRef(0);
+  const [loadingMore, setLoadingMore] = React.useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [categoryToDelete, setCategoryToDelete] =
+    React.useState<Category | null>(null);
+
   const {
     control,
     handleSubmit,
@@ -40,14 +52,10 @@ export default function CreateCategory() {
     formState: { isSubmitting },
   } = useForm<NewCategoryFormData>();
 
-  const [lastStandardDoc, setLastStandardDoc] = React.useState<any>(null);
-  const [lastUserDoc, setLastUserDoc] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(false);
-  const [loadingMore, setLoadingMore] = React.useState(false);
-  const [isRemoving, setIsRemoving] = React.useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
-  const [categoryToDelete, setCategoryToDelete] =
-    React.useState<Category | null>(null);
+  // Filtra as categorias baseado no tab selecionado
+  const filteredCategories = React.useMemo(() => {
+    return categories.filter((category) => category.type === tab);
+  }, [categories, tab]);
 
   const promptRemoveCategory = (item: Category) => {
     setCategoryToDelete(item);
@@ -57,69 +65,61 @@ export default function CreateCategory() {
   const executeRemoveCategory = async () => {
     if (!categoryToDelete) return;
     try {
-      setIsRemoving(true);
       setShowDeleteDialog(false);
-      await removeCustomCategory(categoryToDelete.id);
+      await removeCategory(categoryToDelete.id);
       setCategoryToDelete(null);
-      await loadData(true);
+      showMessage("Categoria removida com sucesso!", "success");
     } catch (error) {
       alert("Erro ao remover categoria. Tente novamente.");
       console.error("Erro na remoção da categoria: ", error);
-    } finally {
-      setIsRemoving(false);
     }
   };
 
-  async function loadData(reset = false) {
-    if (!user?.uid) return;
-    const currentFetchId = ++fetchIdRef.current;
-    if (reset) {
-      setLoading(true);
-      setCategories([]);
-      setLastStandardDoc(null);
-      setLastUserDoc(null);
-    }
-    const {
-      categories: newCategories,
-      lastStandardDoc: newStd,
-      lastUserDoc: newUser,
-    } = await getCombinedCategories(
-      user.uid,
-      tab,
-      10,
-      reset ? null : lastStandardDoc,
-      reset ? null : lastUserDoc,
-    );
-    if (currentFetchId === fetchIdRef.current) {
-      setCategories((prev) =>
-        reset ? newCategories : [...prev, ...newCategories],
-      );
-      setLastStandardDoc(newStd);
-      setLastUserDoc(newUser);
-      setLoading(false);
+  const loadMoreCategories = async () => {
+    if (!user?.uid || loadingMore || !hasMoreCategories) return;
+    try {
+      setLoadingMore(true);
+      await fetchCategories(user.uid, undefined, { reset: false });
+      console.log("requisição");
+    } catch (error) {
+      console.error("Erro ao carregar mais categorias: ", error);
+    } finally {
       setLoadingMore(false);
     }
-  }
+  };
 
   const handleAddCategory = async (data: NewCategoryFormData) => {
     if (!user?.uid) return;
     try {
-      await addCustomCategory(user.uid, data.category.trim(), tab);
+      await addCategory(
+        user.uid,
+        data.category.trim(),
+        generateRandomColor(),
+        tab,
+      );
       reset();
       closeBottomSheet();
       showMessage("Categoria adicionada com sucesso!", "success");
-      await loadData(true);
+      // Recarrega todas as categorias após adicionar
+      await fetchCategories(user.uid, undefined, { reset: true });
     } catch (error) {
       alert("Erro ao adicionar categoria. Tente novamente.");
       console.error("Erro ao adicionar categoria customizada: ", error);
     }
   };
 
+  const handleTabChange = (newTab: "expense" | "income") => {
+    setTab(newTab);
+    setCategoryType(newTab);
+  };
+
+  // Busca todas as categorias apenas quando o componente monta ou quando o usuário muda
   useEffect(() => {
     if (user?.uid) {
-      loadData(true);
+      fetchCategories(user.uid, undefined, { reset: true });
     }
-  }, [tab, user?.uid]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
 
   const BottomSheetContent = (
     <>
@@ -181,45 +181,29 @@ export default function CreateCategory() {
         />
       </View>
       <Container scrollable={false} style={{ paddingTop: 20 }}>
-        <CategoryTabs value={tab} onChange={setTab} />
-        {loading ? (
+        <CategoryTabs value={tab} onChange={handleTabChange} />
+        {categoriesLoading && categories.length === 0 ? (
           <View>
             {[...Array(6)].map((_, i) => (
-              <View
-                key={i}
-                style={{
-                  height: 65,
-                  width: "100%",
-                  marginBottom: 12,
-                  borderRadius: 4,
-                  backgroundColor: colors.backdrop,
-                }}
-              />
+              <BytebankCard style={{ height: 70 }} key={i}>
+                <View></View>
+              </BytebankCard>
             ))}
           </View>
         ) : (
           <FlatList
-            data={categories}
+            data={filteredCategories}
             keyExtractor={(item) => item.id}
             onEndReachedThreshold={0.3}
             contentContainerStyle={{ paddingTop: 20 }}
             onEndReached={() => {
-              if (!loadingMore && (lastStandardDoc || lastUserDoc)) {
-                setLoadingMore(true);
-                loadData();
+              if (!loadingMore && hasMoreCategories) {
+                loadMoreCategories();
               }
             }}
             renderItem={({ item, index }) => (
               <FadeInView delay={index * 50}>
-                <View
-                  style={{
-                    borderColor: colors.surfaceVariant,
-                    borderBottomWidth: 1,
-                    borderTopWidth: index === 0 ? 1 : 0,
-                    paddingVertical: 10,
-                    paddingHorizontal: 5,
-                  }}
-                >
+                <BytebankCard>
                   <View
                     style={{
                       flexDirection: "row",
@@ -227,19 +211,38 @@ export default function CreateCategory() {
                       justifyContent: "space-between",
                     }}
                   >
-                    <BytebankText variant="titleMedium">
-                      {item.name}
-                    </BytebankText>
-                    <IconButton
-                      style={item.isCustom ? null : { opacity: 0 }}
-                      icon="delete"
-                      disabled={!item.isCustom}
-                      iconColor={colors.error}
-                      size={20}
-                      onPress={() => promptRemoveCategory(item)}
-                    />
+                    <View
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexDirection: "row",
+                        gap: 16,
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 45,
+                          height: 20,
+                          backgroundColor: item.color,
+                          borderRadius: 16,
+                        }}
+                      ></View>
+                      <BytebankText variant="titleMedium">
+                        {item.name}
+                      </BytebankText>
+                    </View>
+                    <View style={{ display: "flex", flexDirection: "row" }}>
+                      <IconButton
+                        style={item.isCustom ? null : { opacity: 0 }}
+                        icon="delete"
+                        disabled={!item.isCustom}
+                        iconColor={colors.error}
+                        size={20}
+                        onPress={() => promptRemoveCategory(item)}
+                      />
+                    </View>
                   </View>
-                </View>
+                </BytebankCard>
               </FadeInView>
             )}
             ListFooterComponent={

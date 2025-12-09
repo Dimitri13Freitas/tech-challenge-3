@@ -1,9 +1,9 @@
 import { db, storage } from "@/src/core/firebase/config";
-import { Card } from "@/types/services/cards/cardTypes";
+import { Card } from "@core/types/services/cards/cardTypes";
 import {
   Category,
   CombinedCategoriesResult,
-} from "@/types/services/categories/categoryTypes";
+} from "@core/types/services/categories/categoryTypes";
 import {
   addDoc,
   collection,
@@ -18,9 +18,7 @@ import {
   QueryDocumentSnapshot,
   runTransaction,
   serverTimestamp,
-  setDoc,
   startAfter,
-  updateDoc,
   where,
 } from "firebase/firestore";
 import {
@@ -29,28 +27,6 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage";
-
-interface AddCardData {
-  name: string;
-  limit: number;
-  dueDate: number;
-  closingDate: number;
-}
-
-export const createUserProfile = async (uid: string, email: string) => {
-  try {
-    const userRef = doc(db, "users", uid);
-
-    await setDoc(userRef, {
-      email: email,
-      totalBalance: 0,
-      createdAt: new Date(),
-    });
-    console.log("Documento do usuário criado com sucesso!");
-  } catch (error) {
-    console.error("Erro ao criar o documento do usuário: ", error);
-  }
-};
 
 export const addTransaction = async (userId: string, transactionData: any) => {
   try {
@@ -154,6 +130,7 @@ export const getCombinedCategories = async (
 export const addCustomCategory = async (
   userId: string,
   name: string,
+  color: string,
   type: "expense" | "income",
 ) => {
   if (!["expense", "income"].includes(type)) {
@@ -168,6 +145,7 @@ export const addCustomCategory = async (
     await addDoc(userCategoriesRef, {
       userId: userId,
       name: name,
+      color: color,
       type: type,
       createdAt: new Date(),
     });
@@ -214,75 +192,6 @@ export const getCardsByUserId = async (userId: string): Promise<Card[]> => {
   } catch (error) {
     console.error("Erro ao listar cartões do usuário: ", error);
     throw new Error("Não foi possível carregar seus cartões.");
-  }
-};
-
-export const addCard = async (
-  userId: string,
-  name: string,
-  limit: number,
-  dueDate: number,
-  closingDate: number,
-) => {
-  if (closingDate < 1 || closingDate > 31) {
-    throw new Error("O dia de fechamento deve ser entre 1 e 31.");
-  }
-  if (dueDate < 1 || dueDate > 31) {
-    throw new Error("O dia de vencimento deve ser entre 1 e 31.");
-  }
-
-  try {
-    const cardsRef = collection(db, "cards");
-
-    await addDoc(cardsRef, {
-      userId: userId,
-      name: name,
-      limit: limit,
-      dueDate: dueDate,
-      closingDate: closingDate,
-      blocked: false,
-      createdAt: new Date(),
-    });
-  } catch (error) {
-    console.error("Erro ao adicionar cartão: ", error);
-    throw new Error("Não foi possível salvar o cartão no banco de dados.");
-  }
-};
-
-export const updateCard = async (
-  cardId: string,
-  data: Omit<AddCardData, "userId">,
-): Promise<void> => {
-  try {
-    const cardsRef = collection(db, "cards");
-    const cardRef = doc(cardsRef, cardId);
-
-    await updateDoc(cardRef, {
-      name: data.name,
-      limit: data.limit,
-      dueDate: data.dueDate,
-      closingDate: data.closingDate,
-    });
-  } catch (error) {
-    console.error(`Erro ao atualizar cartão ${cardId}: `, error);
-    throw new Error("Não foi possível atualizar o cartão.");
-  }
-};
-
-export const toggleCardBlockedStatus = async (
-  cardId: string,
-  newBlockedStatus: boolean,
-): Promise<void> => {
-  try {
-    const cardsRef = collection(db, "cards");
-    const cardRef = doc(cardsRef, cardId);
-
-    await updateDoc(cardRef, {
-      blocked: newBlockedStatus,
-    });
-  } catch (error) {
-    console.error(`Erro ao alternar status do cartão ${cardId}: `, error);
-    throw new Error("Não foi possível alterar o status de bloqueio.");
   }
 };
 

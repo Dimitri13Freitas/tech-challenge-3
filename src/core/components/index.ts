@@ -1,4 +1,6 @@
+export * from "./bar-chart/bar-chart";
 export * from "./month-selector/month-selector";
+export * from "./pie-chart/pie-chart";
 export * from "./ui/button/button";
 export * from "./ui/card/card";
 export * from "./ui/container/container";

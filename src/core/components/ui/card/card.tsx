@@ -16,7 +16,7 @@ export function BytebankCard({ children, style }: BytebankCardProps) {
         {
           marginBottom: 20,
           backgroundColor: colors.elevation.level2,
-          padding: 15,
+          padding: 16,
           borderRadius: 8,
           shadowColor: "transparent",
           shadowOffset: { width: 0, height: 0 },

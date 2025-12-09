@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useColorScheme, View } from "react-native";
+import { View } from "react-native";
 import { useTheme } from "react-native-paper";
 
 interface BottomSheetContextType {
@@ -26,7 +26,6 @@ export const BottomSheetProvider = ({
   children,
   snapPoints = ["98%"],
 }: BottomSheetProviderProps) => {
-  const colorScheme = useColorScheme();
   const { colors } = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const memoizedSnapPoints = React.useMemo(() => snapPoints, [snapPoints]);

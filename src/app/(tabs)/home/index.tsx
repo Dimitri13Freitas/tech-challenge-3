@@ -1,18 +1,44 @@
-import { BytebankText, Container } from "@/src/core/components";
-import { useTheme } from "react-native-paper";
+import {
+  BytebankBarChart,
+  BytebankCard,
+  BytebankText,
+  Container,
+} from "@/src/core/components";
+import { BalanceCard, MyCards } from "@/src/features";
+import { getMonthlySummary } from "@core/api/firestore/reports";
+import { AntDesign } from "@expo/vector-icons";
+import { useAppStore } from "@store/useAppStore";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
+import { TouchableRipple, useTheme } from "react-native-paper";
 
 export default function HomeScreen() {
+  const { user } = useAppStore();
   const { colors } = useTheme();
+  const [total, setTotal] = useState<any>();
+
+  useEffect(() => {
+    async function teste() {
+      if (user) {
+        const total = await getMonthlySummary(user?.uid);
+        setTotal(total);
+        // console.log(total);
+      }
+    }
+
+    teste();
+  }, []);
 
   async function handlePress() {
-    // router.replace("/create-category");
+    router.replace("/(tabs)/home/create-category");
   }
 
   return (
     <Container scrollable={true}>
-      <BytebankText>Seilaaa</BytebankText>
-      {/* <BalanceCard />
+      <BalanceCard />
       <MyCards />
+      <BytebankBarChart data={total} />
       <TouchableRipple onPress={handlePress}>
         <BytebankCard>
           <View
@@ -52,7 +78,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </BytebankCard>
-      </TouchableRipple> */}
+      </TouchableRipple>
     </Container>
   );
 }

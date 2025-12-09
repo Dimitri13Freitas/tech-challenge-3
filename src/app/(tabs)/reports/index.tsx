@@ -1,80 +1,77 @@
-import { BytebankText, Container } from "@/src/core/components";
-import { Dimensions, View } from "react-native";
-import { LineChart } from "react-native-chart-kit";
+import {
+  BytebankBarChart,
+  BytebankPieChart,
+  Container,
+  MonthNavigator,
+} from "@/src/core/components";
+import {
+  CategoryExpenseData,
+  getExpensesByCategory,
+  getMonthlySummary,
+} from "@core/api/firestore/reports";
+import { useAppStore } from "@store/useAppStore";
+import dayjs from "dayjs";
+import { useState } from "react";
+import { ActivityIndicator, Text, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
 export default function ReportsScreen() {
   const { colors } = useTheme();
+  const { user } = useAppStore();
+
+  const [expensesData, setExpensesData] = useState<CategoryExpenseData[]>([]);
+  const [dataChart, setDataChart] = useState<any>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchReportData = async (date: dayjs.Dayjs) => {
+    try {
+      setIsLoading(true);
+      const year = date.year();
+      const month = date.month() + 1;
+      const data = user
+        ? await getExpensesByCategory(user?.uid, year, month)
+        : null;
+      const anotherData = user
+        ? await getMonthlySummary(user?.uid, year, month)
+        : null;
+      console.log(anotherData);
+
+      setDataChart(anotherData);
+      if (data) setExpensesData(data);
+    } catch (error) {
+      console.error("Erro ao atualizar gráfico:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      {/* Cabeçalho */}
-      <View
-        style={{
-          backgroundColor: colors.primaryContainer,
-          paddingHorizontal: 16,
-          paddingTop: 40,
-          paddingBottom: 15,
-        }}
-      >
-        <BytebankText
-          variant="titleMedium"
-          style={{ textAlign: "center", fontWeight: "bold" }}
-        >
-          Resumo Financeiro
-        </BytebankText>
-      </View>
-
-      {/* Gráfico */}
-
+    <>
+      <MonthNavigator
+        title="Resumo Financeiro"
+        onMonthChange={fetchReportData}
+      />
       <Container>
-        <View>
-          <BytebankText>Bezier Line Chart</BytebankText>
-          <LineChart
-            data={{
-              labels: ["January", "February", "March", "April", "May", "June"],
-              datasets: [
-                {
-                  data: [
-                    Math.random() * 100,
-                    Math.random() * 100,
-                    Math.random() * 100,
-                    Math.random() * 100,
-                    Math.random() * 100,
-                    Math.random() * 100,
-                  ],
-                },
-              ],
-            }}
-            width={Dimensions.get("window").width - 40} // from react-native
-            height={220}
-            yAxisLabel="$"
-            yAxisSuffix="k"
-            yAxisInterval={1} // optional, defaults to 1
-            chartConfig={{
-              backgroundColor: "#e26a00",
-              backgroundGradientFrom: "#fb8c00",
-              backgroundGradientTo: "#ffa726",
-              decimalPlaces: 2, // optional, defaults to 2dp
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: {
-                borderRadius: 16,
-              },
-              propsForDots: {
-                r: "6",
-                strokeWidth: "2",
-                stroke: "#ffa726",
-              },
-            }}
-            bezier
+        {isLoading ? (
+          <View
             style={{
-              marginVertical: 8,
-              borderRadius: 16,
+              height: 300,
+              justifyContent: "center",
+              alignItems: "center",
             }}
-          />
-        </View>
+          >
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={{ color: colors.onSurface, marginTop: 10 }}>
+              Carregando dados...
+            </Text>
+          </View>
+        ) : (
+          <>
+            <BytebankPieChart categories={expensesData} />
+            <BytebankBarChart data={dataChart} />
+          </>
+        )}
       </Container>
-    </View>
+    </>
   );
 }

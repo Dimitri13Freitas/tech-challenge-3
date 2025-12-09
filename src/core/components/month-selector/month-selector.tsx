@@ -13,19 +13,19 @@ import { useTheme } from "react-native-paper";
 dayjs.locale("pt-br");
 
 interface MonthNavigatorProps {
+  title?: string;
   onMonthChange?: (month: dayjs.Dayjs) => void;
 }
 
-export function MonthNavigator({ onMonthChange }: MonthNavigatorProps) {
+export function MonthNavigator({ onMonthChange, title }: MonthNavigatorProps) {
   const { colors } = useTheme();
   const [currentMonth, setCurrentMonth] = useState(dayjs());
 
   const isCurrentMonth = currentMonth.isSame(dayjs(), "month");
 
-  // Chamar callback apenas na inicialização
   useEffect(() => {
     onMonthChange?.(currentMonth);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const getCurrentDate = () => {
     const newMonth = dayjs();
@@ -80,25 +80,46 @@ export function MonthNavigator({ onMonthChange }: MonthNavigatorProps) {
         style={{
           display: "flex",
           flexDirection: "row",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
           alignItems: "center",
           gap: 24,
           marginVertical: 5,
         }}
       >
-        {!isCurrentMonth ? (
-          <TouchableOpacity onPress={getCurrentDate}>
+        {title && (
+          <>
+            {/* <View></View> */}
+            <BytebankText
+              variant="titleMedium"
+              style={{ textAlign: "center", fontWeight: "bold" }}
+            >
+              {title}
+            </BytebankText>
+          </>
+        )}
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 16,
+          }}
+        >
+          <TouchableOpacity
+            style={{ opacity: isCurrentMonth ? 0 : 1 }}
+            disabled={isCurrentMonth}
+            onPress={getCurrentDate}
+          >
             <AntDesign name="calendar" size={24} color={colors.onBackground} />
           </TouchableOpacity>
-        ) : null}
 
-        <TouchableOpacity onPress={goToNextMonth}>
-          <MaterialCommunityIcons
-            name="dots-vertical"
-            size={26}
-            color={colors.onBackground}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={goToNextMonth}>
+            <MaterialCommunityIcons
+              name="dots-vertical"
+              size={26}
+              color={colors.onBackground}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.container}>
         <TouchableOpacity onPress={goToPreviousMonth}>
@@ -116,6 +137,11 @@ export function MonthNavigator({ onMonthChange }: MonthNavigatorProps) {
               styles.monthText,
               styles.activeMonth,
               { color: colors.onBackground },
+              {
+                backgroundColor: colors.backdrop,
+                padding: 8,
+                borderRadius: 6,
+              },
             ]}
           >
             {formatMonth(currentMonth)}
@@ -150,7 +176,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 32,
+    gap: 16,
   },
   monthText: {
     fontSize: 16,

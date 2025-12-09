@@ -1,6 +1,6 @@
-import { useAuth } from "@/contexts/AuthContext";
 import { getTransactionsByMonth } from "@/services/firestore";
 import { BytebankText, Container, MonthNavigator } from "@/src/core/components";
+import { useAppStore } from "@store/useAppStore";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
@@ -103,7 +103,7 @@ const NoTransactions = () => {
 
 export default function TransactionScreen() {
   const { colors } = useTheme();
-  const { user } = useAuth();
+  const { user } = useAppStore();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(dayjs());
@@ -149,7 +149,7 @@ export default function TransactionScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <MonthNavigator onMonthChange={handleMonthChange} />
+      <MonthNavigator title="Transações" onMonthChange={handleMonthChange} />
       <Container scrollable={false}>
         {loading ? (
           <View style={styles.loadingContainer}>

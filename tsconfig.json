@@ -4,6 +4,10 @@
     "strict": true,
     "jsx": "react-native",
     "paths": {
+      "@core/*": ["./src/core/*"],
+      "@store/*": ["./src/store/*"],
+      "@features/*": ["./src/features/*"],
+      "@app/*": ["./src/app/*"],
       "@/*": ["./*"],
       "@firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"]
     }

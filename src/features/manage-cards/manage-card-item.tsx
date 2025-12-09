@@ -1,6 +1,7 @@
 import { BytebankText } from "@/src/core/components";
 import { staticColors } from "@/src/core/theme/theme";
-import { Card } from "@/types/services/cards/cardTypes";
+import { Card } from "@core/types/services/cards/cardTypes";
+import { formatCurrencyBR } from "@core/utils";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import React from "react";
 import { Pressable, View } from "react-native";
@@ -9,16 +10,6 @@ import { useTheme } from "react-native-paper";
 interface ManageCardItemProps {
   card: Card;
   [key: string]: any;
-}
-
-// Helper para formatar moeda
-function formatCurrencyBRL(value: number | string): string {
-  const number = typeof value === "string" ? parseFloat(value) : value;
-  return number.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 2,
-  });
 }
 
 export const ManageCardItem = ({ card, ...props }: ManageCardItemProps) => {
@@ -74,6 +65,7 @@ export const ManageCardItem = ({ card, ...props }: ManageCardItemProps) => {
                 style={{
                   display: "flex",
                   flexDirection: "row",
+                  justifyContent: "center",
                   alignItems: "center",
                   gap: 46,
                 }}
@@ -83,7 +75,7 @@ export const ManageCardItem = ({ card, ...props }: ManageCardItemProps) => {
                   {new Date().getMonth() + 1}
                 </BytebankText>
                 <BytebankText style={{ color: colors.outline, fontSize: 12 }}>
-                  Fech. dia {String(card.closingDate).padStart(2, "0")}/
+                  Fecha dia {String(card.closingDate).padStart(2, "0")}/
                   {new Date().getMonth() + 1}
                 </BytebankText>
               </View>
@@ -109,7 +101,7 @@ export const ManageCardItem = ({ card, ...props }: ManageCardItemProps) => {
             <BytebankText style={{ color: colors.outline }}>
               Limite:{" "}
               <BytebankText style={{ fontWeight: "bold" }}>
-                {formatCurrencyBRL(card.limit)}
+                {formatCurrencyBR(card.limit)}
               </BytebankText>
             </BytebankText>
 

@@ -1,8 +1,8 @@
 import { BytebankButton, BytebankText, Container } from "@/src/core/components";
-import { useAuthStore } from "@/src/store/useAuthStore";
+import { useAppStore } from "@/src/store/useAppStore";
 
 export default function UserScreen() {
-  const { user, logout } = useAuthStore();
+  const { user, logout } = useAppStore();
 
   const handleLogout = async () => {
     await logout();

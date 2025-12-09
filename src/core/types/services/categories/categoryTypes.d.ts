@@ -1,6 +1,7 @@
 export interface Category {
   id: string;
   userId?: string;
+  color?: string;
   isCustom: boolean;
   name: string;
   type: "expense" | "income";

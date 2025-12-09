@@ -8,3 +8,10 @@ export interface Card {
   closingDate: number;
   createdAt: Timestamp;
 }
+
+export interface AddCardData {
+  name: string;
+  limit: number;
+  dueDate: number;
+  closingDate: number;
+}

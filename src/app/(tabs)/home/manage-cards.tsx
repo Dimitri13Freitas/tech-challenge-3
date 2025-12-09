@@ -1,10 +1,3 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { useCards } from "@/contexts/CardsContext";
-import {
-  addCard,
-  toggleCardBlockedStatus,
-  updateCard,
-} from "@/services/firestore";
 import {
   BytebankButton,
   BytebankText,
@@ -14,9 +7,10 @@ import {
 import { useBottomSheet, useSnackbar } from "@/src/core/hooks";
 import { staticColors } from "@/src/core/theme/theme";
 import { ManageCardItem } from "@/src/features";
-import { Card } from "@/types/services/cards/cardTypes";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { useAppStore } from "@/src/store/useAppStore";
+import { Card } from "@core/types/services/cards/cardTypes";
+import { router } from "expo-router";
+import React, { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -38,22 +32,15 @@ interface CardFormData {
 export default function ManageCards() {
   const { colors } = useTheme();
   const { openBottomSheet, closeBottomSheet } = useBottomSheet();
-  const { user } = useAuth();
-  const { showMessage } = useSnackbar();
   const {
+    user,
     cards,
-    loading,
-    reloadCards,
-    updateCard: updateCardInContext,
-  } = useCards();
-
-  const params = useLocalSearchParams();
-  const showMessageRef = useRef(showMessage);
-
-  // Atualiza a ref sempre que showMessage muda
-  useEffect(() => {
-    showMessageRef.current = showMessage;
-  }, [showMessage]);
+    cardsLoading: loading,
+    addCard,
+    updateCard,
+    toggleCardBlockedStatus,
+  } = useAppStore();
+  const { showMessage } = useSnackbar();
 
   const {
     control: createControl,
@@ -71,31 +58,11 @@ export default function ManageCards() {
     formState: { isSubmitting: isEditing },
   } = useForm<CardFormData>();
 
-  // Recarrega os dados sempre que a tela for focada
-  useFocusEffect(
-    useCallback(() => {
-      // Só recarrega se não estiver carregando e se não vier via params
-      if (!loading && !params.cardsJson) {
-        reloadCards();
-      }
-    }, [loading, params.cardsJson, reloadCards]),
-  );
-
-  // --- Handlers de Ação ---
   const handleCreateCard = handleCreateSubmit(async (formData) => {
     if (!user?.uid) return;
 
     try {
-      await addCard(
-        user.uid,
-        formData.name,
-        formData.limit,
-        formData.dueDate,
-        formData.closingDate,
-      );
-
-      // Recarrega os cartões para pegar o novo cartão com ID
-      reloadCards();
+      await addCard(user.uid, { ...formData });
 
       showMessage("Cartão criado com sucesso!", "success");
       closeBottomSheet();
@@ -223,15 +190,7 @@ export default function ManageCards() {
             closingDate: formData.closingDate,
           });
 
-          // Atualiza o cartão no contexto
-          const updatedCard = {
-            ...card,
-            name: formData.name,
-            limit: formData.limit,
-            dueDate: formData.dueDate,
-            closingDate: formData.closingDate,
-          };
-          updateCardInContext(updatedCard);
+          // O updateCard já atualiza o estado na store automaticamente
 
           showMessage("Cartão atualizado com sucesso!", "success");
           closeBottomSheet();
@@ -247,12 +206,7 @@ export default function ManageCards() {
         try {
           await toggleCardBlockedStatus(card.id, newStatus);
 
-          // Atualiza o cartão no contexto
-          const updatedCard = {
-            ...card,
-            blocked: newStatus,
-          };
-          updateCardInContext(updatedCard);
+          // O toggleCardBlockedStatus já atualiza o estado na store automaticamente
 
           const statusText = newStatus ? "bloqueado" : "desbloqueado";
           showMessage(`Cartão ${statusText} com sucesso!`, "success");
@@ -372,7 +326,6 @@ export default function ManageCards() {
       colors.outline,
       colors.error,
       showMessage,
-      updateCardInContext,
       handleEditSubmit,
     ],
   );
@@ -457,7 +410,9 @@ export default function ManageCards() {
             )}
             ListEmptyComponent={() => (
               <View style={{ paddingTop: 40, alignItems: "center" }}>
-                <BytebankText style={{ color: colors.outline }}>
+                <BytebankText
+                  style={{ color: colors.outline, textAlign: "center" }}
+                >
                   Nenhum cartão cadastrado. Clique em + para adicionar.
                 </BytebankText>
               </View>
