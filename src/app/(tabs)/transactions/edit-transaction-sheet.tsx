@@ -1,4 +1,4 @@
-import { updateTransactionAndBalance } from "@/services/firestore";
+import { updateTransactionAndBalance } from "@core/api";
 import { BytebankButton, BytebankCard, BytebankText } from "@core/components";
 import { useGlobalBottomSheet, useSnackbar } from "@core/hooks";
 import { staticColors } from "@core/theme/theme";

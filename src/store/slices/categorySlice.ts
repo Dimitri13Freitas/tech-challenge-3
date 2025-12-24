@@ -1,8 +1,8 @@
 import {
   addCustomCategory,
-  getCombinedCategories,
+  getCombinedCategoriesService,
   removeCustomCategory,
-} from "@/services/firestore";
+} from "@core/api";
 import {
   Category,
   CombinedCategoriesResult,
@@ -112,13 +112,14 @@ export const createCategorySlice: StateCreator<
     }));
 
     try {
-      const result: CombinedCategoriesResult = await getCombinedCategories(
-        userId,
-        categoryType as "expense" | "income" | "all",
-        pageSize,
-        lastStandardDoc ?? undefined,
-        lastUserDoc ?? undefined,
-      );
+      const result: CombinedCategoriesResult =
+        await getCombinedCategoriesService(
+          userId,
+          categoryType as "expense" | "income" | "all",
+          pageSize,
+          lastStandardDoc ?? undefined,
+          lastUserDoc ?? undefined,
+        );
 
       const hasMore =
         Boolean(result.lastStandardDoc) || Boolean(result.lastUserDoc);
@@ -177,4 +178,3 @@ export const createCategorySlice: StateCreator<
     }));
   },
 });
-

@@ -1,12 +1,9 @@
+import { BytebankCard, BytebankText } from "@/src/core/components";
 import {
   addTransactionAndUpdateBalance,
-  getCombinedCategories,
-} from "@/services/firestore";
+  getCombinedCategoriesService,
+} from "@core/api";
 import { getPaymentMethods } from "@core/api/firestore/paymentMethods";
-import {
-  BytebankCard,
-  BytebankText,
-} from "@/src/core/components";
 import { useGlobalBottomSheet, useSnackbar } from "@core/hooks";
 import { staticColors } from "@core/theme/theme";
 import { Category } from "@core/types/services/categories/categoryTypes";
@@ -65,7 +62,9 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
   const [datePickerOpen, setDatePickerOpen] = React.useState(false);
 
   const [categories, setCategories] = React.useState<Category[]>([]);
-  const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[]>([]);
+  const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[]>(
+    [],
+  );
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -98,7 +97,7 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
         setError(null);
 
         const categoryType = type === "expense" ? "expense" : "income";
-        const categoriesResult = await getCombinedCategories(
+        const categoriesResult = await getCombinedCategoriesService(
           user.uid,
           categoryType,
           1000,
@@ -144,7 +143,9 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
       await addTransactionAndUpdateBalance(user.uid, transactionData);
 
       showMessage(
-        `Transação de ${type === "expense" ? "despesa" : "receita"} salva com sucesso!`,
+        `Transação de ${
+          type === "expense" ? "despesa" : "receita"
+        } salva com sucesso!`,
         "success",
       );
 
@@ -246,14 +247,16 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
               if (!user?.uid) return;
               try {
                 const categoryType = type === "expense" ? "expense" : "income";
-                const categoriesResult = await getCombinedCategories(
+                const categoriesResult = await getCombinedCategoriesService(
                   user.uid,
                   categoryType,
                   1000,
                 );
                 setCategories(categoriesResult.categories);
                 const methods = await getPaymentMethods();
-                const filteredMethods = methods.filter((m) => m.type === categoryType);
+                const filteredMethods = methods.filter(
+                  (m) => m.type === categoryType,
+                );
                 setPaymentMethods(filteredMethods);
               } catch {
                 setError("Erro ao carregar dados. Tente novamente.");
@@ -523,4 +526,3 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
 });
-

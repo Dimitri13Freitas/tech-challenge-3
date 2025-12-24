@@ -4,7 +4,7 @@ import {
   BytebankTextInputController,
   Container,
 } from "@/src/core/components";
-import { useBottomSheet, useSnackbar } from "@/src/core/hooks";
+import { useGlobalBottomSheet, useSnackbar } from "@/src/core/hooks";
 import { staticColors } from "@/src/core/theme/theme";
 import { ManageCardItem } from "@/src/features";
 import { useAppStore } from "@/src/store/useAppStore";
@@ -21,7 +21,6 @@ import {
 } from "react-native";
 import { Divider, IconButton, useTheme } from "react-native-paper";
 
-// Formulário de Criação/Edição
 interface CardFormData {
   name: string;
   limit: number;
@@ -31,7 +30,7 @@ interface CardFormData {
 
 export default function ManageCards() {
   const { colors } = useTheme();
-  const { openBottomSheet, closeBottomSheet } = useBottomSheet();
+  const { open, close } = useGlobalBottomSheet();
   const {
     user,
     cards,
@@ -65,7 +64,7 @@ export default function ManageCards() {
       await addCard(user.uid, { ...formData });
 
       showMessage("Cartão criado com sucesso!", "success");
-      closeBottomSheet();
+      close();
     } catch (error) {
       console.error("Erro ao criar cartão:", error);
       showMessage("Não foi possível criar o cartão.", "warning");
@@ -147,7 +146,7 @@ export default function ManageCards() {
         </BytebankButton>
 
         <BytebankButton
-          onPress={closeBottomSheet}
+          onPress={close}
           mode="text"
           labelStyle={{ color: colors.outline }}
           style={{ marginTop: 10 }}
@@ -156,20 +155,17 @@ export default function ManageCards() {
         </BytebankButton>
       </KeyboardAvoidingView>
     ),
-    [
-      createControl,
-      handleCreateCard,
-      isCreating,
-      closeBottomSheet,
-      colors.outline,
-    ],
+    [createControl, handleCreateCard, isCreating, close, colors.outline],
   );
 
   // --- Handlers de BottomSheet ---
   const openCreateBottomSheet = useCallback(() => {
     resetCreateForm();
-    openBottomSheet(BottomSheetCreateContent);
-  }, [resetCreateForm, openBottomSheet, BottomSheetCreateContent]);
+    open({
+      snapPoints: ["70%"],
+      content: BottomSheetCreateContent,
+    });
+  }, [resetCreateForm, open, BottomSheetCreateContent]);
 
   const openEditBottomSheet = useCallback(
     (card: Card) => {
@@ -193,7 +189,7 @@ export default function ManageCards() {
           // O updateCard já atualiza o estado na store automaticamente
 
           showMessage("Cartão atualizado com sucesso!", "success");
-          closeBottomSheet();
+          close();
         } catch (error) {
           console.error("Erro ao atualizar cartão:", error);
           showMessage("Não foi possível atualizar o cartão.", "warning");
@@ -211,7 +207,7 @@ export default function ManageCards() {
           const statusText = newStatus ? "bloqueado" : "desbloqueado";
           showMessage(`Cartão ${statusText} com sucesso!`, "success");
 
-          closeBottomSheet();
+          close();
         } catch (error) {
           console.error("Erro ao alternar status do cartão:", error);
           showMessage(
@@ -305,7 +301,7 @@ export default function ManageCards() {
           </BytebankButton>
 
           <BytebankButton
-            onPress={closeBottomSheet}
+            onPress={close}
             mode="text"
             labelStyle={{ color: colors.outline }}
             style={{ marginTop: 10 }}
@@ -315,14 +311,17 @@ export default function ManageCards() {
         </KeyboardAvoidingView>
       );
 
-      openBottomSheet(editContent);
+      open({
+        snapPoints: ["70%"],
+        content: editContent,
+      });
     },
     [
       resetEditForm,
-      openBottomSheet,
+      open,
       editControl,
       isEditing,
-      closeBottomSheet,
+      close,
       colors.outline,
       colors.error,
       showMessage,
@@ -357,7 +356,7 @@ export default function ManageCards() {
           size={24}
           onPress={() => {
             router.back();
-            closeBottomSheet();
+            close();
           }}
         />
         <BytebankText

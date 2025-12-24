@@ -1,7 +1,10 @@
 import { db } from "@core/firebase/config";
-import { Category, CombinedCategoriesResult } from "@core/types/services";
+import { Card, Category, CombinedCategoriesResult } from "@core/types/services";
 import {
+  addDoc,
   collection,
+  deleteDoc,
+  doc,
   DocumentData,
   getDocs,
   limit,
@@ -93,5 +96,73 @@ export const getCombinedCategoriesService = async (
   } catch (error) {
     console.error("Erro ao buscar categorias combinadas: ", error);
     return { categories: [], lastStandardDoc: null, lastUserDoc: null };
+  }
+};
+
+export const addCustomCategory = async (
+  userId: string,
+  name: string,
+  color: string,
+  type: "expense" | "income",
+) => {
+  if (!["expense", "income"].includes(type)) {
+    throw new Error(
+      'Tipo de categoria inválido. Deve ser "expense" ou "income".',
+    );
+  }
+
+  try {
+    const userCategoriesRef = collection(db, "categories");
+
+    await addDoc(userCategoriesRef, {
+      userId: userId,
+      name: name,
+      color: color,
+      type: type,
+      createdAt: new Date(),
+    });
+
+    console.log("Categoria customizada adicionada com sucesso!");
+  } catch (error) {
+    console.error("Erro ao adicionar categoria customizada: ", error);
+    throw new Error(
+      "Não foi possível adicionar a categoria ao banco de dados.",
+    );
+  }
+};
+
+export const removeCustomCategory = async (categoryId: string) => {
+  try {
+    const categoryRef = doc(db, "categories", categoryId);
+
+    await deleteDoc(categoryRef);
+
+    console.log("Categoria customizada removida com sucesso!");
+  } catch (error) {
+    console.error("Erro ao remover categoria customizada: ", error);
+    throw new Error("Não foi possível remover a categoria do banco de dados.");
+  }
+};
+
+export const getCardsByUserId = async (userId: string): Promise<Card[]> => {
+  try {
+    const cardsRef = collection(db, "cards");
+    const q = query(
+      cardsRef,
+      where("userId", "==", userId),
+      orderBy("name", "asc"),
+    );
+
+    const snapshot = await getDocs(q);
+
+    const cards: Card[] = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Card, "id">),
+    }));
+
+    return cards;
+  } catch (error) {
+    console.error("Erro ao listar cartões do usuário: ", error);
+    throw new Error("Não foi possível carregar seus cartões.");
   }
 };

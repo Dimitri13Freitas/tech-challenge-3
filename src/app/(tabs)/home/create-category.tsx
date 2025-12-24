@@ -6,7 +6,7 @@ import {
   Container,
   FadeInView,
 } from "@/src/core/components";
-import { useBottomSheet, useSnackbar } from "@/src/core/hooks";
+import { useGlobalBottomSheet, useSnackbar } from "@/src/core/hooks";
 import { CategoryTabs } from "@/src/features";
 import { Category } from "@core/types/services";
 import { generateRandomColor } from "@core/utils/randomColor";
@@ -22,7 +22,7 @@ interface NewCategoryFormData {
 }
 
 export default function CreateCategory() {
-  const { openBottomSheet, closeBottomSheet } = useBottomSheet();
+  const { open, close } = useGlobalBottomSheet();
   const { user } = useAppStore();
   const { showMessage } = useSnackbar();
   const { colors } = useTheme();
@@ -98,7 +98,7 @@ export default function CreateCategory() {
         tab,
       );
       reset();
-      closeBottomSheet();
+      close();
       showMessage("Categoria adicionada com sucesso!", "success");
       // Recarrega todas as categorias após adicionar
       await fetchCategories(user.uid, undefined, { reset: true });
@@ -176,7 +176,10 @@ export default function CreateCategory() {
           size={20}
           onPress={async () => {
             reset();
-            openBottomSheet(BottomSheetContent);
+            open({
+              snapPoints: ["50%"],
+              content: BottomSheetContent,
+            });
           }}
         />
       </View>

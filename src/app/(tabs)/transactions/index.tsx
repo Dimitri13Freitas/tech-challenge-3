@@ -1,5 +1,5 @@
-import { getTransactionsByMonth } from "@/services/firestore";
 import { BytebankText, Container, MonthNavigator } from "@/src/core/components";
+import { getTransactionsByMonth } from "@core/api";
 import { useGlobalBottomSheet } from "@core/hooks";
 import { Transaction } from "@core/types/services";
 import { useAppStore } from "@store/useAppStore";
