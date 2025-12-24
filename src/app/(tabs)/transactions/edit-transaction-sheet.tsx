@@ -2,12 +2,8 @@ import { updateTransactionAndBalance } from "@/services/firestore";
 import { BytebankButton, BytebankCard, BytebankText } from "@core/components";
 import { useGlobalBottomSheet, useSnackbar } from "@core/hooks";
 import { staticColors } from "@core/theme/theme";
-import { Category, Transaction } from "@core/types/services";
-import {
-  formatCurrencyBR,
-  formatTransactionDate,
-  transactionTimestampToDate,
-} from "@core/utils";
+import { Transaction } from "@core/types/services";
+import { formatCurrencyBR, transactionTimestampToDate } from "@core/utils";
 import { AntDesign } from "@expo/vector-icons";
 import { CategoryTabs } from "@features/index";
 import { useAppStore } from "@store/useAppStore";
@@ -139,7 +135,9 @@ export const EditTransactionSheet = ({
     try {
       setSaving(true);
 
-      const valorNumerico = parseFloat(value.replace(/\./g, "").replace(",", "."));
+      const valorNumerico = parseFloat(
+        value.replace(/\./g, "").replace(",", "."),
+      );
       if (isNaN(valorNumerico) || valorNumerico <= 0) {
         Alert.alert("Erro", "Por favor, informe um valor válido.");
         return;
@@ -179,13 +177,10 @@ export const EditTransactionSheet = ({
     }
   };
 
-  const onConfirmDate = React.useCallback(
-    (params: { date: any }) => {
-      setCalendarVisible(false);
-      setDate(params.date);
-    },
-    [],
-  );
+  const onConfirmDate = React.useCallback((params: { date: any }) => {
+    setCalendarVisible(false);
+    setDate(params.date);
+  }, []);
   return (
     <View>
       <BytebankText
@@ -328,7 +323,8 @@ export const EditTransactionSheet = ({
                       >
                         <BytebankText
                           style={{
-                            fontWeight: category.id === item.id ? "bold" : "normal",
+                            fontWeight:
+                              category.id === item.id ? "bold" : "normal",
                             color:
                               category.id === item.id
                                 ? colors.primary

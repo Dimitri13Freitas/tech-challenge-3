@@ -1,21 +1,36 @@
 import { getTransactionsByMonth } from "@/services/firestore";
 import { BytebankText, Container, MonthNavigator } from "@/src/core/components";
+import { useGlobalBottomSheet } from "@core/hooks";
 import { Transaction } from "@core/types/services";
 import { useAppStore } from "@store/useAppStore";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { NoTransactions } from "./no-transactions";
+import {
+  TransactionFilters,
+  TransactionFiltersSheet,
+} from "./transaction-filters-sheet";
 import { TransactionItem } from "./transaction-item";
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 export default function TransactionScreen() {
   const { colors } = useTheme();
   const { user } = useAppStore();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    Transaction[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(dayjs());
   const [initialLoad, setInitialLoad] = useState(false);
+  const [filters, setFilters] = useState<TransactionFilters>({});
+  const { open } = useGlobalBottomSheet();
 
   const loadTransactions = async (month: dayjs.Dayjs) => {
     if (!user?.uid) return;
@@ -39,6 +54,90 @@ export default function TransactionScreen() {
     }
   };
 
+  // Aplica os filtros nas transações
+  const applyFilters = useMemo(() => {
+    return (transactionsToFilter: Transaction[]) => {
+      let filtered = [...transactionsToFilter];
+
+      // Filtro por tipo
+      if (filters.type && filters.type !== "all") {
+        filtered = filtered.filter((t) => t.type === filters.type);
+      }
+
+      // Filtro por categoria
+      if (filters.categoryId) {
+        filtered = filtered.filter((t) => t.category.id === filters.categoryId);
+      }
+
+      // Filtro por forma de pagamento
+      if (filters.paymentMethod) {
+        filtered = filtered.filter(
+          (t) => t.paymentMethod === filters.paymentMethod,
+        );
+      }
+
+      // Filtro por valor mínimo
+      if (filters.minValue !== undefined) {
+        filtered = filtered.filter(
+          (t) => parseFloat(t.valor) >= filters.minValue!,
+        );
+      }
+
+      // Filtro por valor máximo
+      if (filters.maxValue !== undefined) {
+        filtered = filtered.filter(
+          (t) => parseFloat(t.valor) <= filters.maxValue!,
+        );
+      }
+
+      // Filtro por data inicial
+      if (filters.startDate) {
+        filtered = filtered.filter((t) => {
+          let transactionDate: Date;
+          if (t.date && typeof t.date === "object" && "seconds" in t.date) {
+            transactionDate = new Date(
+              (t.date as any).seconds * 1000 +
+                ((t.date as any).nanoseconds || 0) / 1e6,
+            );
+          } else {
+            transactionDate =
+              t.date instanceof Date ? t.date : new Date(t.date);
+          }
+          return dayjs(transactionDate).isSameOrAfter(
+            dayjs(filters.startDate).startOf("day"),
+          );
+        });
+      }
+
+      // Filtro por data final
+      if (filters.endDate) {
+        filtered = filtered.filter((t) => {
+          let transactionDate: Date;
+          if (t.date && typeof t.date === "object" && "seconds" in t.date) {
+            transactionDate = new Date(
+              (t.date as any).seconds * 1000 +
+                ((t.date as any).nanoseconds || 0) / 1e6,
+            );
+          } else {
+            transactionDate =
+              t.date instanceof Date ? t.date : new Date(t.date);
+          }
+          return dayjs(transactionDate).isSameOrBefore(
+            dayjs(filters.endDate).endOf("day"),
+          );
+        });
+      }
+
+      return filtered;
+    };
+  }, [filters]);
+
+  // Aplica os filtros quando as transações ou filtros mudam
+  useEffect(() => {
+    const filtered = applyFilters(transactions);
+    setFilteredTransactions(filtered);
+  }, [transactions, applyFilters]);
+
   const handleMonthChange = (month: dayjs.Dayjs) => {
     setCurrentMonth(month);
     loadTransactions(month);
@@ -58,9 +157,31 @@ export default function TransactionScreen() {
     />
   );
 
+  function handleOpenSheet() {
+    open({
+      snapPoints: ["80%"],
+      content: (
+        <TransactionFiltersSheet
+          filters={filters}
+          onFiltersChange={setFilters}
+          onApply={() => {
+            // Os filtros já são aplicados automaticamente via useEffect
+          }}
+          onClear={() => {
+            setFilters({});
+          }}
+        />
+      ),
+    });
+  }
+
   return (
     <View style={{ flex: 1 }}>
-      <MonthNavigator title="Transações" onMonthChange={handleMonthChange} />
+      <MonthNavigator
+        title="Transações"
+        onMonthChange={handleMonthChange}
+        onPressDotsButton={handleOpenSheet}
+      />
       <Container scrollable={false}>
         {loading ? (
           <View
@@ -76,13 +197,45 @@ export default function TransactionScreen() {
               Carregando transações...
             </BytebankText>
           </View>
-        ) : transactions.length > 0 ? (
+        ) : filteredTransactions.length > 0 ? (
           <FlatList
-            data={transactions}
+            data={filteredTransactions}
             keyExtractor={(item) => item.id}
             renderItem={renderTransaction}
             showsVerticalScrollIndicator={false}
+            ListHeaderComponent={
+              Object.keys(filters).length > 0 ? (
+                <View
+                  style={{
+                    padding: 12,
+                    backgroundColor: colors.primaryContainer,
+                    borderRadius: 8,
+                    marginBottom: 8,
+                  }}
+                >
+                  <BytebankText
+                    variant="bodySmall"
+                    style={{ color: colors.onPrimaryContainer }}
+                  >
+                    {filteredTransactions.length} transação(ões) encontrada(s)
+                    com os filtros aplicados
+                  </BytebankText>
+                </View>
+              ) : null
+            }
           />
+        ) : transactions.length > 0 ? (
+          <View style={{ padding: 20, alignItems: "center" }}>
+            <BytebankText variant="titleMedium" style={{ marginBottom: 8 }}>
+              Nenhuma transação encontrada
+            </BytebankText>
+            <BytebankText
+              variant="bodyMedium"
+              style={{ color: colors.onSurfaceVariant, textAlign: "center" }}
+            >
+              Tente ajustar os filtros para encontrar mais resultados
+            </BytebankText>
+          </View>
         ) : (
           <NoTransactions />
         )}

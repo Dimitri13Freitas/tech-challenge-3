@@ -15,10 +15,16 @@ dayjs.locale("pt-br");
 interface MonthNavigatorProps {
   title?: string;
   onMonthChange?: (month: dayjs.Dayjs) => void;
+  onPressDotsButton?: () => void;
 }
 
-export function MonthNavigator({ onMonthChange, title }: MonthNavigatorProps) {
+export function MonthNavigator({
+  onMonthChange,
+  title,
+  onPressDotsButton,
+}: MonthNavigatorProps) {
   const { colors } = useTheme();
+
   const [currentMonth, setCurrentMonth] = useState(dayjs());
 
   const isCurrentMonth = currentMonth.isSame(dayjs(), "month");
@@ -88,7 +94,6 @@ export function MonthNavigator({ onMonthChange, title }: MonthNavigatorProps) {
       >
         {title && (
           <>
-            {/* <View></View> */}
             <BytebankText
               variant="titleMedium"
               style={{ textAlign: "center", fontWeight: "bold" }}
@@ -112,13 +117,15 @@ export function MonthNavigator({ onMonthChange, title }: MonthNavigatorProps) {
             <AntDesign name="calendar" size={24} color={colors.onBackground} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={goToNextMonth}>
-            <MaterialCommunityIcons
-              name="dots-vertical"
-              size={26}
-              color={colors.onBackground}
-            />
-          </TouchableOpacity>
+          {onPressDotsButton && (
+            <TouchableOpacity onPress={onPressDotsButton}>
+              <MaterialCommunityIcons
+                name="dots-vertical"
+                size={26}
+                color={colors.onBackground}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       <View style={styles.container}>
