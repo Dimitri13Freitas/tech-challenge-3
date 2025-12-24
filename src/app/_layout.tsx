@@ -20,10 +20,7 @@ export default function RootLayout() {
   const { colors } = useTheme();
   const { user, loading, cardsLoading, balanceLoading } = useAppStore();
   useFirebaseAuthObserver();
-
   const theme = colorScheme === "dark" ? themeDark : themeLight;
-
-  // Determina se ainda está carregando (auth, cards ou balance)
   const isLoading = loading || (user && (cardsLoading || balanceLoading));
 
   const onLayoutRootView = useCallback(async () => {
@@ -49,7 +46,7 @@ export default function RootLayout() {
     >
       <StatusBar style="auto" />
       <PaperProvider theme={theme}>
-        <BottomSheetProvider snapPoints={["65%"]}>
+        <BottomSheetProvider>
           <SnackbarProvider>
             <Stack screenOptions={{ headerShown: false }}>
               {user ? (

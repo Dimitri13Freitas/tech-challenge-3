@@ -8,7 +8,7 @@ import {
   CategoryExpenseData,
   getExpensesByCategory,
   getMonthlySummary,
-} from "@core/api/firestore/reports";
+} from "@core/api";
 import { useAppStore } from "@store/useAppStore";
 import dayjs from "dayjs";
 import { useState } from "react";

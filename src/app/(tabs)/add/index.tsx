@@ -73,7 +73,6 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  // Watch dos campos para atualizar a UI
   const watchedPaymentMethod = watch("paymentMethod");
   const watchedCategory = watch("category");
   const watchedDate = watch("date");
@@ -86,7 +85,6 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
     (params: { date: any }) => {
       setOpen(false);
       setDate(params.date);
-      // Atualizar o valor no formulário
       setValue("date", params.date);
     },
     [setOpen, setDate, setValue],
@@ -94,7 +92,6 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
 
   const inputRef = React.useRef<any>(null);
 
-  // Busca dados do Firebase quando o componente monta ou o tipo muda
   React.useEffect(() => {
     const fetchData = async () => {
       if (!user?.uid) return;
@@ -103,7 +100,6 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
         setLoading(true);
         setError(null);
 
-        // Busca categorias baseadas no tipo
         const categoryType = type === "expense" ? "expense" : "income";
         const categoriesResult = await getCombinedCategories(
           user.uid,
@@ -111,7 +107,6 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
         );
         setCategories(categoriesResult.categories);
 
-        // Busca métodos de pagamento baseados no tipo
         const methods = await getPaymentMethods(categoryType);
         setPaymentMethods(methods);
       } catch (err) {
@@ -130,8 +125,6 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
       Alert.alert("Erro", "Usuário não autenticado.");
       return;
     }
-
-    // A validação agora é feita automaticamente pelo React Hook Form
 
     setIsSubmitting(true);
 
@@ -165,9 +158,7 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
           {
             text: "OK",
             onPress: () => {
-              // Limpar formulário
               setDate(undefined);
-              // Resetar formulário do react-hook-form
               reset({
                 value: "",
                 type: type,
@@ -195,7 +186,6 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
     }
   };
 
-  // Renderiza loading ou error se necessário
   if (loading) {
     return (
       <View
@@ -232,7 +222,6 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
           onPress={() => {
             setError(null);
             setLoading(true);
-            // Recarregar dados
             const fetchData = async () => {
               if (!user?.uid) return;
               try {
@@ -284,7 +273,14 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
                 paddingVertical: 12,
               }}
             >
-              <TouchableOpacity onPress={() => inputRef.current?.focus()}>
+              <TouchableOpacity
+                onPress={() => {
+                  inputRef.current?.blur();
+                  setTimeout(() => {
+                    inputRef.current?.focus();
+                  }, 50);
+                }}
+              >
                 <View
                   style={{
                     flexDirection: "row",
@@ -340,7 +336,6 @@ function TransactionForm({ type }: { type: "expense" | "income" }) {
             renderItem={({ item, index }) => (
               <TouchableOpacity
                 onPress={() => {
-                  // Atualizar o valor no formulário
                   setValue("paymentMethod", item);
                   closeBottomSheet();
                   console.log("Método de pagamento selecionado:", item);

@@ -195,14 +195,9 @@ export const getCardsByUserId = async (userId: string): Promise<Card[]> => {
   }
 };
 
-export const getPaymentMethods = async (
-  type: "expense" | "income",
-): Promise<string[]> => {
+export const getPaymentMethods = async (): Promise<string[]> => {
   try {
-    const q = query(
-      collection(db, "paymentMethods"),
-      where("type", "==", type),
-    );
+    const q = query(collection(db, "paymentMethods"));
 
     const querySnapshot = await getDocs(q);
 
@@ -294,6 +289,58 @@ export const addTransactionAndUpdateBalance = async (
     console.log("Transação e Saldo atualizados com sucesso!");
   } catch (e) {
     console.error("Falha na transação atômica: ", e);
+  }
+};
+
+// Função para atualizar transação e ajustar saldo
+export const updateTransactionAndBalance = async (
+  userId: string,
+  transactionId: string,
+  oldTransactionData: any,
+  newTransactionData: any,
+) => {
+  const userRef = doc(db, "users", userId);
+  const transactionRef = doc(
+    db,
+    "users",
+    userId,
+    "transactions",
+    transactionId,
+  );
+
+  // Calcular diferença do valor antigo
+  const oldValor = parseFloat(oldTransactionData.valor);
+  const oldValorDelta =
+    oldTransactionData.type === "income" ? oldValor : -oldValor;
+
+  // Calcular diferença do valor novo
+  const newValor = parseFloat(newTransactionData.valor);
+  const newValorDelta =
+    newTransactionData.type === "income" ? newValor : -newValor;
+
+  // Diferença total a ser aplicada no saldo
+  const balanceDelta = newValorDelta - oldValorDelta;
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      // Atualiza a transação
+      transaction.update(transactionRef, {
+        ...newTransactionData,
+        date: newTransactionData.date,
+      });
+
+      // Atualiza o saldo com a diferença
+      if (balanceDelta !== 0) {
+        transaction.update(userRef, {
+          totalBalance: increment(balanceDelta),
+        });
+      }
+    });
+
+    console.log("Transação atualizada com sucesso!");
+  } catch (e) {
+    console.error("Falha ao atualizar transação: ", e);
+    throw new Error("Não foi possível atualizar a transação.");
   }
 };
 
