@@ -31,8 +31,6 @@ export default function Login() {
   async function onSubmit(data: RegisterFormData) {
     try {
       await signIn(data.email, data.password);
-      // O Firebase Auth atualiza automaticamente o estado através do onAuthStateChanged
-      // então não precisamos chamar setUser manualmente
       router.replace("/(tabs)/add");
     } catch (err) {
       showMessage("Usuário ou senha incorretos", "warning");

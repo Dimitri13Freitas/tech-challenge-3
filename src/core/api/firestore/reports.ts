@@ -1,5 +1,5 @@
-import { db } from "@core/firebase/config";
 import { getCombinedCategoriesService } from "@core/api/firestore/categories";
+import { db } from "@core/firebase/config";
 import dayjs from "dayjs";
 import { collection, getDocs, query, where } from "firebase/firestore";
 
@@ -60,8 +60,7 @@ export interface CategoryExpenseData {
   color: string;
 }
 
-// Cor padrão para categorias não encontradas
-const DEFAULT_CATEGORY_COLOR = "#9E9E9E"; // Cinza
+const DEFAULT_CATEGORY_COLOR = "#9E9E9E";
 
 export const getExpensesByCategory = async (
   userId: string,
@@ -79,17 +78,16 @@ export const getExpensesByCategory = async (
     const startOfMonth = targetDate.startOf("month").toDate();
     const endOfMonth = targetDate.endOf("month").toDate();
 
-    // Busca todas as categorias para obter as cores
     const categoriesResult = await getCombinedCategoriesService(
       userId,
       "expense",
-      1000, // Busca um número grande para pegar todas as categorias
+      1000,
     );
 
-    // Cria um mapa de nome da categoria -> cor
     const categoryColorMap: Record<string, string> = {};
     categoriesResult.categories.forEach((category) => {
-      categoryColorMap[category.name] = category.color || DEFAULT_CATEGORY_COLOR;
+      categoryColorMap[category.name] =
+        category.color || DEFAULT_CATEGORY_COLOR;
     });
 
     const transactionsRef = collection(db, `users/${userId}/transactions`);
@@ -120,7 +118,6 @@ export const getExpensesByCategory = async (
     const result: CategoryExpenseData[] = Object.keys(categoryMap).map(
       (category) => {
         const totalAmount = categoryMap[category];
-        // Usa a cor da categoria se encontrada, senão usa a cor padrão
         const categoryColor =
           categoryColorMap[category] || DEFAULT_CATEGORY_COLOR;
         return {

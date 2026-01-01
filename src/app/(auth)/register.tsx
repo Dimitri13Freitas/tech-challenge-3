@@ -36,8 +36,7 @@ export default function Register() {
 
       showMessage("Conta criada com sucesso!", "success");
 
-      // // ✅ usuário já está logado, redireciona para as tabs
-      // router.replace("/(tabs)/home");
+      router.replace("/(tabs)/home");
     } catch (err) {
       showMessage("Este usuário já possui cadastro!!");
     }

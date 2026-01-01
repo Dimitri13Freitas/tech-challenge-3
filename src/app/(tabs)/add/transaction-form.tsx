@@ -33,7 +33,7 @@ function formatarData(data: Date | undefined): string {
 export function TransactionForm({ type }: { type: "expense" | "income" }) {
   const { colors } = useTheme();
   const { user } = useAppStore();
-  const { open, close } = useGlobalBottomSheet();
+  const { open } = useGlobalBottomSheet();
   const { showMessage } = useSnackbar();
 
   const {
@@ -105,7 +105,6 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
         setCategories(categoriesResult.categories);
 
         const methods = await getPaymentMethods();
-        // Filtra métodos de pagamento pelo tipo
         const filteredMethods = methods.filter((m) => m.type === categoryType);
         setPaymentMethods(filteredMethods);
       } catch (err) {
@@ -343,7 +342,6 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
           )}
         />
 
-        {/* Método de Pagamento */}
         <TouchableOpacity
           onPress={handleOpenPaymentMethodSelector}
           style={{
@@ -373,7 +371,6 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
           </BytebankText>
         </TouchableOpacity>
 
-        {/* Categoria */}
         <TouchableOpacity
           onPress={handleOpenCategorySelector}
           style={{
@@ -407,7 +404,6 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
           </BytebankText>
         </TouchableOpacity>
 
-        {/* Data */}
         <TouchableOpacity
           onPress={() => setDatePickerOpen(true)}
           style={{
@@ -446,7 +442,6 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
           onConfirm={onConfirmSingle}
         />
 
-        {/* Controllers invisíveis para validação */}
         <Controller
           control={control}
           name="paymentMethod"
@@ -466,7 +461,6 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
           render={() => <View style={{ display: "none" }} />}
         />
 
-        {/* Exibição de erros de validação */}
         {Object.keys(errors).length > 0 && (
           <View style={{ marginBottom: 16 }}>
             {errors.value && (

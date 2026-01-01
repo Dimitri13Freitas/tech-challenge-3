@@ -18,17 +18,15 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Inicializa o app apenas uma vez
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// 🔹 Inicializa Auth com persistência AsyncStorage
 let auth: Auth;
 try {
   auth = initializeAuth(app, {
     persistence: getReactNativePersistence(AsyncStorage),
   });
 } catch {
-  auth = getAuth(app); // já inicializado
+  auth = getAuth(app);
 }
 
 export { app, auth };

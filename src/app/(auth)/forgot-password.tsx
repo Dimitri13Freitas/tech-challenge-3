@@ -6,7 +6,6 @@ import { auth } from "@/src/core/firebase/config";
 import { useSnackbar } from "@/src/core/hooks";
 import { router } from "expo-router";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
@@ -19,7 +18,6 @@ export default function ForgotPassword() {
   const { colors } = useTheme();
   const { control, handleSubmit } = useForm<ForgotPasswordForm>();
   const { showMessage } = useSnackbar();
-  const [visible, setVisible] = useState<boolean>(false);
 
   async function onSubmit(data: ForgotPasswordForm) {
     try {

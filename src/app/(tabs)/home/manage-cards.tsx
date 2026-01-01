@@ -71,7 +71,6 @@ export default function ManageCards() {
     }
   });
 
-  // --- Conteúdos dos BottomSheets ---
   const BottomSheetCreateContent = useMemo(
     () => (
       <KeyboardAvoidingView
@@ -158,7 +157,6 @@ export default function ManageCards() {
     [createControl, handleCreateCard, isCreating, close, colors.outline],
   );
 
-  // --- Handlers de BottomSheet ---
   const openCreateBottomSheet = useCallback(() => {
     resetCreateForm();
     open({
@@ -176,7 +174,6 @@ export default function ManageCards() {
         closingDate: card.closingDate,
       });
 
-      // Funções específicas para este cartão
       const handleUpdateThisCard = handleEditSubmit(async (formData) => {
         try {
           await updateCard(card.id, {
@@ -185,8 +182,6 @@ export default function ManageCards() {
             dueDate: formData.dueDate,
             closingDate: formData.closingDate,
           });
-
-          // O updateCard já atualiza o estado na store automaticamente
 
           showMessage("Cartão atualizado com sucesso!", "success");
           close();
@@ -202,8 +197,6 @@ export default function ManageCards() {
         try {
           await toggleCardBlockedStatus(card.id, newStatus);
 
-          // O toggleCardBlockedStatus já atualiza o estado na store automaticamente
-
           const statusText = newStatus ? "bloqueado" : "desbloqueado";
           showMessage(`Cartão ${statusText} com sucesso!`, "success");
 
@@ -217,7 +210,6 @@ export default function ManageCards() {
         }
       };
 
-      // Cria o conteúdo do BottomSheet com o cartão atual
       const editContent = (
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -276,7 +268,6 @@ export default function ManageCards() {
             </View>
           </View>
 
-          {/* Botão de Bloqueio/Desbloqueio */}
           <BytebankButton
             onPress={handleToggleThisCard}
             mode="outlined"

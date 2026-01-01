@@ -23,7 +23,6 @@ export default function HomeScreen() {
       if (user) {
         const total = await getMonthlySummary(user?.uid);
         setTotal(total);
-        // console.log(total);
       }
     }
 

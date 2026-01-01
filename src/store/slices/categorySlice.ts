@@ -82,7 +82,6 @@ export const createCategorySlice: StateCreator<
 
   fetchCategories: async (userId, type, options = {}) => {
     const { reset = false, pageSize = 10 } = options;
-    // Se type não for passado, usa "all" para buscar todas as categorias
     const categoryType = type ?? "all";
 
     if (!userId) {
@@ -125,7 +124,6 @@ export const createCategorySlice: StateCreator<
         Boolean(result.lastStandardDoc) || Boolean(result.lastUserDoc);
 
       set((state) => ({
-        // Só atualiza currentCategoryType se um type específico foi passado
         ...(type && { currentCategoryType: type }),
         categories: reset
           ? result.categories

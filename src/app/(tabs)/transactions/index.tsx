@@ -54,43 +54,36 @@ export default function TransactionScreen() {
     }
   };
 
-  // Aplica os filtros nas transações
   const applyFilters = useMemo(() => {
     return (transactionsToFilter: Transaction[]) => {
       let filtered = [...transactionsToFilter];
 
-      // Filtro por tipo
       if (filters.type && filters.type !== "all") {
         filtered = filtered.filter((t) => t.type === filters.type);
       }
 
-      // Filtro por categoria
       if (filters.categoryId) {
         filtered = filtered.filter((t) => t.category.id === filters.categoryId);
       }
 
-      // Filtro por forma de pagamento
       if (filters.paymentMethod) {
         filtered = filtered.filter(
           (t) => t.paymentMethod === filters.paymentMethod,
         );
       }
 
-      // Filtro por valor mínimo
       if (filters.minValue !== undefined) {
         filtered = filtered.filter(
           (t) => parseFloat(t.valor) >= filters.minValue!,
         );
       }
 
-      // Filtro por valor máximo
       if (filters.maxValue !== undefined) {
         filtered = filtered.filter(
           (t) => parseFloat(t.valor) <= filters.maxValue!,
         );
       }
 
-      // Filtro por data inicial
       if (filters.startDate) {
         filtered = filtered.filter((t) => {
           let transactionDate: Date;
@@ -109,7 +102,6 @@ export default function TransactionScreen() {
         });
       }
 
-      // Filtro por data final
       if (filters.endDate) {
         filtered = filtered.filter((t) => {
           let transactionDate: Date;
@@ -132,7 +124,6 @@ export default function TransactionScreen() {
     };
   }, [filters]);
 
-  // Aplica os filtros quando as transações ou filtros mudam
   useEffect(() => {
     const filtered = applyFilters(transactions);
     setFilteredTransactions(filtered);

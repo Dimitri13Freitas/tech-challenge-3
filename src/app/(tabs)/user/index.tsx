@@ -60,7 +60,6 @@ export default function UserScreen() {
   return (
     <Container scrollable={false}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header com Avatar */}
         <View
           style={{
             alignItems: "center",
@@ -103,7 +102,6 @@ export default function UserScreen() {
           )}
         </View>
 
-        {/* Informações do Usuário */}
         <BytebankCard style={{ marginBottom: 16 }}>
           <View style={{ padding: 16 }}>
             <BytebankText
@@ -116,7 +114,6 @@ export default function UserScreen() {
               Informações da Conta
             </BytebankText>
 
-            {/* Nome */}
             <View
               style={{
                 flexDirection: "row",
@@ -145,7 +142,6 @@ export default function UserScreen() {
 
             <Divider style={{ marginVertical: 12 }} />
 
-            {/* Email */}
             <View
               style={{
                 flexDirection: "row",
@@ -216,7 +212,6 @@ export default function UserScreen() {
           </View>
         </BytebankCard>
 
-        {/* Informações Adicionais */}
         {user?.metadata && (
           <BytebankCard style={{ marginBottom: 16 }}>
             <View style={{ padding: 16 }}>
@@ -312,7 +307,6 @@ export default function UserScreen() {
           </BytebankCard>
         )}
 
-        {/* Botão de Logout */}
         <BytebankButton
           mode="contained"
           onPress={handleLogout}

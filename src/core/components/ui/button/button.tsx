@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleProp, ViewStyle } from "react-native";
-import { Button, useTheme } from "react-native-paper";
+import { Button } from "react-native-paper";
 
 interface BytebankButtonProps {
   style?: StyleProp<ViewStyle>;
@@ -17,8 +17,6 @@ export function BytebankButton({
   onPress,
   ...props
 }: BytebankButtonProps) {
-  const { colors } = useTheme();
-
   return (
     <Button
       onPress={onPress}

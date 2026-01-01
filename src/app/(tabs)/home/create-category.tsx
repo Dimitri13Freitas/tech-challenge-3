@@ -26,8 +26,6 @@ export default function CreateCategory() {
   const { user } = useAppStore();
   const { showMessage } = useSnackbar();
   const { colors } = useTheme();
-
-  // Estados do categorySlice
   const {
     categories,
     categoriesLoading,
@@ -52,7 +50,6 @@ export default function CreateCategory() {
     formState: { isSubmitting },
   } = useForm<NewCategoryFormData>();
 
-  // Filtra as categorias baseado no tab selecionado
   const filteredCategories = React.useMemo(() => {
     return categories.filter((category) => category.type === tab);
   }, [categories, tab]);
@@ -80,7 +77,6 @@ export default function CreateCategory() {
     try {
       setLoadingMore(true);
       await fetchCategories(user.uid, undefined, { reset: false });
-      console.log("requisição");
     } catch (error) {
       console.error("Erro ao carregar mais categorias: ", error);
     } finally {
@@ -100,7 +96,6 @@ export default function CreateCategory() {
       reset();
       close();
       showMessage("Categoria adicionada com sucesso!", "success");
-      // Recarrega todas as categorias após adicionar
       await fetchCategories(user.uid, undefined, { reset: true });
     } catch (error) {
       alert("Erro ao adicionar categoria. Tente novamente.");
@@ -113,7 +108,6 @@ export default function CreateCategory() {
     setCategoryType(newTab);
   };
 
-  // Busca todas as categorias apenas quando o componente monta ou quando o usuário muda
   useEffect(() => {
     if (user?.uid) {
       fetchCategories(user.uid, undefined, { reset: true });

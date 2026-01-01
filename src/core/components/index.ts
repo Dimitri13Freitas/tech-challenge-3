@@ -8,4 +8,3 @@ export * from "./ui/fade-in-view/fade-in-view";
 export * from "./ui/text-input/text-input";
 export * from "./ui/text-input/text-input-controller";
 export * from "./ui/text/text";
-export * from "./ui/touchable-ripple/touchable-ripple";

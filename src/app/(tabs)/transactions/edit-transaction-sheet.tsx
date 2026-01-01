@@ -31,8 +31,6 @@ export const EditTransactionSheet = ({
   const { close } = useGlobalBottomSheet();
   const { showMessage } = useSnackbar();
   const inputRef = useRef<any>(null);
-
-  // Valores iniciais
   const initialType = transaction.type;
   const initialCategory = transaction.category;
   const initialPaymentMethod = transaction.paymentMethod;
@@ -40,8 +38,6 @@ export const EditTransactionSheet = ({
   const initialValue = parseFloat(transaction.valor)
     .toFixed(2)
     .replace(".", ",");
-
-  // Estados editáveis
   const [type, setType] = useState<"expense" | "income">(initialType);
   const [category, setCategory] = useState(initialCategory);
   const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod);
@@ -62,7 +58,6 @@ export const EditTransactionSheet = ({
     paymentMethodsLoading,
   } = useAppStore();
 
-  // Reset valores quando a transação muda
   useEffect(() => {
     const newInitialDate = transactionTimestampToDate(transaction.date);
     setType(transaction.type);
@@ -72,7 +67,6 @@ export const EditTransactionSheet = ({
     setValue(parseFloat(transaction.valor).toFixed(2).replace(".", ","));
   }, [transaction.id]);
 
-  // Carrega categorias e métodos de pagamento quando o tipo muda
   useEffect(() => {
     if (user?.uid) {
       fetchCategories(user.uid, type, { reset: true, pageSize: 1000 });
@@ -83,7 +77,6 @@ export const EditTransactionSheet = ({
     fetchPaymentMethods();
   }, []);
 
-  // Filtra categorias e métodos de pagamento pelo tipo
   const filteredCategories = useMemo(
     () => categories.filter((cat) => cat.type === type),
     [categories, type],
@@ -94,7 +87,6 @@ export const EditTransactionSheet = ({
     [paymentMethods, type],
   );
 
-  // Verifica se houve alterações
   const hasChanges = useMemo(() => {
     const valueChanged =
       value !== initialValue ||

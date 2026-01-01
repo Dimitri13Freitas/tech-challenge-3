@@ -66,7 +66,6 @@ export const TransactionFiltersSheet = ({
   const [paymentMethodDialogVisible, setPaymentMethodDialogVisible] =
     useState(false);
 
-  // Carrega categorias e métodos de pagamento
   useEffect(() => {
     if (user?.uid && type !== "all") {
       fetchCategories(user.uid, type, { reset: true, pageSize: 1000 });
@@ -79,7 +78,6 @@ export const TransactionFiltersSheet = ({
     fetchPaymentMethods();
   }, []);
 
-  // Filtra categorias e métodos pelo tipo
   const filteredCategories = useMemo(() => {
     if (type === "all") {
       return categories;
@@ -242,7 +240,6 @@ export const TransactionFiltersSheet = ({
         </View>
       </View>
 
-      {/* Categoria */}
       <View style={{ marginBottom: 16 }}>
         <BytebankText variant="labelLarge" style={{ marginBottom: 4 }}>
           Categoria
@@ -265,7 +262,6 @@ export const TransactionFiltersSheet = ({
         </TouchableOpacity>
       </View>
 
-      {/* Forma de pagamento */}
       <View style={{ marginBottom: 16 }}>
         <BytebankText variant="labelLarge" style={{ marginBottom: 4 }}>
           Forma de pagamento
@@ -288,7 +284,6 @@ export const TransactionFiltersSheet = ({
         </TouchableOpacity>
       </View>
 
-      {/* Valor mínimo e máximo */}
       <View style={{ marginBottom: 16 }}>
         <BytebankText variant="labelLarge" style={{ marginBottom: 8 }}>
           Valor
@@ -322,7 +317,6 @@ export const TransactionFiltersSheet = ({
         </View>
       </View>
 
-      {/* Período */}
       <View style={{ marginBottom: 16 }}>
         <BytebankText variant="labelLarge" style={{ marginBottom: 8 }}>
           Período
@@ -368,7 +362,6 @@ export const TransactionFiltersSheet = ({
         </View>
       </View>
 
-      {/* Botões */}
       <View
         style={{
           flexDirection: "row",
@@ -393,7 +386,6 @@ export const TransactionFiltersSheet = ({
         </BytebankButton>
       </View>
 
-      {/* Diálogo de Categorias */}
       <Portal>
         <Dialog
           visible={categoryDialogVisible}
@@ -462,7 +454,6 @@ export const TransactionFiltersSheet = ({
           </Dialog.Content>
         </Dialog>
 
-        {/* Diálogo de Forma de Pagamento */}
         <Dialog
           visible={paymentMethodDialogVisible}
           onDismiss={() => setPaymentMethodDialogVisible(false)}
@@ -532,7 +523,6 @@ export const TransactionFiltersSheet = ({
         </Dialog>
       </Portal>
 
-      {/* DatePickerModals */}
       <DatePickerModal
         locale="pt"
         mode="single"
