@@ -7,12 +7,12 @@ import React from "react";
 import { Pressable, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
-interface ManageCardItemProps {
+interface CardItemProps {
   card: Card;
   [key: string]: any;
 }
 
-export const ManageCardItem = ({ card, ...props }: ManageCardItemProps) => {
+export const CardItem = ({ card, ...props }: CardItemProps) => {
   const { colors } = useTheme();
 
   return (

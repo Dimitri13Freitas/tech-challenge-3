@@ -6,9 +6,9 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { FlatList, useColorScheme, View } from "react-native";
-import { ManageCardItem } from "../manage-cards/manage-card-item";
-import { useMyCardsLogic } from "./actions";
+import { CardItem } from "./card-item";
 import { NoCards } from "./no-cards";
+import { useMyCardsLogic } from "./use-my-cards";
 
 export const MyCards = () => {
   const { cardsLoading, cards, handleManageCardsPress } = useMyCardsLogic();
@@ -23,7 +23,7 @@ export const MyCards = () => {
       <FlatList
         data={cards.slice(0, 2)}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ManageCardItem card={item} />}
+        renderItem={({ item }) => <CardItem card={item} />}
         contentContainerStyle={{ paddingBottom: 15 }}
         scrollEnabled={false}
       />
