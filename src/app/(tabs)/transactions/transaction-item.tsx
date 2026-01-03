@@ -13,6 +13,8 @@ export const TransactionItem = ({
   transaction: Transaction;
   onUpdate?: () => void;
 }) => {
+  console.log("AAAAAAAAAAAAAAAAAAA", transaction.date);
+
   const { colors } = useTheme();
   const { open } = useGlobalBottomSheet();
   const isExpense = transaction.type === "expense";
@@ -94,7 +96,9 @@ export const TransactionItem = ({
             }}
           >
             {isExpense ? "-" : "+"}R${" "}
-            {parseFloat(transaction.valor).toFixed(2).replace(".", ",")}
+            {parseFloat("" + transaction.valor)
+              .toFixed(2)
+              .replace(".", ",")}
           </BytebankText>
         </View>
       </View>

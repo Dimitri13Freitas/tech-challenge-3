@@ -1,5 +1,5 @@
 import { db } from "@core/firebase/config";
-import { Card, Category, CombinedCategoriesResult } from "@core/types/services";
+import { Category, CombinedCategoriesResult } from "@core/types/services";
 import {
   addDoc,
   collection,
@@ -141,28 +141,5 @@ export const removeCustomCategory = async (categoryId: string) => {
   } catch (error) {
     console.error("Erro ao remover categoria customizada: ", error);
     throw new Error("Não foi possível remover a categoria do banco de dados.");
-  }
-};
-
-export const getCardsByUserId = async (userId: string): Promise<Card[]> => {
-  try {
-    const cardsRef = collection(db, "cards");
-    const q = query(
-      cardsRef,
-      where("userId", "==", userId),
-      orderBy("name", "asc"),
-    );
-
-    const snapshot = await getDocs(q);
-
-    const cards: Card[] = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...(doc.data() as Omit<Card, "id">),
-    }));
-
-    return cards;
-  } catch (error) {
-    console.error("Erro ao listar cartões do usuário: ", error);
-    throw new Error("Não foi possível carregar seus cartões.");
   }
 };

@@ -1,6 +1,6 @@
 // src/store/slices/userSlice.ts
 
-import { firebaseAuthService } from "@/src/core/firebase/auth";
+import { signOutUseCase } from "@infrastructure/di/useCases";
 import type { User } from "firebase/auth";
 import type { StateCreator } from "zustand";
 import type { AppStore } from "../useAppStore"; // Tipo da Store Única
@@ -29,7 +29,7 @@ export const createUserSlice: StateCreator<AppStore, [], [], UserSlice> = (
   setLoading: (loading) => set({ loading }),
 
   logout: async () => {
-    await firebaseAuthService.signOut();
+    await signOutUseCase.execute();
     set({ user: null });
     const { setLoading } = get();
     if (setLoading) {

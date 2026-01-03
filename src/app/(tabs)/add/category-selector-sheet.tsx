@@ -49,9 +49,7 @@ export const CategorySelectorSheet = ({
               marginBottom: 8,
               borderWidth: selectedCategoryId === item.id ? 1 : 0,
               borderColor:
-                selectedCategoryId === item.id
-                  ? colors.primary
-                  : "transparent",
+                selectedCategoryId === item.id ? colors.primary : "transparent",
             }}
           >
             <View

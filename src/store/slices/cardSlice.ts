@@ -1,11 +1,12 @@
-import {
-  addCardService,
-  getCardsByUserIdService,
-  toggleCardBlockedStatusService,
-  updateCardService,
-} from "@core/api";
 import { Card } from "@core/types/services/cards/cardTypes";
+import {
+  addCardUseCase,
+  getCardsUseCase,
+  toggleCardBlockedStatusUseCase,
+  updateCardUseCase,
+} from "@infrastructure/di/useCases";
 import { AppStore } from "@store/useAppStore";
+import { Timestamp } from "firebase/firestore";
 import { StateCreator } from "zustand";
 
 interface CardState {
@@ -73,7 +74,17 @@ export const createCardSlice: StateCreator<AppStore, [], [], CardSlice> = (
     }));
 
     try {
-      const cards = await getCardsByUserIdService(userId);
+      const domainCards = await getCardsUseCase.execute({ userId });
+      const cards: Card[] = domainCards.map((card) => ({
+        id: card.id,
+        userId: card.userId,
+        name: card.name,
+        limit: card.limit,
+        blocked: card.blocked,
+        dueDate: card.dueDate,
+        closingDate: card.closingDate,
+        createdAt: Timestamp.fromDate(card.createdAt),
+      }));
       set(() => ({ cards }));
     } catch (error) {
       set(() => ({ cardsError: getErrorMessage(error) }));
@@ -87,23 +98,26 @@ export const createCardSlice: StateCreator<AppStore, [], [], CardSlice> = (
   },
 
   addCard: async (userId, card) => {
-    await addCardService(
+    await addCardUseCase.execute({
       userId,
-      card.name,
-      card.limit,
-      card.dueDate,
-      card.closingDate,
-    );
+      name: card.name,
+      limit: card.limit,
+      dueDate: card.dueDate,
+      closingDate: card.closingDate,
+    });
 
     await get().fetchCards(userId);
   },
 
   updateCard: async (cardId, card) => {
-    await updateCardService(cardId, {
-      name: card.name,
-      limit: card.limit,
-      dueDate: card.dueDate,
-      closingDate: card.closingDate,
+    await updateCardUseCase.execute({
+      cardId,
+      data: {
+        name: card.name,
+        limit: card.limit,
+        dueDate: card.dueDate,
+        closingDate: card.closingDate,
+      },
     });
 
     set((state) => ({
@@ -116,7 +130,7 @@ export const createCardSlice: StateCreator<AppStore, [], [], CardSlice> = (
   },
 
   toggleCardBlockedStatus: async (cardId, blocked) => {
-    await toggleCardBlockedStatusService(cardId, blocked);
+    await toggleCardBlockedStatusUseCase.execute({ cardId, blocked });
 
     set((state) => ({
       cards: state.cards.map((card) =>

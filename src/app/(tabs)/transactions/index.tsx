@@ -1,7 +1,7 @@
 import { BytebankText, Container, MonthNavigator } from "@/src/core/components";
-import { getTransactionsByMonth } from "@core/api";
 import { useGlobalBottomSheet } from "@core/hooks";
 import { Transaction } from "@core/types/services";
+import { getTransactionsByMonthUseCase } from "@infrastructure/di/useCases";
 import { useAppStore } from "@store/useAppStore";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
@@ -40,12 +40,12 @@ export default function TransactionScreen() {
       const year = month.year();
       const monthNumber = month.month() + 1;
 
-      const transactionsData = await getTransactionsByMonth(
-        user.uid,
+      const transactionsData = await getTransactionsByMonthUseCase.execute({
+        month: monthNumber,
         year,
-        monthNumber,
-      );
-      setTransactions(transactionsData as Transaction[]);
+        userId: user.uid,
+      });
+      setTransactions(transactionsData);
     } catch (error) {
       console.error("Erro ao carregar transações:", error);
       setTransactions([]);
@@ -74,13 +74,13 @@ export default function TransactionScreen() {
 
       if (filters.minValue !== undefined) {
         filtered = filtered.filter(
-          (t) => parseFloat(t.valor) >= filters.minValue!,
+          (t) => parseFloat(`${t.valor}`) >= filters.minValue!,
         );
       }
 
       if (filters.maxValue !== undefined) {
         filtered = filtered.filter(
-          (t) => parseFloat(t.valor) <= filters.maxValue!,
+          (t) => parseFloat(`${t.valor}`) <= filters.maxValue!,
         );
       }
 

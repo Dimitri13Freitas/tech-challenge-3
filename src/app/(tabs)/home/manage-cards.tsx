@@ -6,9 +6,9 @@ import {
 } from "@/src/core/components";
 import { useGlobalBottomSheet, useSnackbar } from "@/src/core/hooks";
 import { staticColors } from "@/src/core/theme/theme";
-import { ManageCardItem } from "@/src/features";
 import { useAppStore } from "@/src/store/useAppStore";
 import { Card } from "@core/types/services/cards/cardTypes";
+import { CardItem } from "@features/index";
 import { router } from "expo-router";
 import React, { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
@@ -391,10 +391,7 @@ export default function ManageCards() {
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
               <>
-                <ManageCardItem
-                  card={item}
-                  onPress={() => handleCardPress(item)}
-                />
+                <CardItem card={item} onPress={() => handleCardPress(item)} />
                 {index !== cards.length - 1 && <Divider />}
               </>
             )}

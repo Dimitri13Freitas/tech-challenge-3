@@ -1,14 +1,11 @@
+import { Category } from "@core/types/services/categories/categoryTypes";
+import { domainCategoriesToLegacy } from "@infrastructure/adapters/domainAdapters";
 import {
-  addCustomCategory,
-  getCombinedCategoriesService,
-  removeCustomCategory,
-} from "@core/api";
-import {
-  Category,
-  CombinedCategoriesResult,
-} from "@core/types/services/categories/categoryTypes";
+  addCategoryUseCase,
+  fetchCategoriesUseCase,
+  removeCategoryUseCase,
+} from "@infrastructure/di/useCases";
 import { AppStore } from "@store/useAppStore";
-import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { StateCreator } from "zustand";
 
 type CategoryType = "expense" | "income";
@@ -19,8 +16,8 @@ interface CategoryState {
   categoriesError: string | null;
   currentCategoryType: CategoryType;
   hasMoreCategories: boolean;
-  lastStandardDoc: QueryDocumentSnapshot<DocumentData> | null;
-  lastUserDoc: QueryDocumentSnapshot<DocumentData> | null;
+  lastStandardDoc: unknown | null;
+  lastUserDoc: unknown | null;
   isRemoving: boolean;
 }
 
@@ -96,8 +93,12 @@ export const createCategorySlice: StateCreator<
       return;
     }
 
-    const lastStandardDoc = reset ? null : get().lastStandardDoc;
-    const lastUserDoc = reset ? null : get().lastUserDoc;
+    const cursor = reset
+      ? undefined
+      : {
+          lastStandardDoc: get().lastStandardDoc,
+          lastUserDoc: get().lastUserDoc,
+        };
 
     set(() => ({
       categoriesLoading: true,
@@ -111,26 +112,23 @@ export const createCategorySlice: StateCreator<
     }));
 
     try {
-      const result: CombinedCategoriesResult =
-        await getCombinedCategoriesService(
-          userId,
-          categoryType as "expense" | "income" | "all",
-          pageSize,
-          lastStandardDoc ?? undefined,
-          lastUserDoc ?? undefined,
-        );
+      const result = await fetchCategoriesUseCase.execute({
+        userId,
+        type: categoryType as "expense" | "income" | "all",
+        pageSize,
+        cursor,
+      });
 
-      const hasMore =
-        Boolean(result.lastStandardDoc) || Boolean(result.lastUserDoc);
+      const legacyCategories = domainCategoriesToLegacy(result.categories);
 
       set((state) => ({
         ...(type && { currentCategoryType: type }),
         categories: reset
-          ? result.categories
-          : [...state.categories, ...result.categories],
-        lastStandardDoc: result.lastStandardDoc,
-        lastUserDoc: result.lastUserDoc,
-        hasMoreCategories: hasMore,
+          ? legacyCategories
+          : [...state.categories, ...legacyCategories],
+        lastStandardDoc: result.pagination.lastStandardDoc,
+        lastUserDoc: result.pagination.lastUserDoc,
+        hasMoreCategories: result.hasMore,
       }));
     } catch (error) {
       set(() => ({ categoriesError: getErrorMessage(error) }));
@@ -141,7 +139,7 @@ export const createCategorySlice: StateCreator<
 
   addCategory: async (userId, name, color, type) => {
     try {
-      await addCustomCategory(userId, name, color, type);
+      await addCategoryUseCase.execute({ userId, name, color, type });
       await get().fetchCategories(userId, type, { reset: true });
     } catch (error) {
       set(() => ({ categoriesError: getErrorMessage(error) }));
@@ -152,7 +150,7 @@ export const createCategorySlice: StateCreator<
   removeCategory: async (categoryId) => {
     try {
       set(() => ({ isRemoving: true }));
-      await removeCustomCategory(categoryId);
+      await removeCategoryUseCase.execute({ categoryId });
       set((state) => ({
         categories: state.categories.filter(
           (category) => category.id !== categoryId,

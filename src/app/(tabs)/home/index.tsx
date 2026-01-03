@@ -1,15 +1,9 @@
-import {
-  BytebankBarChart,
-  BytebankCard,
-  BytebankText,
-  Container,
-} from "@/src/core/components";
+import { BytebankCard, BytebankText, Container } from "@/src/core/components";
 import { BalanceCard, MyCards } from "@/src/features";
-import { getMonthlySummary } from "@core/api/firestore/reports";
 import { AntDesign } from "@expo/vector-icons";
 import { useAppStore } from "@store/useAppStore";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { View } from "react-native";
 import { TouchableRipple, useTheme } from "react-native-paper";
 
@@ -18,16 +12,16 @@ export default function HomeScreen() {
   const { colors } = useTheme();
   const [total, setTotal] = useState<any>();
 
-  useEffect(() => {
-    async function teste() {
-      if (user) {
-        const total = await getMonthlySummary(user?.uid);
-        setTotal(total);
-      }
-    }
+  // useEffect(() => {
+  //   async function teste() {
+  //     if (user) {
+  //       const total = await getMonthlySummary(user?.uid);
+  //       setTotal(total);
+  //     }
+  //   }
 
-    teste();
-  }, []);
+  //   teste();
+  // }, []);
 
   async function handlePress() {
     router.replace("/(tabs)/home/create-category");
@@ -37,7 +31,7 @@ export default function HomeScreen() {
     <Container scrollable={true}>
       <BalanceCard />
       <MyCards />
-      <BytebankBarChart data={total} />
+      {/* <BytebankBarChart data={total} /> */}
       <TouchableRipple onPress={handlePress}>
         <BytebankCard>
           <View

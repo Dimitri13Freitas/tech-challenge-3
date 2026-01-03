@@ -1,0 +1,130 @@
+import { createUserProfileService } from "@core/api";
+import { User as DomainUser } from "@domain/entities";
+import { IAuthRepository } from "@domain/repositories";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
+  User as FirebaseUser,
+} from "firebase/auth";
+import { auth } from "@core/firebase/config";
+
+export class AuthRepository implements IAuthRepository {
+  private currentUser: DomainUser | null = null;
+
+  async signIn(email: string, password: string): Promise<DomainUser> {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      const firebaseUser = userCredential.user;
+      const domainUser = this.mapFirebaseUserToDomain(firebaseUser);
+      this.currentUser = domainUser;
+
+      return domainUser;
+    } catch (error: any) {
+      if (error.code === "auth/invalid-credential") {
+        throw new Error("Usuário ou senha incorretos");
+      }
+      if (error.code === "auth/user-not-found") {
+        throw new Error("Usuário não encontrado");
+      }
+      if (error.code === "auth/wrong-password") {
+        throw new Error("Senha incorreta");
+      }
+      throw new Error("Erro ao fazer login. Tente novamente.");
+    }
+  }
+
+  async signUp(
+    email: string,
+    password: string,
+    name: string,
+  ): Promise<DomainUser> {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      const firebaseUser = userCredential.user;
+      await updateProfile(firebaseUser, { displayName: name });
+
+      if (firebaseUser.email) {
+        await createUserProfileService(firebaseUser.uid, firebaseUser.email);
+      }
+
+      const domainUser = this.mapFirebaseUserToDomain(firebaseUser);
+      this.currentUser = domainUser;
+
+      return domainUser;
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        throw new Error("Este email já está em uso");
+      }
+      if (error.code === "auth/weak-password") {
+        throw new Error("A senha é muito fraca");
+      }
+      if (error.code === "auth/invalid-email") {
+        throw new Error("Email inválido");
+      }
+      throw new Error("Erro ao criar conta. Tente novamente.");
+    }
+  }
+
+  async signOut(): Promise<void> {
+    try {
+      await signOut(auth);
+      this.currentUser = null;
+    } catch (error) {
+      throw new Error("Erro ao fazer logout");
+    }
+  }
+
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+      if (error.code === "auth/user-not-found") {
+        throw new Error("Usuário não encontrado");
+      }
+      throw new Error("Erro ao enviar email de recuperação");
+    }
+  }
+
+  onAuthStateChanged(
+    callback: (user: DomainUser | null) => void,
+  ): () => void {
+    return onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        const domainUser = this.mapFirebaseUserToDomain(firebaseUser);
+        this.currentUser = domainUser;
+        callback(domainUser);
+      } else {
+        this.currentUser = null;
+        callback(null);
+      }
+    });
+  }
+
+  getCurrentUser(): DomainUser | null {
+    return this.currentUser;
+  }
+
+  private mapFirebaseUserToDomain(firebaseUser: FirebaseUser): DomainUser {
+    return DomainUser.create(
+      firebaseUser.uid,
+      firebaseUser.email,
+      firebaseUser.displayName,
+      firebaseUser.emailVerified,
+    );
+  }
+}
+

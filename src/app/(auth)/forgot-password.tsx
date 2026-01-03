@@ -2,10 +2,9 @@ import { Container } from "@/src/core/components";
 import { BytebankButton } from "@/src/core/components/ui/button/button";
 import { BytebankTextInputController } from "@/src/core/components/ui/text-input/text-input-controller";
 import { BytebankText } from "@/src/core/components/ui/text/text";
-import { auth } from "@/src/core/firebase/config";
 import { useSnackbar } from "@/src/core/hooks";
+import { forgotPasswordUseCase } from "@infrastructure/di/useCases";
 import { router } from "expo-router";
-import { sendPasswordResetEmail } from "firebase/auth";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
@@ -21,10 +20,10 @@ export default function ForgotPassword() {
 
   async function onSubmit(data: ForgotPasswordForm) {
     try {
-      await sendPasswordResetEmail(auth, data.email);
+      await forgotPasswordUseCase.execute({ email: data.email });
       showMessage("Email de recuperação enviado!", "success");
-    } catch (err) {
-      showMessage("Erro ao enviar email de recuperação", "warning");
+    } catch (err: any) {
+      showMessage(err.message || "Erro ao enviar email de recuperação", "warning");
     }
   }
 

@@ -1,10 +1,9 @@
 import { useAppStore } from "@/src/store/useAppStore";
+import { BytebankCard, BytebankText } from "@core/components";
 import { formatCurrencyBR } from "@core/utils";
 import { useState } from "react";
 import { View } from "react-native";
 import { ActivityIndicator, IconButton, useTheme } from "react-native-paper";
-import { BytebankCard } from "../../core/components/ui/card/card";
-import { BytebankText } from "../../core/components/ui/text/text";
 
 export function BalanceCard() {
   const [isVisible, setIsVisible] = useState(true);

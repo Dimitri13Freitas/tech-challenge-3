@@ -4,8 +4,8 @@ import {
   BytebankTextInputController,
   Container,
 } from "@/src/core/components";
-import { firebaseAuthService } from "@/src/core/firebase/auth";
 import { useSnackbar } from "@/src/core/hooks";
+import { signInUseCase } from "@infrastructure/di/useCases";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useForm } from "react-hook-form";
@@ -19,7 +19,6 @@ type RegisterFormData = {
 
 export default function Login() {
   const colorScheme = useColorScheme();
-  const { signIn } = firebaseAuthService;
   const {
     control,
     handleSubmit,
@@ -30,10 +29,13 @@ export default function Login() {
 
   async function onSubmit(data: RegisterFormData) {
     try {
-      await signIn(data.email, data.password);
+      await signInUseCase.execute({
+        email: data.email,
+        password: data.password,
+      });
       router.replace("/(tabs)/add");
-    } catch (err) {
-      showMessage("Usuário ou senha incorretos", "warning");
+    } catch (err: any) {
+      showMessage(err.message || "Usuário ou senha incorretos", "warning");
     }
   }
 

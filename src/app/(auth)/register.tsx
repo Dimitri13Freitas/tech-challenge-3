@@ -4,8 +4,8 @@ import {
   BytebankTextInputController,
   Container,
 } from "@/src/core/components";
-import { firebaseAuthService } from "@/src/core/firebase/auth";
 import { useSnackbar } from "@/src/core/hooks";
+import { signUpUseCase } from "@infrastructure/di/useCases";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useForm } from "react-hook-form";
@@ -20,7 +20,6 @@ type RegisterFormData = {
 };
 
 export default function Register() {
-  const { signUp } = firebaseAuthService;
   const { showMessage } = useSnackbar();
   const colorScheme = useColorScheme();
   const {
@@ -32,13 +31,17 @@ export default function Register() {
   const { colors } = useTheme();
   async function onSubmit(data: RegisterFormData) {
     try {
-      await signUp(data.email, data.password, data.name);
+      await signUpUseCase.execute({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+      });
 
       showMessage("Conta criada com sucesso!", "success");
 
       router.replace("/(tabs)/home");
-    } catch (err) {
-      showMessage("Este usuário já possui cadastro!!");
+    } catch (err: any) {
+      showMessage(err.message || "Este usuário já possui cadastro!!", "warning");
     }
   }
 
