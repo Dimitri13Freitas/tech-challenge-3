@@ -6,7 +6,8 @@ import { useAppStore } from "@store/useAppStore";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import React, { useEffect, useMemo, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { NoTransactions } from "./no-transactions";
@@ -32,27 +33,30 @@ export default function TransactionScreen() {
   const [filters, setFilters] = useState<TransactionFilters>({});
   const { open } = useGlobalBottomSheet();
 
-  const loadTransactions = async (month: dayjs.Dayjs) => {
-    if (!user?.uid) return;
+  const loadTransactions = useCallback(
+    async (month: dayjs.Dayjs) => {
+      if (!user?.uid) return;
 
-    try {
-      setLoading(true);
-      const year = month.year();
-      const monthNumber = month.month() + 1;
+      try {
+        setLoading(true);
+        const year = month.year();
+        const monthNumber = month.month() + 1;
 
-      const transactionsData = await getTransactionsByMonthUseCase.execute({
-        month: monthNumber,
-        year,
-        userId: user.uid,
-      });
-      setTransactions(transactionsData);
-    } catch (error) {
-      console.error("Erro ao carregar transações:", error);
-      setTransactions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+        const transactionsData = await getTransactionsByMonthUseCase.execute({
+          month: monthNumber,
+          year,
+          userId: user.uid,
+        });
+        setTransactions(transactionsData);
+      } catch (error) {
+        console.error("Erro ao carregar transações:", error);
+        setTransactions([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.uid],
+  );
 
   const applyFilters = useMemo(() => {
     return (transactionsToFilter: Transaction[]) => {
@@ -140,6 +144,15 @@ export default function TransactionScreen() {
       loadTransactions(currentMonth);
     }
   }, [user?.uid, initialLoad]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Recarrega as transações quando a tela recebe foco
+  useFocusEffect(
+    useCallback(() => {
+      if (user?.uid && initialLoad) {
+        loadTransactions(currentMonth);
+      }
+    }, [user?.uid, initialLoad, currentMonth, loadTransactions])
+  );
 
   const renderTransaction = ({ item }: { item: Transaction }) => (
     <TransactionItem
