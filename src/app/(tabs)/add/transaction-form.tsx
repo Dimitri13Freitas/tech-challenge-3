@@ -1,15 +1,16 @@
 import { BytebankCard, BytebankText } from "@/src/core/components";
-import {
-  addTransactionAndUpdateBalance,
-  getCombinedCategoriesService,
-} from "@core/api";
-import { getPaymentMethods } from "@core/api/firestore/paymentMethods";
 import { useGlobalBottomSheet, useSnackbar } from "@core/hooks";
 import { staticColors } from "@core/theme/theme";
 import { Category } from "@core/types/services/categories/categoryTypes";
 import { PaymentMethod } from "@core/types/services/paymentMethods/paymentMethodsTypes";
 import { formatCurrencyBR } from "@core/utils";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { domainCategoriesToLegacy } from "@infrastructure/adapters/domainAdapters";
+import {
+  addTransactionUseCase,
+  fetchCategoriesUseCase,
+  paymentMethodRepository,
+} from "@infrastructure/di/useCases";
 import { useAppStore } from "@store/useAppStore";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -97,16 +98,24 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
         setError(null);
 
         const categoryType = type === "expense" ? "expense" : "income";
-        const categoriesResult = await getCombinedCategoriesService(
-          user.uid,
-          categoryType,
-          1000,
+        const categoriesResult = await fetchCategoriesUseCase.execute({
+          userId: user.uid,
+          type: categoryType,
+          pageSize: 1000,
+        });
+        const legacyCategories = domainCategoriesToLegacy(
+          categoriesResult.categories,
         );
-        setCategories(categoriesResult.categories);
+        setCategories(legacyCategories);
 
-        const methods = await getPaymentMethods();
-        const filteredMethods = methods.filter((m) => m.type === categoryType);
-        setPaymentMethods(filteredMethods);
+        const domainMethods =
+          await paymentMethodRepository.getPaymentMethodsByType(categoryType);
+        const legacyMethods: PaymentMethod[] = domainMethods.map((method) => ({
+          id: method.id,
+          name: method.name,
+          type: method.type,
+        }));
+        setPaymentMethods(legacyMethods);
       } catch (err) {
         console.error("Erro ao buscar dados:", err);
         setError("Erro ao carregar dados. Tente novamente.");
@@ -131,15 +140,14 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
         data.value.replace(/\./g, "").replace(",", "."),
       );
 
-      const transactionData = {
-        valor: valorNumerico.toString(),
+      await addTransactionUseCase.execute({
+        userId: user.uid,
+        valor: valorNumerico,
         type: data.type,
         paymentMethod: data.paymentMethod,
         category: data.category,
         date: data.date,
-      };
-
-      await addTransactionAndUpdateBalance(user.uid, transactionData);
+      });
 
       showMessage(
         `Transação de ${
@@ -161,11 +169,12 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
         date: undefined,
         userId: user?.uid || "",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao salvar transação:", error);
       Alert.alert(
         "Erro",
-        "Não foi possível salvar a transação. Tente novamente.",
+        error?.message ||
+          "Não foi possível salvar a transação. Tente novamente.",
       );
     } finally {
       setIsSubmitting(false);
@@ -246,17 +255,27 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
               if (!user?.uid) return;
               try {
                 const categoryType = type === "expense" ? "expense" : "income";
-                const categoriesResult = await getCombinedCategoriesService(
-                  user.uid,
-                  categoryType,
-                  1000,
+                const categoriesResult = await fetchCategoriesUseCase.execute({
+                  userId: user.uid,
+                  type: categoryType,
+                  pageSize: 1000,
+                });
+                const legacyCategories = domainCategoriesToLegacy(
+                  categoriesResult.categories,
                 );
-                setCategories(categoriesResult.categories);
-                const methods = await getPaymentMethods();
-                const filteredMethods = methods.filter(
-                  (m) => m.type === categoryType,
+                setCategories(legacyCategories);
+                const domainMethods =
+                  await paymentMethodRepository.getPaymentMethodsByType(
+                    categoryType,
+                  );
+                const legacyMethods: PaymentMethod[] = domainMethods.map(
+                  (method) => ({
+                    id: method.id,
+                    name: method.name,
+                    type: method.type,
+                  }),
                 );
-                setPaymentMethods(filteredMethods);
+                setPaymentMethods(legacyMethods);
               } catch {
                 setError("Erro ao carregar dados. Tente novamente.");
               } finally {
