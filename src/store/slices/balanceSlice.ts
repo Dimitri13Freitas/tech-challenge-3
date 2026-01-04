@@ -1,6 +1,6 @@
 import { setupBalanceListenerService } from "@/src/core/api";
+import { AppStore } from "@store/useAppStore";
 import type { StateCreator } from "zustand";
-import type { AppStore } from "../useAppStore";
 
 type Unsubscribe = () => void;
 

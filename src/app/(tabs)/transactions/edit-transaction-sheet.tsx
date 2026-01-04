@@ -152,9 +152,6 @@ export const EditTransactionSheet = ({
         date: date,
       };
 
-      console.log("DADOS NOVOS", newData);
-      console.log("DADOS ANTIGOS", oldData);
-
       await updateTransactionAndBalanceAdapter(
         user.uid,
         transaction.id,

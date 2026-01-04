@@ -4,10 +4,6 @@ import {
   updateTransactionUseCase,
 } from "@infrastructure/di/useCases";
 
-/**
- * Wrapper de compatibilidade para addTransactionAndUpdateBalance
- * Mantém a interface antiga mas usa o use case internamente
- */
 export async function addTransactionAndUpdateBalance(
   userId: string,
   transactionData: {
@@ -34,10 +30,6 @@ export async function addTransactionAndUpdateBalance(
   });
 }
 
-/**
- * Wrapper de compatibilidade para updateTransactionAndBalance
- * Mantém a interface antiga mas usa o use case internamente
- */
 export async function updateTransactionAndBalanceAdapter(
   userId: string,
   transactionId: string,
@@ -64,8 +56,6 @@ export async function updateTransactionAndBalanceAdapter(
     date: Date;
   },
 ): Promise<void> {
-  console.log("ADAPTER");
-  // Converter dados antigos para entidade Transaction
   const oldValor = parseFloat(oldTransactionData.valor);
   const oldDate =
     oldTransactionData.date instanceof Date
@@ -88,7 +78,6 @@ export async function updateTransactionAndBalanceAdapter(
     userId,
   );
 
-  // Converter novos dados
   const newValor = parseFloat(newTransactionData.valor);
 
   await updateTransactionUseCase.execute({

@@ -40,7 +40,7 @@ export function Container({
         >
           {children}
         </KeyboardAvoidingView>
-        <View style={{ height: 70, width: "100%" }} />
+        <View style={{ height: 170, width: "100%" }} />
       </ScrollView>
     );
   }
