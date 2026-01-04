@@ -18,10 +18,13 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const { colors } = useTheme();
-  const { user, loading, cardsLoading, balanceLoading } = useAppStore();
+  const { user, loading } = useAppStore();
   useFirebaseAuthObserver();
   const theme = colorScheme === "dark" ? themeDark : themeLight;
-  const isLoading = loading || (user && (cardsLoading || balanceLoading));
+  
+  // Apenas mostrar loading durante o carregamento inicial da autenticação
+  // Não mostrar quando já há usuário autenticado e está apenas recarregando dados
+  const isLoading = loading;
 
   const onLayoutRootView = useCallback(async () => {
     if (!isLoading) {

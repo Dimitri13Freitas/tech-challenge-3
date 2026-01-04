@@ -24,6 +24,8 @@ export const CardItem = ({ card, ...props }: CardItemProps) => {
         borderRadius: 8,
         marginBottom: 4,
         marginTop: 4,
+        borderWidth: 1,
+        borderColor: colors.elevation.level5,
         backgroundColor: pressed ? colors.elevation.level1 : colors.background,
       })}
     >
