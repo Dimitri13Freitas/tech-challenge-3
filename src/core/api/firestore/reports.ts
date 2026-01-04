@@ -1,5 +1,9 @@
-import { getExpensesByCategoryUseCase } from "@infrastructure/di/useCases";
+// import { getExpensesByCategoryUseCase } from "@infrastructure/di/useCases";
+// import dayjs from "dayjs";
+
+import { db } from "@core/firebase/config";
 import dayjs from "dayjs";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 export const getMonthlySummary = async (
   userId: string,
@@ -52,28 +56,28 @@ export const getMonthlySummary = async (
   }
 };
 
-export interface CategoryExpenseData {
-  name: string;
-  value: number;
-  color: string;
-}
+// export interface CategoryExpenseData {
+//   name: string;
+//   value: number;
+//   color: string;
+// }
 
-// Re-exportar tipo para compatibilidade
-export type { CategoryExpenseData } from "@domain/usecases/reports";
+// // Re-exportar tipo para compatibilidade
+// export type { CategoryExpenseData } from "@domain/usecases/reports";
 
-export const getExpensesByCategory = async (
-  userId: string,
-  year?: number,
-  month?: number,
-): Promise<CategoryExpenseData[]> => {
-  try {
-    return await getExpensesByCategoryUseCase.execute({
-      userId,
-      year,
-      month,
-    });
-  } catch (error) {
-    console.error("Erro ao buscar dados do gráfico:", error);
-    throw new Error("Não foi possível carregar as despesas por categoria.");
-  }
-};
+// export const getExpensesByCategory = async (
+//   userId: string,
+//   year?: number,
+//   month?: number,
+// ): Promise<CategoryExpenseData[]> => {
+//   try {
+//     return await getExpensesByCategoryUseCase.execute({
+//       userId,
+//       year,
+//       month,
+//     });
+//   } catch (error) {
+//     console.error("Erro ao buscar dados do gráfico:", error);
+//     throw new Error("Não foi possível carregar as despesas por categoria.");
+//   }
+// };

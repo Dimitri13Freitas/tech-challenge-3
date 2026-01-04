@@ -1,5 +1,5 @@
-import { Transaction } from "../../entities";
-import { ITransactionRepository } from "../../repositories";
+import { Transaction } from "@domain/entities";
+import { ITransactionRepository } from "@domain/repositories";
 
 export interface UpdateTransactionRequest {
   userId: string;
@@ -19,12 +19,11 @@ export interface UpdateTransactionRequest {
 }
 
 export class UpdateTransactionUseCase {
-  constructor(
-    private transactionRepository: ITransactionRepository,
-  ) {}
+  constructor(private transactionRepository: ITransactionRepository) {}
 
   async execute(request: UpdateTransactionRequest): Promise<void> {
-    const { userId, transactionId, oldTransaction, newTransactionData } = request;
+    const { userId, transactionId, oldTransaction, newTransactionData } =
+      request;
 
     if (!userId || !transactionId) {
       throw new Error("UserId e TransactionId são obrigatórios");
@@ -60,6 +59,7 @@ export class UpdateTransactionUseCase {
 
     // Atualizar transação
     await this.transactionRepository.updateTransaction(transactionId, {
+      userId: userId,
       valor: newTransaction.valor,
       type: newTransaction.type,
       paymentMethod: newTransaction.paymentMethod,
@@ -73,4 +73,3 @@ export class UpdateTransactionUseCase {
     }
   }
 }
-

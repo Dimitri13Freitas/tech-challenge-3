@@ -1,4 +1,4 @@
-import { Category, CategoryType } from "../entities";
+import { Category, CategoryType } from "@domain/entities";
 
 export interface PaginationCursor {
   lastStandardDoc?: unknown;
@@ -26,4 +26,3 @@ export interface ICategoryRepository {
   ): Promise<Category>;
   removeCategory(categoryId: string): Promise<void>;
 }
-

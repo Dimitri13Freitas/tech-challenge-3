@@ -55,16 +55,18 @@ export class CategoryRepository implements ICategoryRepository {
       }
 
       const standardSnapshot = await getDocs(standardQuery);
-      const standardCategories: Category[] = standardSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return Category.create(
-          doc.id,
-          data.name,
-          data.type,
-          data.color || "#9E9E9E",
-          false,
-        );
-      });
+      const standardCategories: Category[] = standardSnapshot.docs.map(
+        (doc) => {
+          const data = doc.data();
+          return Category.create(
+            doc.id,
+            data.name,
+            false,
+            data.type,
+            data.color || "#9E9E9E",
+          );
+        },
+      );
 
       const newLastStandardDoc =
         standardSnapshot.docs[standardSnapshot.docs.length - 1] || null;
@@ -103,9 +105,9 @@ export class CategoryRepository implements ICategoryRepository {
         return Category.create(
           doc.id,
           data.name,
+          true,
           data.type,
           data.color || "#9E9E9E",
-          true,
           userId,
         );
       });
@@ -121,8 +123,7 @@ export class CategoryRepository implements ICategoryRepository {
           lastStandardDoc: newLastStandardDoc,
           lastUserDoc: newLastUserDoc,
         },
-        hasMore:
-          Boolean(newLastStandardDoc) || Boolean(newLastUserDoc),
+        hasMore: Boolean(newLastStandardDoc) || Boolean(newLastUserDoc),
       };
     } catch (error) {
       console.error("Erro ao buscar categorias combinadas: ", error);
@@ -151,7 +152,7 @@ export class CategoryRepository implements ICategoryRepository {
         createdAt: new Date(),
       });
 
-      return Category.create(docRef.id, name, type, color, true, userId);
+      return Category.create(docRef.id, name, true, type, color, userId);
     } catch (error) {
       console.error("Erro ao adicionar categoria customizada: ", error);
       throw new Error(
@@ -166,8 +167,9 @@ export class CategoryRepository implements ICategoryRepository {
       await deleteDoc(categoryRef);
     } catch (error) {
       console.error("Erro ao remover categoria customizada: ", error);
-      throw new Error("Não foi possível remover a categoria do banco de dados.");
+      throw new Error(
+        "Não foi possível remover a categoria do banco de dados.",
+      );
     }
   }
 }
-

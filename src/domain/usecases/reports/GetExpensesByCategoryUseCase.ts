@@ -1,4 +1,7 @@
-import { ICategoryRepository, ITransactionRepository } from "../../repositories";
+import {
+  ICategoryRepository,
+  ITransactionRepository,
+} from "@domain/repositories";
 
 export interface CategoryExpenseData {
   name: string;
@@ -50,11 +53,12 @@ export class GetExpensesByCategoryUseCase {
       targetDate.setMonth(month - 1);
     }
 
-    const transactions = await this.transactionRepository.getTransactionsByMonth(
-      userId,
-      year || targetDate.getFullYear(),
-      month || targetDate.getMonth() + 1,
-    );
+    const transactions =
+      await this.transactionRepository.getTransactionsByMonth(
+        userId,
+        year || targetDate.getFullYear(),
+        month || targetDate.getMonth() + 1,
+      );
 
     // Filtrar apenas despesas e agrupar por categoria
     const categoryMap: Record<string, number> = {};
@@ -92,4 +96,3 @@ export class GetExpensesByCategoryUseCase {
     return result;
   }
 }
-

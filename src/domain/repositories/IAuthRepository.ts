@@ -8,3 +8,4 @@ export interface IAuthRepository {
   onAuthStateChanged(callback: (user: User | null) => void): () => void;
   getCurrentUser(): User | null;
 }
+

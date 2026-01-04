@@ -25,3 +25,4 @@ export function domainCategoriesToLegacy(
 ): LegacyCategory[] {
   return domainCategories.map(domainCategoryToLegacy);
 }
+

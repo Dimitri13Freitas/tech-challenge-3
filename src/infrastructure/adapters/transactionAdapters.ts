@@ -1,8 +1,8 @@
+import { Category, Transaction } from "@domain/entities";
 import {
   addTransactionUseCase,
   updateTransactionUseCase,
 } from "@infrastructure/di/useCases";
-import { Category, Transaction } from "@domain/entities";
 
 /**
  * Wrapper de compatibilidade para addTransactionAndUpdateBalance
@@ -38,7 +38,7 @@ export async function addTransactionAndUpdateBalance(
  * Wrapper de compatibilidade para updateTransactionAndBalance
  * Mantém a interface antiga mas usa o use case internamente
  */
-export async function updateTransactionAndBalance(
+export async function updateTransactionAndBalanceAdapter(
   userId: string,
   transactionId: string,
   oldTransactionData: {
@@ -64,6 +64,7 @@ export async function updateTransactionAndBalance(
     date: Date;
   },
 ): Promise<void> {
+  console.log("ADAPTER");
   // Converter dados antigos para entidade Transaction
   const oldValor = parseFloat(oldTransactionData.valor);
   const oldDate =
@@ -74,8 +75,6 @@ export async function updateTransactionAndBalance(
   const oldCategory = Category.create(
     oldTransactionData.category.id,
     oldTransactionData.category.name,
-    oldTransactionData.type,
-    "#9E9E9E",
     oldTransactionData.category.isCustom,
   );
 
@@ -105,4 +104,3 @@ export async function updateTransactionAndBalance(
     },
   });
 }
-

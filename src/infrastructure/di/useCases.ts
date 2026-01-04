@@ -13,6 +13,8 @@ import {
   FetchCategoriesUseCase,
   ForgotPasswordUseCase,
   GetCardsUseCase,
+  GetExpensesByCategoryUseCase,
+  GetMonthlySummaryUseCase,
   GetTransactionsByMonthUseCase,
   RemoveCategoryUseCase,
   SignInUseCase,
@@ -22,9 +24,7 @@ import {
   UpdateCardUseCase,
   UpdateTransactionUseCase,
 } from "@domain/usecases";
-import { GetExpensesByCategoryUseCase } from "@domain/usecases/reports";
 
-// Instâncias dos repositórios (singleton)
 const categoryRepository = new CategoryRepository();
 const transactionRepository = new TransactionRepository();
 const cardRepository = new CardRepository();
@@ -32,7 +32,6 @@ const paymentMethodRepository = new PaymentMethodRepository();
 const balanceRepository = new BalanceRepository();
 const authRepository = new AuthRepository();
 
-// Instâncias dos use cases
 export const fetchCategoriesUseCase = new FetchCategoriesUseCase(
   categoryRepository,
 );
@@ -48,6 +47,10 @@ export const updateTransactionUseCase = new UpdateTransactionUseCase(
   transactionRepository,
 );
 export const getTransactionsByMonthUseCase = new GetTransactionsByMonthUseCase(
+  transactionRepository,
+);
+
+export const getMonthlySummaryUseCase = new GetMonthlySummaryUseCase(
   transactionRepository,
 );
 

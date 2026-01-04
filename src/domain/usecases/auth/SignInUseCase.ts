@@ -27,3 +27,4 @@ export class SignInUseCase {
     await this.authRepository.signIn(email.trim(), password);
   }
 }
+

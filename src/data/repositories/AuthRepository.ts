@@ -1,16 +1,16 @@
-import { createUserProfileService } from "@core/api";
+import { auth, db } from "@core/firebase/config";
 import { User as DomainUser } from "@domain/entities";
 import { IAuthRepository } from "@domain/repositories";
 import {
   createUserWithEmailAndPassword,
+  User as FirebaseUser,
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
-  User as FirebaseUser,
 } from "firebase/auth";
-import { auth } from "@core/firebase/config";
+import { doc, setDoc } from "firebase/firestore";
 
 export class AuthRepository implements IAuthRepository {
   private currentUser: DomainUser | null = null;
@@ -58,7 +58,14 @@ export class AuthRepository implements IAuthRepository {
       await updateProfile(firebaseUser, { displayName: name });
 
       if (firebaseUser.email) {
-        await createUserProfileService(firebaseUser.uid, firebaseUser.email);
+        // await createUserProfileService(firebaseUser.uid, firebaseUser.email);
+        const userRef = doc(db, "users", firebaseUser.uid);
+
+        await setDoc(userRef, {
+          email: email,
+          totalBalance: 0,
+          createdAt: new Date(),
+        });
       }
 
       const domainUser = this.mapFirebaseUserToDomain(firebaseUser);
@@ -99,9 +106,7 @@ export class AuthRepository implements IAuthRepository {
     }
   }
 
-  onAuthStateChanged(
-    callback: (user: DomainUser | null) => void,
-  ): () => void {
+  onAuthStateChanged(callback: (user: DomainUser | null) => void): () => void {
     return onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
         const domainUser = this.mapFirebaseUserToDomain(firebaseUser);
@@ -127,4 +132,3 @@ export class AuthRepository implements IAuthRepository {
     );
   }
 }
-

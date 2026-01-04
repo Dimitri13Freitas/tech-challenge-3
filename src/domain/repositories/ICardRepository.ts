@@ -1,4 +1,4 @@
-import { Card } from "../entities";
+import { Card } from "@domain/entities";
 
 export interface CardCreateData {
   name: string;
@@ -20,4 +20,3 @@ export interface ICardRepository {
   updateCard(cardId: string, data: CardUpdateData): Promise<void>;
   toggleBlockedStatus(cardId: string, blocked: boolean): Promise<void>;
 }
-

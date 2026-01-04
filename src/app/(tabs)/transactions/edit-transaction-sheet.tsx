@@ -1,4 +1,3 @@
-import { updateTransactionAndBalance } from "@core/api";
 import { BytebankButton, BytebankCard, BytebankText } from "@core/components";
 import { useGlobalBottomSheet, useSnackbar } from "@core/hooks";
 import { staticColors } from "@core/theme/theme";
@@ -6,6 +5,7 @@ import { Transaction } from "@core/types/services";
 import { formatCurrencyBR, transactionTimestampToDate } from "@core/utils";
 import { AntDesign } from "@expo/vector-icons";
 import { CategoryTabs } from "@features/index";
+import { updateTransactionAndBalanceAdapter } from "@infrastructure/adapters";
 import { useAppStore } from "@store/useAppStore";
 import dayjs from "dayjs";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -35,7 +35,7 @@ export const EditTransactionSheet = ({
   const initialCategory = transaction.category;
   const initialPaymentMethod = transaction.paymentMethod;
   const initialDate = transactionTimestampToDate(transaction.date);
-  const initialValue = parseFloat(transaction.valor)
+  const initialValue = parseFloat(`${transaction.valor}`)
     .toFixed(2)
     .replace(".", ",");
   const [type, setType] = useState<"expense" | "income">(initialType);
@@ -64,7 +64,7 @@ export const EditTransactionSheet = ({
     setCategory(transaction.category);
     setPaymentMethod(transaction.paymentMethod);
     setDate(newInitialDate);
-    setValue(parseFloat(transaction.valor).toFixed(2).replace(".", ","));
+    setValue(parseFloat(`${transaction.valor}`).toFixed(2).replace(".", ","));
   }, [transaction.id]);
 
   useEffect(() => {
@@ -90,7 +90,8 @@ export const EditTransactionSheet = ({
   const hasChanges = useMemo(() => {
     const valueChanged =
       value !== initialValue ||
-      parseFloat(value.replace(",", ".")) !== parseFloat(transaction.valor);
+      parseFloat(value.replace(",", ".")) !==
+        parseFloat(`${transaction.valor}`);
     const typeChanged = type !== initialType;
     const categoryChanged =
       category.id !== initialCategory.id ||
@@ -136,7 +137,7 @@ export const EditTransactionSheet = ({
       }
 
       const oldData = {
-        valor: transaction.valor,
+        valor: `${transaction.valor}`,
         type: transaction.type,
         paymentMethod: transaction.paymentMethod,
         category: transaction.category,
@@ -151,7 +152,10 @@ export const EditTransactionSheet = ({
         date: date,
       };
 
-      await updateTransactionAndBalance(
+      console.log("DADOS NOVOS", newData);
+      console.log("DADOS ANTIGOS", oldData);
+
+      await updateTransactionAndBalanceAdapter(
         user.uid,
         transaction.id,
         oldData,

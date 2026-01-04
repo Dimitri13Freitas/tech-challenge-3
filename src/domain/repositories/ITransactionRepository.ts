@@ -1,8 +1,11 @@
-import { Transaction } from "../entities";
+import { Transaction } from "@domain/entities";
 
 export interface ITransactionRepository {
   addTransaction(transaction: Transaction): Promise<Transaction>;
-  updateTransaction(transactionId: string, transaction: Partial<Transaction>): Promise<void>;
+  updateTransaction(
+    transactionId: string,
+    transaction: Partial<Transaction>,
+  ): Promise<void>;
   getTransactionsByMonth(
     userId: string,
     year: number,
@@ -10,4 +13,3 @@ export interface ITransactionRepository {
   ): Promise<Transaction[]>;
   updateBalance(userId: string, delta: number): Promise<void>;
 }
-

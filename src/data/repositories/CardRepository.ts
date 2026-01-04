@@ -12,7 +12,6 @@ import {
   getDocs,
   orderBy,
   query,
-  Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -34,8 +33,8 @@ export class CardRepository implements ICardRepository {
         const createdAt = data.createdAt?.toDate
           ? data.createdAt.toDate()
           : data.createdAt instanceof Date
-            ? data.createdAt
-            : new Date();
+          ? data.createdAt
+          : new Date();
 
         return Card.create(
           doc.id,
@@ -105,10 +104,7 @@ export class CardRepository implements ICardRepository {
     }
   }
 
-  async toggleBlockedStatus(
-    cardId: string,
-    blocked: boolean,
-  ): Promise<void> {
+  async toggleBlockedStatus(cardId: string, blocked: boolean): Promise<void> {
     try {
       const cardsRef = collection(db, "cards");
       const cardRef = doc(cardsRef, cardId);
@@ -122,4 +118,3 @@ export class CardRepository implements ICardRepository {
     }
   }
 }
-

@@ -5,10 +5,9 @@ import {
   MonthNavigator,
 } from "@/src/core/components";
 import {
-  CategoryExpenseData,
-  getExpensesByCategory,
-  getMonthlySummary,
-} from "@core/api";
+  getExpensesByCategoryUseCase,
+  getMonthlySummaryUseCase,
+} from "@infrastructure/di/useCases";
 import { useAppStore } from "@store/useAppStore";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -19,7 +18,7 @@ export default function ReportsScreen() {
   const { colors } = useTheme();
   const { user } = useAppStore();
 
-  const [expensesData, setExpensesData] = useState<CategoryExpenseData[]>([]);
+  const [expensesData, setExpensesData] = useState<any[]>([]);
   const [dataChart, setDataChart] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,13 +27,18 @@ export default function ReportsScreen() {
       setIsLoading(true);
       const year = date.year();
       const month = date.month() + 1;
-      const data = user
-        ? await getExpensesByCategory(user?.uid, year, month)
-        : null;
-      const anotherData = user
-        ? await getMonthlySummary(user?.uid, year, month)
-        : null;
-      console.log(anotherData);
+
+      const data = await getExpensesByCategoryUseCase.execute({
+        userId: user?.uid ?? "",
+        year,
+        month,
+      });
+
+      const anotherData = await getMonthlySummaryUseCase.execute({
+        userId: user?.uid ?? "",
+        year,
+        month,
+      });
 
       setDataChart(anotherData);
       if (data) setExpensesData(data);

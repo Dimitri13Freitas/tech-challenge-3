@@ -4,9 +4,9 @@ export class Category {
   constructor(
     public readonly id: string,
     public readonly name: string,
-    public readonly type: CategoryType,
-    public readonly color: string,
     public readonly isCustom: boolean,
+    public readonly type?: CategoryType,
+    public readonly color?: string,
     public readonly userId?: string,
   ) {
     this.validate();
@@ -15,12 +15,12 @@ export class Category {
   static create(
     id: string,
     name: string,
-    type: CategoryType,
-    color: string,
     isCustom: boolean,
+    type?: CategoryType,
+    color?: string,
     userId?: string,
   ): Category {
-    return new Category(id, name, type, color, isCustom, userId);
+    return new Category(id, name, isCustom, type, color, userId);
   }
 
   private validate(): void {
@@ -30,10 +30,6 @@ export class Category {
 
     if (!this.name || this.name.trim().length === 0) {
       throw new Error("Nome da categoria é obrigatório");
-    }
-
-    if (!["expense", "income"].includes(this.type)) {
-      throw new Error('Tipo de categoria deve ser "expense" ou "income"');
     }
 
     if (this.isCustom && !this.userId) {

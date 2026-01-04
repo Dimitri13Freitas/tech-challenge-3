@@ -13,8 +13,6 @@ export const TransactionItem = ({
   transaction: Transaction;
   onUpdate?: () => void;
 }) => {
-  console.log("AAAAAAAAAAAAAAAAAAA", transaction.date);
-
   const { colors } = useTheme();
   const { open } = useGlobalBottomSheet();
   const isExpense = transaction.type === "expense";
