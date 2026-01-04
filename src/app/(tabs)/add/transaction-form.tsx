@@ -16,7 +16,6 @@ import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
-  Alert,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -37,14 +36,7 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
   const { open } = useGlobalBottomSheet();
   const { showMessage } = useSnackbar();
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm({
+  const { control, handleSubmit, reset, setValue, watch } = useForm({
     defaultValues: {
       value: "",
       type: type,
@@ -129,7 +121,7 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
 
   const onSubmit = async (data: any) => {
     if (!user?.uid) {
-      Alert.alert("Erro", "Usuário não autenticado.");
+      showMessage("Usuário não autenticado.", "warning");
       return;
     }
 
@@ -171,10 +163,10 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
       });
     } catch (error: any) {
       console.error("Erro ao salvar transação:", error);
-      Alert.alert(
-        "Erro",
+      showMessage(
         error?.message ||
           "Não foi possível salvar a transação. Tente novamente.",
+        "warning",
       );
     } finally {
       setIsSubmitting(false);
@@ -480,42 +472,19 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
           render={() => <View style={{ display: "none" }} />}
         />
 
-        {Object.keys(errors).length > 0 && (
-          <View style={{ marginBottom: 16 }}>
-            {errors.value && (
-              <BytebankText
-                style={{ color: colors.error, fontSize: 12, marginBottom: 4 }}
-              >
-                {errors.value.message}
-              </BytebankText>
-            )}
-            {errors.paymentMethod && (
-              <BytebankText
-                style={{ color: colors.error, fontSize: 12, marginBottom: 4 }}
-              >
-                {errors.paymentMethod.message}
-              </BytebankText>
-            )}
-            {errors.category && (
-              <BytebankText
-                style={{ color: colors.error, fontSize: 12, marginBottom: 4 }}
-              >
-                {errors.category.message}
-              </BytebankText>
-            )}
-            {errors.date && (
-              <BytebankText
-                style={{ color: colors.error, fontSize: 12, marginBottom: 4 }}
-              >
-                {errors.date.message}
-              </BytebankText>
-            )}
-          </View>
-        )}
-
         <Button
           mode="contained"
-          onPress={handleSubmit(onSubmit)}
+          onPress={handleSubmit(onSubmit, (validationErrors) => {
+            const firstError = Object.values(validationErrors)[0] as any;
+            if (firstError?.message) {
+              showMessage(firstError.message, "warning");
+            } else {
+              showMessage(
+                "Por favor, preencha todos os campos obrigatórios.",
+                "warning",
+              );
+            }
+          })}
           style={styles.saveBtn}
           buttonColor={colors.primary}
           disabled={isSubmitting}
