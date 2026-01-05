@@ -1,9 +1,7 @@
-// src/store/slices/userSlice.ts
-
 import { signOutUseCase } from "@infrastructure/di/useCases";
+import { AppStore } from "@store/useAppStore";
 import type { User } from "firebase/auth";
 import type { StateCreator } from "zustand";
-import type { AppStore } from "../useAppStore"; // Tipo da Store Única
 
 export interface UserState {
   user: User | null;

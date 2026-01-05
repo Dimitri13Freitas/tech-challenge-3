@@ -145,13 +145,12 @@ export default function TransactionScreen() {
     }
   }, [user?.uid, initialLoad]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Recarrega as transações quando a tela recebe foco
   useFocusEffect(
     useCallback(() => {
       if (user?.uid && initialLoad) {
         loadTransactions(currentMonth);
       }
-    }, [user?.uid, initialLoad, currentMonth, loadTransactions])
+    }, [user?.uid, initialLoad, currentMonth, loadTransactions]),
   );
 
   const renderTransaction = ({ item }: { item: Transaction }) => (
@@ -168,9 +167,7 @@ export default function TransactionScreen() {
         <TransactionFiltersSheet
           filters={filters}
           onFiltersChange={setFilters}
-          onApply={() => {
-            // Os filtros já são aplicados automaticamente via useEffect
-          }}
+          onApply={() => {}}
           onClear={() => {
             setFilters({});
           }}

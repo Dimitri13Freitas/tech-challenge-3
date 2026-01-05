@@ -8,8 +8,6 @@ interface UserData {
 
 export class BalanceRepository implements IBalanceRepository {
   async getBalance(userId: string): Promise<number> {
-    // Esta implementação requer uma chamada síncrona, mas Firebase é assíncrono
-    // Por enquanto, retornamos 0 e usamos subscribeToBalance para valores reais
     return 0;
   }
 
@@ -58,5 +56,3 @@ export class BalanceRepository implements IBalanceRepository {
     return unsubscribe;
   }
 }
-
-

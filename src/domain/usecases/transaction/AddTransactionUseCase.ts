@@ -15,9 +15,7 @@ export interface AddTransactionRequest {
 }
 
 export class AddTransactionUseCase {
-  constructor(
-    private transactionRepository: ITransactionRepository,
-  ) {}
+  constructor(private transactionRepository: ITransactionRepository) {}
 
   async execute(request: AddTransactionRequest): Promise<Transaction> {
     const { userId, valor, type, paymentMethod, category, date } = request;
@@ -34,17 +32,16 @@ export class AddTransactionUseCase {
       throw new Error('Tipo de transação inválido. Use "income" ou "expense".');
     }
 
-    // Criar entidade Category para a transação
     const categoryEntity = {
       id: category.id,
       name: category.name,
       type: type as "expense" | "income",
-      color: "#9E9E9E", // Default color, será substituído pelo repositório
+      color: "#9E9E9E",
       isCustom: category.isCustom,
     };
 
     const transaction = Transaction.create(
-      "", // ID será gerado pelo repositório
+      "",
       valor,
       type,
       paymentMethod,
@@ -57,12 +54,9 @@ export class AddTransactionUseCase {
       transaction,
     );
 
-    // Atualizar saldo
     const balanceDelta = savedTransaction.calculateBalanceDelta();
     await this.transactionRepository.updateBalance(userId, balanceDelta);
 
     return savedTransaction;
   }
 }
-
-

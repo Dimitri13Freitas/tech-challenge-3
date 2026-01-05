@@ -6,15 +6,33 @@ Bem-vindo ao projeto de estudo **Bytebank**, um aplicativo moderno desenvolvido 
 
 ## 🚀 Começando
 
+### Arquitetura 🧱
+
+Este projeto foi estruturado seguindo os princípios da **Clean Architecture**, com foco em:
+
+- Separação clara de responsabilidades
+- Baixo acoplamento entre camadas
+- Alta testabilidade e escalabilidade
+
+A aplicação é dividida em três camadas principais:
+
+- **Presentation**: Telas, componentes e hooks de UI
+- **Domain**: Regras de negócio, entidades e casos de uso
+- **Infrastructure**: Integrações externas (Firebase, APIs, storage)
+
+---
+
 ### Funcionalidades Implementadas ✅
 
 Estas instruções vão te ajudar a rodar o projeto localmente e explorar as funcionalidades que implementamos neste projeto, que são elas:
 
 - Login e cadastro de usuário
-- Adicionar transações (despesa/receita)
-- Visualizar saldo geral
-- Criar e personalizar categorias
-- Cadastro e visualização de cartões
+- Adição/Edição/Remoção e visualização transações (despesa/receita)
+- Criação/Edição/Remoção e visualização de categorias
+- Adição/Remoção/Edição e visualização de cartões
+- Filtros avançados para visulização de transações
+- Visualizar saldo geral 
+- Visualização de gráficos e resumos por competência mensal
 
 ### Pré-requisitos
 

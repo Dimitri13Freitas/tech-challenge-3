@@ -21,9 +21,7 @@ export default function RootLayout() {
   const { user, loading } = useAppStore();
   useFirebaseAuthObserver();
   const theme = colorScheme === "dark" ? themeDark : themeLight;
-  
-  // Apenas mostrar loading durante o carregamento inicial da autenticação
-  // Não mostrar quando já há usuário autenticado e está apenas recarregando dados
+
   const isLoading = loading;
 
   const onLayoutRootView = useCallback(async () => {

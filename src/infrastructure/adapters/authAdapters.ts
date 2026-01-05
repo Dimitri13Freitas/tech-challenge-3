@@ -1,9 +1,8 @@
 import {
-  signInUseCase,
-  signUpUseCase,
-  signOutUseCase,
-  forgotPasswordUseCase,
   authRepository,
+  signInUseCase,
+  signOutUseCase,
+  signUpUseCase,
 } from "@infrastructure/di/useCases";
 
 /**
@@ -24,10 +23,7 @@ export const firebaseAuthService = {
   },
 
   onAuthChanged: (callback: (user: any) => void) => {
-    // Este método será substituído pelo useAuthObserver que usa o repositório diretamente
-    // Mantido apenas para compatibilidade
     return authRepository.onAuthStateChanged((domainUser) => {
-      // Converter DomainUser para formato Firebase User (compatibilidade)
       const firebaseUser = domainUser
         ? ({
             uid: domainUser.uid,
@@ -40,4 +36,3 @@ export const firebaseAuthService = {
     });
   },
 };
-

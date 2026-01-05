@@ -1,7 +1,7 @@
 import { useAppStore } from "@/src/store/useAppStore";
-import { useEffect, useRef } from "react";
-import { authRepository } from "@infrastructure/di/useCases";
 import { User as DomainUser } from "@domain/entities";
+import { authRepository } from "@infrastructure/di/useCases";
+import { useEffect, useRef } from "react";
 
 export const useFirebaseAuthObserver = () => {
   const setUser = useAppStore((state) => state.setUser);
@@ -20,7 +20,6 @@ export const useFirebaseAuthObserver = () => {
         const { setUser, fetchCards, startBalanceListener } =
           functionsRef.current;
 
-        // Converter DomainUser para Firebase User (compatibilidade)
         const firebaseUser = domainUser
           ? ({
               uid: domainUser.uid,

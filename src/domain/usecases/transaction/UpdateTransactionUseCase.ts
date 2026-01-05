@@ -29,10 +29,8 @@ export class UpdateTransactionUseCase {
       throw new Error("UserId e TransactionId são obrigatórios");
     }
 
-    // Calcular delta do saldo
     const oldDelta = oldTransaction.calculateBalanceDelta();
 
-    // Criar nova transação com dados atualizados
     const updatedCategory = newTransactionData.category || {
       id: oldTransaction.category.id,
       name: oldTransaction.category.name,
@@ -57,7 +55,6 @@ export class UpdateTransactionUseCase {
     const newDelta = newTransaction.calculateBalanceDelta();
     const balanceDelta = newDelta - oldDelta;
 
-    // Atualizar transação
     await this.transactionRepository.updateTransaction(transactionId, {
       userId: userId,
       valor: newTransaction.valor,
@@ -67,7 +64,6 @@ export class UpdateTransactionUseCase {
       date: newTransaction.date,
     } as any);
 
-    // Atualizar saldo se houver mudança
     if (balanceDelta !== 0) {
       await this.transactionRepository.updateBalance(userId, balanceDelta);
     }

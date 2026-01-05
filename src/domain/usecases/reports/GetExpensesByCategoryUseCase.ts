@@ -31,22 +31,18 @@ export class GetExpensesByCategoryUseCase {
     }
 
     const DEFAULT_CATEGORY_COLOR = "#9E9E9E";
-
-    // Buscar todas as categorias de despesa
     const categoriesResult = await this.categoryRepository.fetchCategories(
       userId,
       "expense",
       1000,
     );
 
-    // Criar mapa de cores das categorias
     const categoryColorMap: Record<string, string> = {};
     categoriesResult.categories.forEach((category) => {
       categoryColorMap[category.name] =
         category.color || DEFAULT_CATEGORY_COLOR;
     });
 
-    // Buscar transações do mês
     const targetDate = new Date();
     if (year && month) {
       targetDate.setFullYear(year);
@@ -60,7 +56,6 @@ export class GetExpensesByCategoryUseCase {
         month || targetDate.getMonth() + 1,
       );
 
-    // Filtrar apenas despesas e agrupar por categoria
     const categoryMap: Record<string, number> = {};
 
     transactions
@@ -76,7 +71,6 @@ export class GetExpensesByCategoryUseCase {
         }
       });
 
-    // Converter para formato de saída
     const result: CategoryExpenseData[] = Object.keys(categoryMap).map(
       (categoryName) => {
         const totalAmount = categoryMap[categoryName];
@@ -90,7 +84,6 @@ export class GetExpensesByCategoryUseCase {
       },
     );
 
-    // Ordenar por valor (maior para menor)
     result.sort((a, b) => b.value - a.value);
 
     return result;

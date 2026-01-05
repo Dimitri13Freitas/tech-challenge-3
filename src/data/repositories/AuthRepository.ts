@@ -58,7 +58,6 @@ export class AuthRepository implements IAuthRepository {
       await updateProfile(firebaseUser, { displayName: name });
 
       if (firebaseUser.email) {
-        // await createUserProfileService(firebaseUser.uid, firebaseUser.email);
         const userRef = doc(db, "users", firebaseUser.uid);
 
         await setDoc(userRef, {

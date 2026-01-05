@@ -17,7 +17,6 @@
         "foregroundImage": "./assets/images/adaptive-ic.png",
         "backgroundColor": "#ffffff"
       },
-      // "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +32,6 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
-          // "dark": {
-          //   "image": "./assets/splash-icon-dark.png",
-          //   "backgroundColor": "blue"
-          // }
         }
       ],
       "expo-web-browser"
