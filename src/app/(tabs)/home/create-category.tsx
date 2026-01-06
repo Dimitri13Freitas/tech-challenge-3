@@ -297,14 +297,11 @@ export default function CreateCategory() {
         ) : (
           <FlatList
             data={filteredCategories}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) =>
+              `${item.id}-${new Date().getMilliseconds()}`
+            }
             onEndReachedThreshold={0.3}
             contentContainerStyle={{ paddingTop: 20 }}
-            onEndReached={() => {
-              if (!loadingMore && hasMoreCategories) {
-                loadMoreCategories();
-              }
-            }}
             renderItem={({ item, index }) => (
               <FadeInView delay={index * 50}>
                 <BytebankCard>

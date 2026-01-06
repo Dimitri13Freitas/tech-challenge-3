@@ -201,7 +201,7 @@ export default function TransactionScreen() {
         ) : filteredTransactions.length > 0 ? (
           <FlatList
             data={filteredTransactions}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => `${item.id}-${item.date?.toString()}`}
             renderItem={renderTransaction}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
