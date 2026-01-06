@@ -24,5 +24,11 @@ export interface ICategoryRepository {
     color: string,
     type: CategoryType,
   ): Promise<Category>;
+  updateCategory(
+    categoryId: string,
+    name: string,
+    color: string,
+    type: CategoryType,
+  ): Promise<Category>;
   removeCategory(categoryId: string): Promise<void>;
 }

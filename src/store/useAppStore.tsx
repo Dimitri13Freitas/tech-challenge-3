@@ -3,6 +3,10 @@ import { BalanceSlice, createBalanceSlice } from "./slices/balanceSlice";
 import { CardSlice, createCardSlice } from "./slices/cardSlice";
 import { CategorySlice, createCategorySlice } from "./slices/categorySlice";
 import {
+  createMonthlySummarySlice,
+  MonthlySummarySlice,
+} from "./slices/monthlySummarySlice";
+import {
   createPaymentMethodSlice,
   PaymentMethodSlice,
 } from "./slices/paymentMethodSlice";
@@ -12,7 +16,8 @@ export type AppStore = UserSlice &
   CardSlice &
   BalanceSlice &
   CategorySlice &
-  PaymentMethodSlice;
+  PaymentMethodSlice &
+  MonthlySummarySlice;
 
 export const useAppStore = create<AppStore>((...a) => ({
   ...createUserSlice(...a),
@@ -20,4 +25,5 @@ export const useAppStore = create<AppStore>((...a) => ({
   ...createPaymentMethodSlice(...a),
   ...createCardSlice(...a),
   ...createCategorySlice(...a),
+  ...createMonthlySummarySlice(...a),
 }));

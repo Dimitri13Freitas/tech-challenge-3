@@ -14,11 +14,22 @@ import { useAppStore } from "@store/useAppStore";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { ActivityIndicator, FlatList, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Dialog, IconButton, Portal, useTheme } from "react-native-paper";
 
 interface NewCategoryFormData {
   category: string;
+}
+
+interface EditCategoryFormData {
+  name: string;
 }
 
 export default function CreateCategory() {
@@ -33,6 +44,7 @@ export default function CreateCategory() {
     hasMoreCategories,
     fetchCategories,
     addCategory,
+    updateCategory,
     removeCategory,
     setCategoryType,
   } = useAppStore();
@@ -42,6 +54,9 @@ export default function CreateCategory() {
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
   const [categoryToDelete, setCategoryToDelete] =
     React.useState<Category | null>(null);
+  const [categoryToEdit, setCategoryToEdit] = React.useState<Category | null>(
+    null,
+  );
 
   const {
     control,
@@ -49,6 +64,14 @@ export default function CreateCategory() {
     reset,
     formState: { isSubmitting },
   } = useForm<NewCategoryFormData>();
+
+  const {
+    control: editControl,
+    handleSubmit: handleEditSubmit,
+    reset: resetEdit,
+    setValue: setEditValue,
+    formState: { isSubmitting: isEditing },
+  } = useForm<EditCategoryFormData>();
 
   const filteredCategories = React.useMemo(() => {
     return categories.filter((category) => category.type === tab);
@@ -103,6 +126,37 @@ export default function CreateCategory() {
     }
   };
 
+  const handleEditCategory = async (data: EditCategoryFormData) => {
+    if (!categoryToEdit) return;
+    try {
+      await updateCategory(
+        categoryToEdit.id,
+        data.name.trim(),
+        categoryToEdit.color || "#9E9E9E", // Mantém a cor original
+        categoryToEdit.type,
+      );
+      resetEdit();
+      close();
+      setCategoryToEdit(null);
+      showMessage("Categoria atualizada com sucesso!", "success");
+      if (user?.uid) {
+        await fetchCategories(user.uid, undefined, { reset: true });
+      }
+    } catch (error) {
+      alert("Erro ao atualizar categoria. Tente novamente.");
+      console.error("Erro ao atualizar categoria: ", error);
+    }
+  };
+
+  const openEditCategory = (category: Category) => {
+    setCategoryToEdit(category);
+    setEditValue("name", category.name);
+    open({
+      snapPoints: ["70%"],
+      content: EditBottomSheetContent,
+    });
+  };
+
   const handleTabChange = (newTab: "expense" | "income") => {
     setTab(newTab);
     setCategoryType(newTab);
@@ -138,6 +192,59 @@ export default function CreateCategory() {
         {isSubmitting ? "Adicionando..." : "Adicionar"}
       </BytebankButton>
     </>
+  );
+
+  const EditBottomSheetContent = (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <BytebankText
+        variant="titleLarge"
+        style={{ fontWeight: "bold", marginBottom: 15 }}
+      >
+        Editar categoria
+      </BytebankText>
+      {categoryToEdit && (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 15,
+            padding: 12,
+            backgroundColor: colors.surfaceVariant,
+            borderRadius: 8,
+          }}
+        >
+          <View
+            style={{
+              width: 30,
+              height: 30,
+              backgroundColor: categoryToEdit.color || "#9E9E9E",
+              borderRadius: 15,
+            }}
+          />
+          <BytebankText variant="bodyMedium" style={{ color: colors.outline }}>
+            Cor: {categoryToEdit.color || "#9E9E9E"}
+          </BytebankText>
+        </View>
+      )}
+      <BytebankTextInputController
+        control={editControl}
+        name="name"
+        placeholder="Nome da categoria"
+        rules={{ required: "Preencha o campo" }}
+      />
+      <BytebankButton
+        style={{ marginTop: 15 }}
+        onPress={handleEditSubmit(handleEditCategory)}
+        loading={isEditing}
+        disabled={isEditing}
+      >
+        {isEditing ? "Salvando..." : "Salvar"}
+      </BytebankButton>
+    </KeyboardAvoidingView>
   );
 
   return (
@@ -201,44 +308,57 @@ export default function CreateCategory() {
             renderItem={({ item, index }) => (
               <FadeInView delay={index * 50}>
                 <BytebankCard>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
+                  <TouchableOpacity
+                    disabled={!item.isCustom}
+                    onPress={() => {
+                      if (item.isCustom) {
+                        openEditCategory(item);
+                      }
                     }}
+                    activeOpacity={item.isCustom ? 0.7 : 1}
                   >
                     <View
                       style={{
-                        display: "flex",
-                        alignItems: "center",
                         flexDirection: "row",
-                        gap: 16,
+                        alignItems: "center",
+                        justifyContent: "space-between",
                       }}
                     >
                       <View
                         style={{
-                          width: 45,
-                          height: 20,
-                          backgroundColor: item.color,
-                          borderRadius: 16,
+                          display: "flex",
+                          alignItems: "center",
+                          flexDirection: "row",
+                          gap: 16,
                         }}
-                      ></View>
-                      <BytebankText variant="titleMedium">
-                        {item.name}
-                      </BytebankText>
+                      >
+                        <View
+                          style={{
+                            width: 30,
+                            height: 20,
+                            backgroundColor: item.color,
+                            borderRadius: 16,
+                          }}
+                        ></View>
+                        <BytebankText variant="titleMedium">
+                          {item.name}
+                        </BytebankText>
+                      </View>
+                      <View style={{ display: "flex", flexDirection: "row" }}>
+                        <IconButton
+                          style={item.isCustom ? null : { opacity: 0 }}
+                          icon="delete"
+                          disabled={!item.isCustom}
+                          iconColor={colors.error}
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            promptRemoveCategory(item);
+                          }}
+                          size={20}
+                        />
+                      </View>
                     </View>
-                    <View style={{ display: "flex", flexDirection: "row" }}>
-                      <IconButton
-                        style={item.isCustom ? null : { opacity: 0 }}
-                        icon="delete"
-                        disabled={!item.isCustom}
-                        iconColor={colors.error}
-                        size={20}
-                        onPress={() => promptRemoveCategory(item)}
-                      />
-                    </View>
-                  </View>
+                  </TouchableOpacity>
                 </BytebankCard>
               </FadeInView>
             )}

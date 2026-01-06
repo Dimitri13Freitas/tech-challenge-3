@@ -22,6 +22,7 @@ import {
   SignUpUseCase,
   ToggleCardBlockedStatusUseCase,
   UpdateCardUseCase,
+  UpdateCategoryUseCase,
   UpdateTransactionUseCase,
 } from "@domain/usecases";
 
@@ -36,6 +37,9 @@ export const fetchCategoriesUseCase = new FetchCategoriesUseCase(
   categoryRepository,
 );
 export const addCategoryUseCase = new AddCategoryUseCase(categoryRepository);
+export const updateCategoryUseCase = new UpdateCategoryUseCase(
+  categoryRepository,
+);
 export const removeCategoryUseCase = new RemoveCategoryUseCase(
   categoryRepository,
 );

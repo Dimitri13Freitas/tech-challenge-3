@@ -11,12 +11,14 @@ import {
   deleteDoc,
   doc,
   DocumentData,
+  getDoc,
   getDocs,
   limit,
   orderBy,
   query,
   QueryDocumentSnapshot,
   startAfter,
+  updateDoc,
   where,
 } from "firebase/firestore";
 
@@ -157,6 +159,45 @@ export class CategoryRepository implements ICategoryRepository {
       console.error("Erro ao adicionar categoria customizada: ", error);
       throw new Error(
         "Não foi possível adicionar a categoria ao banco de dados.",
+      );
+    }
+  }
+
+  async updateCategory(
+    categoryId: string,
+    name: string,
+    color: string,
+    type: CategoryType,
+  ): Promise<Category> {
+    try {
+      const categoryRef = doc(db, "categories", categoryId);
+      await updateDoc(categoryRef, {
+        name: name,
+        color: color,
+        type: type,
+        updatedAt: new Date(),
+      });
+
+      // Buscar o userId do documento atualizado
+      const categoryDoc = await getDoc(categoryRef);
+      const data = categoryDoc.data();
+
+      if (!data) {
+        throw new Error("Categoria não encontrada após atualização");
+      }
+
+      return Category.create(
+        categoryId,
+        name,
+        true,
+        type,
+        color,
+        data.userId,
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar categoria customizada: ", error);
+      throw new Error(
+        "Não foi possível atualizar a categoria no banco de dados.",
       );
     }
   }

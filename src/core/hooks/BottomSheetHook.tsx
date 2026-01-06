@@ -1,5 +1,6 @@
 import BottomSheet, {
   BottomSheetBackdrop,
+  BottomSheetScrollView,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import React, {
@@ -66,6 +67,7 @@ export const BottomSheetProvider: React.FC<{ children: React.ReactNode }> = ({
       <BottomSheet
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
+        android_keyboardInputMode="adjustResize"
         ref={bottomSheetRef}
         index={-1}
         snapPoints={memoizedSnapPoints}
@@ -84,9 +86,12 @@ export const BottomSheetProvider: React.FC<{ children: React.ReactNode }> = ({
         }}
         handleIndicatorStyle={{ backgroundColor: colors.onSurfaceVariant }}
       >
-        <BottomSheetView style={{ flex: 1, padding: 20 }}>
+        <BottomSheetScrollView
+          contentContainerStyle={{ padding: 20 }}
+          keyboardShouldPersistTaps="handled"
+        >
           {content}
-        </BottomSheetView>
+        </BottomSheetScrollView>
       </BottomSheet>
     </BottomSheetContext.Provider>
   );

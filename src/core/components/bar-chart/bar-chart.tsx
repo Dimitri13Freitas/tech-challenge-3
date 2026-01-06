@@ -7,7 +7,7 @@ import { BytebankCard } from "../ui/card/card";
 import { BytebankText } from "../ui/text/text";
 
 interface BytebankBarChartProps {
-  data: number[];
+  data: number[] | null;
 }
 
 export function BytebankBarChart({ data }: BytebankBarChartProps) {

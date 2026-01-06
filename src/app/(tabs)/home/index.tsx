@@ -6,31 +6,22 @@ import {
 } from "@/src/core/components";
 import { BalanceCard, MyCards } from "@/src/features";
 import { AntDesign } from "@expo/vector-icons";
-import { getMonthlySummaryUseCase } from "@infrastructure/di/useCases";
 import { useAppStore } from "@store/useAppStore";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { View } from "react-native";
 import { TouchableRipple, useTheme } from "react-native-paper";
 
 export default function HomeScreen() {
-  const { user } = useAppStore();
+  const { user, monthlySummary, fetchMonthlySummary } = useAppStore();
   const { colors } = useTheme();
-  const [total, setTotal] = useState<any>();
 
+  // Recarregar dados se necessário (por exemplo, após adicionar uma transação)
   useEffect(() => {
-    async function fetchData() {
-      if (user) {
-        const data = await getMonthlySummaryUseCase.execute({
-          userId: user?.uid ?? "",
-        });
-
-        setTotal(data);
-      }
+    if (user?.uid) {
+      fetchMonthlySummary(user.uid);
     }
-
-    fetchData();
-  }, []);
+  }, [user?.uid, fetchMonthlySummary]);
 
   async function handlePress() {
     router.replace("/(tabs)/home/create-category");
@@ -40,7 +31,7 @@ export default function HomeScreen() {
     <Container scrollable={true}>
       <BalanceCard />
       <MyCards />
-      <BytebankBarChart data={total} />
+      <BytebankBarChart data={monthlySummary} />
       <TouchableRipple onPress={handlePress}>
         <BytebankCard>
           <View

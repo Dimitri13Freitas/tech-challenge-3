@@ -17,7 +17,7 @@ export function BalanceCard() {
   let balanceText = "-----";
 
   if (loading) {
-    balanceText = "Carregando...";
+    balanceText = "";
   } else if (error) {
     balanceText = "Erro ao carregar";
   } else if (balance !== null) {

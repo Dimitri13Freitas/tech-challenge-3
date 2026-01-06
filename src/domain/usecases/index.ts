@@ -9,6 +9,7 @@ export * from "./card/UpdateCardUseCase";
 export * from "./category/AddCategoryUseCase";
 export * from "./category/FetchCategoriesUseCase";
 export * from "./category/RemoveCategoryUseCase";
+export * from "./category/UpdateCategoryUseCase";
 export * from "./reports/GetExpensesByCategoryUseCase";
 export * from "./reports/GetMonthlySummaryUseCase";
 export * from "./transaction/AddTransactionUseCase";

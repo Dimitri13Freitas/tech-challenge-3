@@ -4,6 +4,7 @@ import {
   addCategoryUseCase,
   fetchCategoriesUseCase,
   removeCategoryUseCase,
+  updateCategoryUseCase,
 } from "@infrastructure/di/useCases";
 import { AppStore } from "@store/useAppStore";
 import { StateCreator } from "zustand";
@@ -32,6 +33,12 @@ interface CategoryActions {
   ) => Promise<void>;
   addCategory: (
     userId: string,
+    name: string,
+    color: string,
+    type: CategoryType,
+  ) => Promise<void>;
+  updateCategory: (
+    categoryId: string,
     name: string,
     color: string,
     type: CategoryType,
@@ -141,6 +148,23 @@ export const createCategorySlice: StateCreator<
     try {
       await addCategoryUseCase.execute({ userId, name, color, type });
       await get().fetchCategories(userId, type, { reset: true });
+    } catch (error) {
+      set(() => ({ categoriesError: getErrorMessage(error) }));
+      throw error;
+    }
+  },
+
+  updateCategory: async (categoryId, name, color, type) => {
+    try {
+      await updateCategoryUseCase.execute({ categoryId, name, color, type });
+      // Atualizar a categoria localmente no store
+      set((state) => ({
+        categories: state.categories.map((category) =>
+          category.id === categoryId
+            ? { ...category, name, color, type }
+            : category,
+        ),
+      }));
     } catch (error) {
       set(() => ({ categoriesError: getErrorMessage(error) }));
       throw error;
