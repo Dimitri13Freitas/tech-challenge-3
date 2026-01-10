@@ -1,7 +1,7 @@
 import { Category, Transaction } from "@domain/entities";
 import {
-  addTransactionUseCase,
-  updateTransactionUseCase,
+    addTransactionUseCase,
+    updateTransactionUseCase,
 } from "@infrastructure/di/useCases";
 
 export async function addTransactionAndUpdateBalance(
@@ -66,6 +66,9 @@ export async function updateTransactionAndBalanceAdapter(
     oldTransactionData.category.id,
     oldTransactionData.category.name,
     oldTransactionData.category.isCustom,
+    undefined, // Type
+    undefined, // Color
+    userId, // UserId needed for validation
   );
 
   const oldTransaction = Transaction.create(

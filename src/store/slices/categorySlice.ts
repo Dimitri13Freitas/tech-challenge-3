@@ -1,5 +1,8 @@
 import { Category } from "@core/types/services/categories/categoryTypes";
-import { domainCategoriesToLegacy } from "@infrastructure/adapters/domainAdapters";
+import {
+  domainCategoriesToLegacy,
+  domainCategoryToLegacy,
+} from "@infrastructure/adapters/domainAdapters";
 import {
   addCategoryUseCase,
   fetchCategoriesUseCase,
@@ -146,8 +149,17 @@ export const createCategorySlice: StateCreator<
 
   addCategory: async (userId, name, color, type) => {
     try {
-      await addCategoryUseCase.execute({ userId, name, color, type });
-      await get().fetchCategories(userId, type, { reset: true });
+      const result = await addCategoryUseCase.execute({
+        userId,
+        name,
+        color,
+        type,
+      });
+      const legacyCategory = domainCategoryToLegacy(result);
+
+      set((state) => ({
+        categories: [...state.categories, legacyCategory],
+      }));
     } catch (error) {
       set(() => ({ categoriesError: getErrorMessage(error) }));
       throw error;

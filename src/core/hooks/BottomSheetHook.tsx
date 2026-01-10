@@ -1,21 +1,22 @@
 import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetScrollView,
-  BottomSheetView,
+    BottomSheetBackdrop,
+    BottomSheetScrollView,
+    BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
+    createContext,
+    useCallback,
+    useContext,
+    useMemo,
+    useRef,
+    useState,
 } from "react";
 import { useTheme } from "react-native-paper";
 
 type BottomSheetOptions = {
   content: React.ReactNode;
   snapPoints?: (string | number)[];
+  enableScroll?: boolean;
 };
 
 type BottomSheetContextData = {
@@ -35,13 +36,15 @@ export const BottomSheetProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [content, setContent] = useState<React.ReactNode>(null);
   const [snapPoints, setSnapPoints] = useState<(string | number)[]>(["65%"]);
+  const [enableScroll, setEnableScroll] = useState(true);
 
   const memoizedSnapPoints = useMemo(() => snapPoints, [snapPoints]);
 
-  const open = useCallback(({ content, snapPoints }: BottomSheetOptions) => {
+  const open = useCallback(({ content, snapPoints, enableScroll = true }: BottomSheetOptions) => {
     if (snapPoints) {
       setSnapPoints(snapPoints);
     }
+    setEnableScroll(enableScroll);
     setContent(content);
 
     setTimeout(() => {
@@ -86,13 +89,21 @@ export const BottomSheetProvider: React.FC<{ children: React.ReactNode }> = ({
         }}
         handleIndicatorStyle={{ backgroundColor: colors.onSurfaceVariant }}
       >
-        <BottomSheetScrollView
-          contentContainerStyle={{ padding: 20 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {content}
-        </BottomSheetScrollView>
+
+        {enableScroll ? (
+          <BottomSheetScrollView
+            contentContainerStyle={{ padding: 20 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            {content}
+          </BottomSheetScrollView>
+        ) : (
+          <BottomSheetView style={{ padding: 20, flex: 1 }}>
+            {content}
+          </BottomSheetView>
+        )}
       </BottomSheet>
+
     </BottomSheetContext.Provider>
   );
 };

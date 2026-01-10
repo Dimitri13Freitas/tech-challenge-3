@@ -9,7 +9,6 @@ import {
 import { useGlobalBottomSheet, useSnackbar } from "@/src/core/hooks";
 import { CategoryTabs } from "@/src/features";
 import { Category } from "@core/types/services";
-import { generateRandomColor } from "@core/utils/randomColor";
 import { useAppStore } from "@store/useAppStore";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
@@ -54,9 +53,6 @@ export default function CreateCategory() {
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
   const [categoryToDelete, setCategoryToDelete] =
     React.useState<Category | null>(null);
-  const [categoryToEdit, setCategoryToEdit] = React.useState<Category | null>(
-    null,
-  );
 
   const {
     control,
@@ -64,14 +60,6 @@ export default function CreateCategory() {
     reset,
     formState: { isSubmitting },
   } = useForm<NewCategoryFormData>();
-
-  const {
-    control: editControl,
-    handleSubmit: handleEditSubmit,
-    reset: resetEdit,
-    setValue: setEditValue,
-    formState: { isSubmitting: isEditing },
-  } = useForm<EditCategoryFormData>();
 
   const filteredCategories = React.useMemo(() => {
     return categories.filter((category) => category.type === tab);
@@ -95,18 +83,6 @@ export default function CreateCategory() {
     }
   };
 
-  const loadMoreCategories = async () => {
-    if (!user?.uid || loadingMore || !hasMoreCategories) return;
-    try {
-      setLoadingMore(true);
-      await fetchCategories(user.uid, undefined, { reset: false });
-    } catch (error) {
-      console.error("Erro ao carregar mais categorias: ", error);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
-
   const handleAddCategory = async (data: NewCategoryFormData) => {
     if (!user?.uid) return;
     try {
@@ -119,41 +95,15 @@ export default function CreateCategory() {
       reset();
       close();
       showMessage("Categoria adicionada com sucesso!", "success");
-      await fetchCategories(user.uid, undefined, { reset: true });
     } catch (error) {
       alert("Erro ao adicionar categoria. Tente novamente.");
       console.error("Erro ao adicionar categoria customizada: ", error);
     }
   };
-
-  const handleEditCategory = async (data: EditCategoryFormData) => {
-    if (!categoryToEdit) return;
-    try {
-      await updateCategory(
-        categoryToEdit.id,
-        data.name.trim(),
-        categoryToEdit.color || "#9E9E9E", // Mantém a cor original
-        categoryToEdit.type,
-      );
-      resetEdit();
-      close();
-      setCategoryToEdit(null);
-      showMessage("Categoria atualizada com sucesso!", "success");
-      if (user?.uid) {
-        await fetchCategories(user.uid, undefined, { reset: true });
-      }
-    } catch (error) {
-      alert("Erro ao atualizar categoria. Tente novamente.");
-      console.error("Erro ao atualizar categoria: ", error);
-    }
-  };
-
   const openEditCategory = (category: Category) => {
-    setCategoryToEdit(category);
-    setEditValue("name", category.name);
     open({
       snapPoints: ["70%"],
-      content: EditBottomSheetContent,
+      content: <EditCategoryContent category={category} key={category.id} />,
     });
   };
 
@@ -192,59 +142,6 @@ export default function CreateCategory() {
         {isSubmitting ? "Adicionando..." : "Adicionar"}
       </BytebankButton>
     </>
-  );
-
-  const EditBottomSheetContent = (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-    >
-      <BytebankText
-        variant="titleLarge"
-        style={{ fontWeight: "bold", marginBottom: 15 }}
-      >
-        Editar categoria
-      </BytebankText>
-      {categoryToEdit && (
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 12,
-            marginBottom: 15,
-            padding: 12,
-            backgroundColor: colors.surfaceVariant,
-            borderRadius: 8,
-          }}
-        >
-          <View
-            style={{
-              width: 30,
-              height: 30,
-              backgroundColor: categoryToEdit.color || "#9E9E9E",
-              borderRadius: 15,
-            }}
-          />
-          <BytebankText variant="bodyMedium" style={{ color: colors.outline }}>
-            Cor: {categoryToEdit.color || "#9E9E9E"}
-          </BytebankText>
-        </View>
-      )}
-      <BytebankTextInputController
-        control={editControl}
-        name="name"
-        placeholder="Nome da categoria"
-        rules={{ required: "Preencha o campo" }}
-      />
-      <BytebankButton
-        style={{ marginTop: 15 }}
-        onPress={handleEditSubmit(handleEditCategory)}
-        loading={isEditing}
-        disabled={isEditing}
-      >
-        {isEditing ? "Salvando..." : "Salvar"}
-      </BytebankButton>
-    </KeyboardAvoidingView>
   );
 
   return (
@@ -406,5 +303,96 @@ export default function CreateCategory() {
         </Dialog>
       </Portal>
     </>
+  );
+}
+
+function generateRandomColor() {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+function EditCategoryContent({ category }: { category: Category }) {
+  const { updateCategory } = useAppStore();
+  const { close } = useGlobalBottomSheet();
+  const { showMessage } = useSnackbar();
+  const { colors } = useTheme();
+
+  const {
+    control: editControl,
+    handleSubmit: handleEditSubmit,
+    formState: { isSubmitting: isSubmittingEdit },
+  } = useForm<EditCategoryFormData>({
+    defaultValues: { name: category.name },
+  });
+
+  const handleEditCategory = async (data: EditCategoryFormData) => {
+    try {
+      await updateCategory(
+        category.id,
+        data.name.trim(),
+        category.color || "#9E9E9E",
+        category.type,
+      );
+      close();
+      showMessage("Categoria atualizada com sucesso!", "success");
+    } catch (error) {
+      alert("Erro ao atualizar categoria. Tente novamente.");
+      console.error("Erro ao atualizar categoria: ", error);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <BytebankText
+        variant="titleLarge"
+        style={{ fontWeight: "bold", marginBottom: 15 }}
+      >
+        Editar categoria
+      </BytebankText>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 15,
+          padding: 12,
+          backgroundColor: colors.surfaceVariant,
+          borderRadius: 8,
+        }}
+      >
+        <View
+          style={{
+            width: 30,
+            height: 30,
+            backgroundColor: category.color || "#9E9E9E",
+            borderRadius: 15,
+          }}
+        />
+        <BytebankText variant="bodyMedium" style={{ color: colors.outline }}>
+          Cor: {category.color || "#9E9E9E"}
+        </BytebankText>
+      </View>
+      <BytebankTextInputController
+        control={editControl}
+        name="name"
+        placeholder="Nome da categoria"
+        rules={{ required: "Preencha o campo" }}
+      />
+      <BytebankButton
+        style={{ marginTop: 15 }}
+        onPress={handleEditSubmit(handleEditCategory)}
+        loading={isSubmittingEdit}
+        disabled={isSubmittingEdit}
+      >
+        {isSubmittingEdit ? "Salvando..." : "Salvar"}
+      </BytebankButton>
+    </KeyboardAvoidingView>
   );
 }

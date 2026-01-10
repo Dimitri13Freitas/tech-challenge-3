@@ -12,6 +12,7 @@ import {
   paymentMethodRepository,
 } from "@infrastructure/di/useCases";
 import { useAppStore } from "@store/useAppStore";
+import { useFocusEffect } from "expo-router";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -81,43 +82,45 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
 
   const inputRef = React.useRef<any>(null);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      if (!user?.uid) return;
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchData = async () => {
+        if (!user?.uid) return;
 
-      try {
-        setLoading(true);
-        setError(null);
+        try {
+          setLoading(true);
+          setError(null);
 
-        const categoryType = type === "expense" ? "expense" : "income";
-        const categoriesResult = await fetchCategoriesUseCase.execute({
-          userId: user.uid,
-          type: categoryType,
-          pageSize: 1000,
-        });
-        const legacyCategories = domainCategoriesToLegacy(
-          categoriesResult.categories,
-        );
-        setCategories(legacyCategories);
+          const categoryType = type === "expense" ? "expense" : "income";
+          const categoriesResult = await fetchCategoriesUseCase.execute({
+            userId: user.uid,
+            type: categoryType,
+            pageSize: 1000,
+          });
+          const legacyCategories = domainCategoriesToLegacy(
+            categoriesResult.categories,
+          );
+          setCategories(legacyCategories);
 
-        const domainMethods =
-          await paymentMethodRepository.getPaymentMethodsByType(categoryType);
-        const legacyMethods: PaymentMethod[] = domainMethods.map((method) => ({
-          id: method.id,
-          name: method.name,
-          type: method.type,
-        }));
-        setPaymentMethods(legacyMethods);
-      } catch (err) {
-        console.error("Erro ao buscar dados:", err);
-        setError("Erro ao carregar dados. Tente novamente.");
-      } finally {
-        setLoading(false);
-      }
-    };
+          const domainMethods =
+            await paymentMethodRepository.getPaymentMethodsByType(categoryType);
+          const legacyMethods: PaymentMethod[] = domainMethods.map((method) => ({
+            id: method.id,
+            name: method.name,
+            type: method.type,
+          }));
+          setPaymentMethods(legacyMethods);
+        } catch (err) {
+          console.error("Erro ao buscar dados:", err);
+          setError("Erro ao carregar dados. Tente novamente.");
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchData();
-  }, [user?.uid, type]);
+      fetchData();
+    }, [user?.uid, type])
+  );
 
   const onSubmit = async (data: any) => {
     if (!user?.uid) {
@@ -176,6 +179,7 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
   const handleOpenCategorySelector = () => {
     open({
       snapPoints: ["70%"],
+      enableScroll: false,
       content: (
         <CategorySelectorSheet
           categories={categories}
@@ -195,6 +199,7 @@ export function TransactionForm({ type }: { type: "expense" | "income" }) {
   const handleOpenPaymentMethodSelector = () => {
     open({
       snapPoints: ["70%"],
+      enableScroll: false,
       content: (
         <PaymentMethodSelectorSheet
           paymentMethods={paymentMethods}

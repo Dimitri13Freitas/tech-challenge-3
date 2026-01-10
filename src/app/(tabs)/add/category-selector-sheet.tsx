@@ -1,8 +1,9 @@
 import { BytebankText } from "@core/components";
 import { useGlobalBottomSheet } from "@core/hooks";
 import { Category } from "@core/types/services/categories/categoryTypes";
+import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import React from "react";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
 interface CategorySelectorSheetProps {
@@ -32,10 +33,10 @@ export const CategorySelectorSheet = ({
       >
         Selecione uma categoria:
       </BytebankText>
-      <FlatList
+      <BottomSheetFlatList
         data={categories}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item }: { item: Category }) => (
           <TouchableOpacity
             onPress={() => handleSelect(item)}
             style={{

@@ -1,8 +1,9 @@
 import { BytebankText } from "@core/components";
 import { useGlobalBottomSheet } from "@core/hooks";
 import { PaymentMethod } from "@core/types/services/paymentMethods/paymentMethodsTypes";
+import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import React from "react";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
 interface PaymentMethodSelectorSheetProps {
@@ -32,10 +33,10 @@ export const PaymentMethodSelectorSheet = ({
       >
         Selecione um método de pagamento:
       </BytebankText>
-      <FlatList
+      <BottomSheetFlatList
         data={paymentMethods}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item }: { item: PaymentMethod }) => (
           <TouchableOpacity
             onPress={() => handleSelect(item.name)}
             style={{
